@@ -1,0 +1,9 @@
+# cache
+__pycache__
+.pytest_cache
+
+# python virtualenv
+venv
+
+# vscode files
+.vscode
