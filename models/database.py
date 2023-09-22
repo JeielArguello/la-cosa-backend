@@ -30,8 +30,8 @@ class Carta(db.Entity):
     descripcion = Optional(str)
 
 
-# Conecta a la base de datos SQLite en el archivo 'database.sqlite'
-db.bind(provider='sqlite', filename='database.sqlite', create_db=True)
-
-# Genera las tablas en la base de datos
-db.generate_mapping(create_tables=True)
+def create_db():
+    # Conecta a la base de datos SQLite en el archivo 'database.sqlite'
+    db.bind(provider='sqlite', filename='database.sqlite', create_db=True)
+    # Genera las tablas en la base de datos
+    db.generate_mapping(create_tables=True)

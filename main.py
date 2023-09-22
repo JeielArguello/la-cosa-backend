@@ -1,15 +1,16 @@
 from fastapi import FastAPI
-from database import *
-from init_db import initialize_database
+from models.database import create_db
+from models.card_init import create_cards
 
 app = FastAPI()
 
 
 @app.on_event("startup")
 def startup_db():
-    initialize_database()
+    create_db()
+    create_cards()
 
 
 @app.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {"message": "Hello there!"}

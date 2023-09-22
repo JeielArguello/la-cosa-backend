@@ -1,12 +1,9 @@
-from database import Database, Carta
+from .database import Carta
 from pony.orm import db_session
-
-db = Database()
 
 
 @db_session
-def initialize_database():
-    # with db.db_session:
+def create_cards():
     if not Carta.exists():
         carta1 = Carta(nombre="La Cosa", numero_jugadores=1,
                        tipo_dorso=0, tipo_de_accion='La cosa', descripcion='')
@@ -204,74 +201,53 @@ def initialize_database():
                         tipo_dorso=0, tipo_de_accion='Obstaculo', descripcion='')
 
         carta89 = Carta(nombre="Cuerdas podridas", numero_jugadores=6,
-                        tipo_dorso=0, tipo_de_accion='Panico', descripcion='')
+                        tipo_dorso=1, tipo_de_accion='Panico', descripcion='')
         carta90 = Carta(nombre="Cuerdas podridas", numero_jugadores=9,
-                        tipo_dorso=0, tipo_de_accion='Panico', descripcion='')
+                        tipo_dorso=1, tipo_de_accion='Panico', descripcion='')
 
         carta91 = Carta(nombre="Uno dos", numero_jugadores=5,
-                        tipo_dorso=0, tipo_de_accion='Panico', descripcion='')
+                        tipo_dorso=1, tipo_de_accion='Panico', descripcion='')
         carta92 = Carta(nombre="Uno dos", numero_jugadores=9,
-                        tipo_dorso=0, tipo_de_accion='Panico', descripcion='')
+                        tipo_dorso=1, tipo_de_accion='Panico', descripcion='')
 
         carta93 = Carta(nombre="Tres cuatro", numero_jugadores=4,
-                        tipo_dorso=0, tipo_de_accion='Panico', descripcion='')
+                        tipo_dorso=1, tipo_de_accion='Panico', descripcion='')
         carta94 = Carta(nombre="Tres cuatro", numero_jugadores=9,
-                        tipo_dorso=0, tipo_de_accion='Panico', descripcion='')
+                        tipo_dorso=1, tipo_de_accion='Panico', descripcion='')
 
         carta95 = Carta(nombre="Es aqui la fiesta", numero_jugadores=5,
-                        tipo_dorso=0, tipo_de_accion='Panico', descripcion='')
+                        tipo_dorso=1, tipo_de_accion='Panico', descripcion='')
         carta96 = Carta(nombre="Es aqui la fiesta", numero_jugadores=9,
-                        tipo_dorso=0, tipo_de_accion='Panico', descripcion='')
+                        tipo_dorso=1, tipo_de_accion='Panico', descripcion='')
 
         carta97 = Carta(nombre="Sal de aqui", numero_jugadores=5,
-                        tipo_dorso=0, tipo_de_accion='Panico', descripcion='')
+                        tipo_dorso=1, tipo_de_accion='Panico', descripcion='')
 
         carta98 = Carta(nombre="Olvidadizo", numero_jugadores=4,
-                        tipo_dorso=0, tipo_de_accion='Panico', descripcion='')
+                        tipo_dorso=1, tipo_de_accion='Panico', descripcion='')
 
         carta99 = Carta(nombre="Vuelta y vuelta", numero_jugadores=4,
-                        tipo_dorso=0, tipo_de_accion='Panico', descripcion='')
+                        tipo_dorso=1, tipo_de_accion='Panico', descripcion='')
         carta100 = Carta(nombre="Vuelta y vuelta", numero_jugadores=9,
-                         tipo_dorso=0, tipo_de_accion='Panico', descripcion='')
+                         tipo_dorso=1, tipo_de_accion='Panico', descripcion='')
 
         carta101 = Carta(nombre="No podemos ser amigos", numero_jugadores=7,
-                         tipo_dorso=0, tipo_de_accion='Panico', descripcion='')
+                         tipo_dorso=1, tipo_de_accion='Panico', descripcion='')
         carta102 = Carta(nombre="No podemos ser amigos", numero_jugadores=9,
-                         tipo_dorso=0, tipo_de_accion='Panico', descripcion='')
+                         tipo_dorso=1, tipo_de_accion='Panico', descripcion='')
 
         carta103 = Carta(nombre="Cita a ciegas", numero_jugadores=4,
-                         tipo_dorso=0, tipo_de_accion='Panico', descripcion='')
+                         tipo_dorso=1, tipo_de_accion='Panico', descripcion='')
         carta104 = Carta(nombre="Cita a ciegas", numero_jugadores=9,
-                         tipo_dorso=0, tipo_de_accion='Panico', descripcion='')
+                         tipo_dorso=1, tipo_de_accion='Panico', descripcion='')
 
         carta105 = Carta(nombre="Ups", numero_jugadores=10,
-                         tipo_dorso=0, tipo_de_accion='Panico', descripcion='')
+                         tipo_dorso=1, tipo_de_accion='Panico', descripcion='')
 
         carta106 = Carta(nombre="Que quede entre nosotros", numero_jugadores=7,
-                         tipo_dorso=0, tipo_de_accion='Panico', descripcion='')
+                         tipo_dorso=1, tipo_de_accion='Panico', descripcion='')
         carta107 = Carta(nombre="Que quede entre nosotros", numero_jugadores=9,
-                         tipo_dorso=0, tipo_de_accion='Panico', descripcion='')
+                         tipo_dorso=1, tipo_de_accion='Panico', descripcion='')
 
         carta108 = Carta(nombre="Revelaciones", numero_jugadores=8,
-                         tipo_dorso=0, tipo_de_accion='Panico', descripcion='')
-
-    # Crea las tablas en la base de datos (si aún no existen)
-    # db.create_tables()
-    # Crea algunas cartas predefinidas
-    # Convenio:
-    #   tipo dorso 0=Verde y 1=Rosa
-    #   tipo de accion = [La cosa, Infectado, Accion, Defensa, Obstaculo, Panico]
-    #
-    #   Cartas = [La cosa,
-    #
-    #       Infectado,Lanzallamas,Analisis,
-    #       Hacha,Sospecha,Determinacion,Whisky,Cambio de lugar,
-    #       Vigila tus espaldas, Seduccion, Mas vale que corras,
-    #
-    #       Aterrador,Aqui estoy bien, No gracias, Fallaste, Nada de barbacoas
-    #
-    #       Cuarentena,Puerta Atrancada
-    #
-    #       Revelaciones, Cuerdas podridas, Sal de aqui, Olvidadizo, Uno dos,
-    #       Tres cuatro, Es aqui la fiesta, Que quede entre nosotros,
-    #       Vuelta y vuelta, No podemos ser amigos, Cita a ciegas, Ups]
+                         tipo_dorso=1, tipo_de_accion='Panico', descripcion='')
