@@ -13,6 +13,7 @@ class Jugador(db.Entity):
 
 class Partida(db.Entity):
     id = PrimaryKey(int, auto=True)
+    nombre = Required(str)
     iniciado = Required(bool)
     id_jugador_creador = Required(int)
     minimo_jugadores = Required(int)
