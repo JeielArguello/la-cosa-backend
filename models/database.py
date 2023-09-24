@@ -13,6 +13,7 @@ class Jugador(db.Entity):
 
 class Partida(db.Entity):
     id = PrimaryKey(int, auto=True)
+    nombre = Required(str)
     iniciado = Required(bool)
     id_jugador_creador = Required(int)
     minimo_jugadores = Required(int)
@@ -30,8 +31,8 @@ class Carta(db.Entity):
     descripcion = Optional(str)
 
 
-# Conecta a la base de datos SQLite en el archivo 'database.sqlite'
-db.bind(provider='sqlite', filename='database.sqlite', create_db=True)
-
-# Genera las tablas en la base de datos
-db.generate_mapping(create_tables=True)
+def create_db():
+    # Conecta a la base de datos SQLite en el archivo 'database.sqlite'
+    db.bind(provider='sqlite', filename='database.sqlite', create_db=True)
+    # Genera las tablas en la base de datos
+    db.generate_mapping(create_tables=True)
