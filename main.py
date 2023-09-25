@@ -4,8 +4,8 @@ from models.card_init import create_cards
 from fastapi.middleware.cors import CORSMiddleware
 from endpoints.match import router 
 from models.match_models import all_matchs
-
-
+from endpoints.user import *
+from endpoints.user import router as user_router
 
 app = FastAPI()
 
@@ -15,6 +15,7 @@ app.include_router(router)
 def startup_db():
     create_db()
     create_cards()
+
 
 
 @app.get("/")
@@ -48,3 +49,5 @@ app.add_middleware(
     allow_headers=["*"],
 )    
     
+
+app.include_router(user_router, prefix = "/user")
