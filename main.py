@@ -2,14 +2,15 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from models.database import create_db
 from models.card_init import create_cards
 from fastapi.middleware.cors import CORSMiddleware
-from endpoints.match import router 
+from endpoints.match import router as router_match
 from models.match_models import all_matchs
 from endpoints.user import *
 from endpoints.user import router as user_router
 
 app = FastAPI()
 
-app.include_router(router)
+app.include_router(router_match)
+app.include_router(user_router, prefix = "/user")
 
 @app.on_event("startup")
 def startup_db():
@@ -49,5 +50,3 @@ app.add_middleware(
     allow_headers=["*"],
 )    
     
-
-app.include_router(user_router, prefix = "/user")
