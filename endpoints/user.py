@@ -1,7 +1,7 @@
 from fastapi import FastAPI, status, Depends, APIRouter
 from fastapi.exceptions import HTTPException
 from pony.orm import Database
-from models.database_utils import *
+from models.crud import *
 
 
 router = APIRouter()

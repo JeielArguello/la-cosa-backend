@@ -1,18 +1,14 @@
-from fastapi import FastAPI, status, Depends, APIRouter
-from fastapi.exceptions import HTTPException
-from pony.orm import Database
-from models.database_utils import *
+from models.database import*
+#from database import Database, db_session, db
+from typing import Dict
 
 
-router = APIRouter()
+def get_db() -> Database:
+    return db
 
-@router.post("/user/create", status_code = status.HTTP_201_CREATED)
-async def create_user(usuario: str, db: Database = Depends(get_db)):
-    try:
-        resultado = db_create_user(db, usuario)
-        return resultado
-    except Exception as e:
-        raise HTTPException(
-            status_code = status.HTTP_400_BAD_REQUEST, 
-            detail="Error al crear usuario."
-        )
+@db_session
+def db_create_user(db: Database, nombre: str) -> Dict[str, int]:
+    user_in_db = db.Jugador(nombre = nombre)
+    user_in_db.flush()
+    result = {"user_name": user_in_db.nombre, "id": user_in_db.id}
+    return result
