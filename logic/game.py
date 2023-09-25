@@ -1,4 +1,4 @@
-from .player import JugadorPartida
+from player import JugadorPartida
 from models.crud import read_carta
 
 
