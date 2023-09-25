@@ -7,3 +7,7 @@ venv
 
 # vscode files
 .vscode
+
+# sqlite
+.sqlite
+*.sqlite
