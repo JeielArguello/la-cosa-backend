@@ -1,4 +1,4 @@
-from .player import *
+from .player import JugadorPartida
 from models.crud import read_carta
 
 
@@ -23,10 +23,13 @@ class Juego:
             self.jugadores_en_partida.append(jugador)
 
         # Estados iniciales
+        # otorgar posiciones
+        for jugador in self.jugadores_id:
+            self.posiciones.append(self.jugadores_id[jugador])
+            self.posiciones.append(0)
         # crear mazo
         # elegir la cosa
         # repartir cartas
-        # otorgar posiciones
 
     def jugar_turno(self):
         for jugador in self.jugadores_en_partida:
@@ -34,10 +37,10 @@ class Juego:
                 # robar carta
                 carta_id = self.mazo.pop
                 carta = read_carta(carta_id)
+                # chequear superinfeccion
                 if carta.tipo_de_accion == "Panico":
                     # aplicar panico
-                    # descartar
-                    # intercambiar
+                    # descartarla
                     pass
                 else:
                     jugador.agregar_carta(carta_id)
@@ -49,13 +52,13 @@ class Juego:
                     # # descartar
                     # jugador.descartar_carta(carta_id_in)
                     # self.mazo_descarte.append(carta_id_in)
-                    # # intercambiar
-                    # intercambiar_cartas(jugador_en_turno: int, jugador_fuera_turno: int):
-                    #     # await jugador turno
-                    #     # select carta
-                    #     # await jugador fuera turno
-                    #     # select carta
-                    #     # swap ()
+                # # intercambiar
+                # intercambiar_cartas(jugador_en_turno: int, jugador_fuera_turno: int):
+                #     # await jugador turno
+                #     # select carta
+                #     # await jugador fuera turno
+                #     # select carta
+                #     # swap ()
                 print(f"turno de {jugador.id}")
                 jugador.cambiar_turno()
 
@@ -74,6 +77,9 @@ class Juego:
             self.manejar_turnos()
             self.jugar_turno()
             # chequear ganador
+            # la cosa muerta?
+            # todos infectado?
+            #
             # if hay_ganador:
             #     break
         # notificar resultados
