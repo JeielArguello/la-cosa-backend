@@ -1,12 +1,12 @@
 
-from typing import List
+from typing import List, Optional
 from fastapi import WebSocket
 from pydantic import BaseModel
 
 class CreateMatchRequest(BaseModel):
     id_usuario_creador: int
     id_name : str
-    contraseña : str
+    contraseña : Optional[str] = None
     num_max_jugadores : int
     num_min_jugadores : int
 
