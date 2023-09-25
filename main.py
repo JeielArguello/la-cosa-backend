@@ -1,7 +1,6 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from models.database import create_db
 from models.card_init import create_cards
-from models.crud import get_match
 from fastapi.middleware.cors import CORSMiddleware
 from endpoints.match import router 
 from models.match_models import all_matchs
