@@ -1,14 +1,14 @@
 
 from typing import List, Optional
-from fastapi import WebSocket
+from fastapi import Form, WebSocket
 from pydantic import BaseModel
 
 class CreateMatchRequest(BaseModel):
-    id_usuario_creador: int
-    id_name : str
+    id_usuario_creador: int 
+    id_name : str 
     contraseña : Optional[str] = None
-    num_max_jugadores : int
-    num_min_jugadores : int
+    num_max_jugadores : int 
+    num_min_jugadores : int 
 
 class JoinMatchRequest(BaseModel):
     match_id: int
@@ -18,9 +18,9 @@ class Match:
     id_Match: int 
     
     def __init__(self,match:CreateMatchRequest) -> None:
-        self.name=match.id_name
+        self.name=match["id_name"]
         self.ws_players : List[WebSocket] = []
-        self.owner = match.id_usuario_creador
+        self.owner = match["id_usuario_creador"]
         self.player_amount: int = 1
         self.is_start: bool = False
 

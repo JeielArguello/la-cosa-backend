@@ -1,7 +1,8 @@
 from pony.orm import *
 from .database import * 
-from .match_models import CreateMatchRequest
-
+from .database_utils import *
+from models.database import*
+from typing import Dict
 
 
 """
@@ -9,22 +10,31 @@ MATCH
 """
 
 @db_session
-def init_match(db:Database,match_:CreateMatchRequest):
+def init_match(db: Database, match_):
     with db_session:
-        new_match = db.Partida(nombre = match_.id_name,
-                            iniciado = False,
-                            id_jugador_creador= match_.id_usuario_creador,
-                            minimo_jugadores = match_.num_min_jugadores,
-                            maximo_jugadores = match_.num_max_jugadores,
-                            contrasena = match_.contraseña,
-                            jugadores = [])
-        db.Partida.select().show()
-        """ for p in Ju
-        new_match.jugadores.add(player) """
+        # Crear un conjunto vacío de Jugadores
+       
+
+        # Crear la nueva partida con el conjunto de jugadores
+        new_match = db.Partida(
+            nombre=match_["id_name"],
+            iniciado=False,
+            id_jugador_creador=match_["id_usuario_creador"],
+            minimo_jugadores=match_["num_min_jugadores"],
+            maximo_jugadores=match_["num_max_jugadores"],
+            contrasena=match_["contraseña"],
+            jugadores=[]  # Asignar el conjunto de jugadores
+        )
+
+        Partida.select().show()
+        
+        if get_exist_user(match_["id_usuario_creador"]):
+            user_creator = Jugador.get(id=match_["id_usuario_creador"])
+            if user_creator is not None:
+                new_match.jugadores.add(user_creator)
+                db.Jugador.select().show()
     return new_match.id
 
-from models.database import*
-from typing import Dict
 
 
 def get_db() -> Database:
