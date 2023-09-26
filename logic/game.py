@@ -1,6 +1,6 @@
 from player import JugadorPartida
 from models.crud import read_carta
-
+from models.database_utils import construir_mazo
 
 class Juego:
     def __init__(self, partida_id: int, cantidad_jugadores: int, creador: int,
@@ -28,6 +28,7 @@ class Juego:
             self.posiciones.append(self.jugadores_id[jugador])
             self.posiciones.append(0)
         # crear mazo
+        self.mazo = construir_mazo(self.cantidad_jugadores)
         # elegir la cosa
         # repartir cartas
 

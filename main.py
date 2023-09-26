@@ -1,11 +1,14 @@
-from fastapi import FastAPI, status
-from models.database import create_db
-from models.card_init import create_cards
-from pony.orm import db_session, select
-from models.database import Carta
-from fastapi.middleware.cors import CORSMiddleware
-from endpoints.user import *
 from endpoints.user import router as user_router
+from endpoints.user import *
+from fastapi.middleware.cors import CORSMiddleware
+from endpoints.match import router as matchRouter
+from pony.orm import db_session
+from models.database import create_db
+from functools import partial
+from fastapi import FastAPI, Body, HTTPException
+from fastapi.routing import APIRouter
+from models.card_init import create_cards
+#from models.crud import create_10Partidas
 
 app = FastAPI()
 
@@ -22,6 +25,7 @@ app.add_middleware(
 )
 
 app.include_router(user_router, prefix="/user")
+app.include_router(matchRouter)
 
 
 @app.on_event("startup")
@@ -33,21 +37,3 @@ def startup_db():
 @app.get("/")
 async def root():
     return {"message": "Hello there!"}
-
-
-@db_session
-def construir_mazo(num_jugadores: int):
-    cartas_seleccionadas = select(
-        c.id for c in Carta if c.numero_jugadores <= num_jugadores)  # [:]
-    # [{"nombre": c.nombre, "numero_jugadores": c.numero_jugadores, "tipo_dorso": c.tipo_dorso,
-    mazo = list(cartas_seleccionadas)
-    # "tipo_de_accion": c.tipo_de_accion, "descripcion": c.descripcion} for c in cartas_seleccionadas]
-    return mazo
-
-
-@app.get("/cards/deck", status_code=status.HTTP_200_OK)
-async def deck_create(players_num: int):
-    retorno = construir_mazo(players_num)
-    return retorno
-
-# game.py llamar desde ahi la construir mazo
