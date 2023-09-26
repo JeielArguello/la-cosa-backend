@@ -18,14 +18,14 @@ async def root():
 
 @db_session
 def construir_mazo(num_jugadores: int):
-    cartas_seleccionadas = select(c for c in Carta if c.numero_jugadores > num_jugadores)[:]
-    mazo = [{"nombre": c.nombre, "numero_jugadores": c.numero_jugadores, "tipo_dorso": c.tipo_dorso,
-             "tipo_de_accion": c.tipo_de_accion, "descripcion": c.descripcion} for c in cartas_seleccionadas]
+    cartas_seleccionadas = select(c.id for c in Carta if c.numero_jugadores <= num_jugadores)#[:]
+    mazo = list(cartas_seleccionadas)#[{"nombre": c.nombre, "numero_jugadores": c.numero_jugadores, "tipo_dorso": c.tipo_dorso,
+             #"tipo_de_accion": c.tipo_de_accion, "descripcion": c.descripcion} for c in cartas_seleccionadas]
     return mazo
 
 @app.get("/cards/deck", status_code = status.HTTP_200_OK)
-async def deck_create(players_num: int): 
-    if (players_num < 4 or players_num > 12): 
-        return{"error": "Numero de jugadores incorrecto."} 
+async def deck_create(players_num: int):  
     retorno = construir_mazo(players_num)
     return retorno
+
+#game.py llamar desde ahi la construir mazo
