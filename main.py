@@ -23,6 +23,10 @@ def startup_db():
 async def root():
     return {"message": "Hello there!"}
 
+
+"""
+No implementado completamente, ignorar
+"""
 @app.websocket('/ws/{match_id}')
 async def websocket_endpoint(websocket: WebSocket, match_id: int):
     for p in all_matchs:

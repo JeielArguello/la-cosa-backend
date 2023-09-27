@@ -10,16 +10,12 @@ class CreateMatchRequest(BaseModel):
     num_max_jugadores : int 
     num_min_jugadores : int 
 
-class JoinMatchRequest(BaseModel):
-    match_id: int
-    id_player: int
-
 class Match:
     id_Match: int 
     
     def __init__(self,match:CreateMatchRequest) -> None:
         self.name=match["id_name"]
-        self.ws_players : List[WebSocket] = []
+        self.ws_players : List[(WebSocket,int)] = []
         self.owner = match["id_usuario_creador"]
         self.player_amount: int = 1
         self.is_start: bool = False
