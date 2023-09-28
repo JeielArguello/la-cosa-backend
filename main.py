@@ -1,20 +1,13 @@
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI
 from models.database import create_db
 from models.card_init import create_cards
 from fastapi.middleware.cors import CORSMiddleware
-from endpoints.match import router as router_match
-# from models.match_models import all_matchs
-from endpoints.user import *
 from endpoints.user import router as user_router
-from endpoints.match import router as matchRouter
-# from pony.orm import db_session
-# from functools import partial
-from fastapi import FastAPI, Body, HTTPException
-from fastapi.routing import APIRouter
+from endpoints.match import router as match_Router
 
 app = FastAPI()
 
-
+# Middleware
 origins = [
     "http://localhost:3001",
 ]
@@ -27,10 +20,9 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
+# Routers
 app.include_router(user_router, prefix="/user")
-app.include_router(matchRouter)
-app.include_router(router_match)
-app.include_router(user_router, prefix="/user")
+app.include_router(match_Router, prefix="/match")
 
 
 @app.on_event("startup")
@@ -42,27 +34,3 @@ def startup_db():
 @app.get("/")
 async def root():
     return {"message": "Hello there!"}
-
-
-# """
-# No implementado completamente, ignorar
-# """
-
-
-# @app.websocket('/ws/{match_id}')
-# async def websocket_endpoint(websocket: WebSocket, match_id: int):
-#     for p in all_matchs:
-#         if p.id_Match == match_id:
-#             match = p
-
-#     await match.connect(websocket)
-
-#     try:
-#         while True:
-#             msg = await websocket.receive()
-#             await match.broadcast(msg)
-#     except WebSocketDisconnect:
-#         match.disconnect(websocket)
-#         await match.broadcast(f"Client left the chat")
-
-#     await match.disconnect(websocket)

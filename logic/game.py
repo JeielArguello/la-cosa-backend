@@ -1,6 +1,6 @@
 from player import JugadorPartida
 from models.crud import read_carta
-from models.database_utils import construir_mazo
+
 
 class Juego:
     def __init__(self, partida_id: int, cantidad_jugadores: int, creador: int,
@@ -28,7 +28,6 @@ class Juego:
             self.posiciones.append(self.jugadores_id[jugador])
             self.posiciones.append(0)
         # crear mazo
-        self.mazo = construir_mazo(self.cantidad_jugadores)
         # elegir la cosa
         # repartir cartas
 
@@ -65,16 +64,16 @@ class Juego:
 
     def manejar_turnos(self):
         if self.sentido == 1:
-            self.turno = (self.turno+1) % len(self.jugadores_en_partida)
+            self.turno = (self.turno + 1) % len(self.jugadores_en_partida)
         elif self.sentido == 0:
-            self.turno = (self.turno-1) % len(self.jugadores_en_partida)
+            self.turno = (self.turno - 1) % len(self.jugadores_en_partida)
 
         jugador = self.jugadores_en_partida[self.turno]
         jugador.cambiar_turno()
         print("manejador turno")
 
     def jugar_partida(self):
-        while 1:
+        while True:
             self.manejar_turnos()
             self.jugar_turno()
             # chequear ganador

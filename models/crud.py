@@ -1,54 +1,49 @@
 from pony.orm import *
 from .database import *
 from .database_utils import *
-from models.database import*
 from typing import Dict
 from pony.orm import *
 
 
-def get_db() -> Database:
-    return db
-
-
-# Carta
-# READ
+# # CARTA
+# Create
+# Read
 @db_session
 def read_carta(id: int) -> Carta:
     carta = get(c for c in Carta if c.id == id)
     return carta
+# Update
+# Delete
 
 
-
-# User
-# CREATE
-
-"""
-    MATCH
-"""
-
+# # PARTIDA
 # Create
+@db_session
+def crear_partida(id_usuario_creador, id_name, contraseña,
+                  num_max_jugadores, num_min_jugadores):
+    user = Jugador.get(id=id_usuario_creador)
+    partida = Partida(id_jugador_creador=id_usuario_creador, nombre=id_name,
+                      iniciado=False, contrasena=contraseña,
+                      maximo_jugadores=num_max_jugadores,
+                      minimo_jugadores=num_min_jugadores,
+                      jugadores=[])
+    partida.jugadores.add(user)
+    partida.flush()
+    result = {"id_partida": partida.id}
+    return result
+
+
+# Read
 
 
 @db_session
-def init_match(match_):
-    with db_session:
-
-        # Crear la nueva partida con el conjunto de jugadores
-        new_match = Partida(
-            nombre=match_["id_name"],
-            iniciado=False,
-            id_jugador_creador=match_["id_usuario_creador"],
-            minimo_jugadores=match_["num_min_jugadores"],
-            maximo_jugadores=match_["num_max_jugadores"],
-            contrasena=match_["contraseña"],
-            jugadores=[]
-        )
-        if get_exist_user(match_["id_usuario_creador"]):
-            user_creator = Jugador.get(id=match_["id_usuario_creador"])
-            if user_creator is not None:
-                new_match.jugadores.add(user_creator)
-                Jugador.select().show()
-    return new_match.id
+def get_estado_partida(match_id: int) -> Dict[bool, int]:
+    partida = get(p for p in Partida if p.id == match_id)
+    cantidad_jugadores = partida.jugadores.count()
+    estado = {'iniciada': partida.iniciado,
+              'cantidad_jugadores': cantidad_jugadores}
+    return estado
+# Update
 
 
 @db_session
@@ -58,15 +53,18 @@ def update_add_player(user_id: int, match_id: int):
         match_update = Partida.get(id=match_id)
         if user_creator is not None and match_update is not None:
             match_update.jugadores.add(user_creator)
+# Delete
 
-
-"""
-    USER
-"""
+# # USUARIO
 # Create
+
+
 @db_session
-def db_create_user(db: Database, nombre: str) -> Dict[str, int]:
-    user_in_db = db.Jugador(nombre=nombre)
-    user_in_db.flush()
-    result = {"user_name": user_in_db.nombre, "id": user_in_db.id}
+def db_create_user(nombre: str) -> Dict[str, int]:
+    jugador = Jugador(nombre=nombre)
+    jugador.flush()
+    result = {"user_name": jugador.nombre, "id": jugador.id}
     return result
+# Read
+# Update
+# Delete
