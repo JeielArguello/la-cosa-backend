@@ -73,11 +73,11 @@ def construir_mazo(num_jugadores: int):
     cartas_seleccionadas = select(c.id for c in Carta if c.numero_jugadores <= num_jugadores)
     mazo = list(cartas_seleccionadas)
     return mazo
-            raise HTTPException(
-                status_code=400, detail="La partida ya esta inicializada.")
-
-        try:
-            partida.iniciado = True
-        except:
-            raise HTTPException(
-                status_code=400, detail="No se le pudo inicializar la ")
+#            raise HTTPException(
+#                status_code=400, detail="La partida ya esta inicializada.")
+#
+#        try:
+#            partida.iniciado = True
+#        except:
+#            raise HTTPException(
+#                status_code=400, detail="No se le pudo inicializar la ")
