@@ -6,6 +6,10 @@ from typing import Dict
 from pony.orm import *
 
 
+def get_db() -> Database:
+    return db
+
+
 # Carta
 # READ
 @db_session
@@ -13,6 +17,10 @@ def read_carta(id: int) -> Carta:
     carta = get(c for c in Carta if c.id == id)
     return carta
 
+
+
+# User
+# CREATE
 
 """
     MATCH
@@ -56,8 +64,6 @@ def update_add_player(user_id: int, match_id: int):
     USER
 """
 # Create
-
-
 @db_session
 def db_create_user(db: Database, nombre: str) -> Dict[str, int]:
     user_in_db = db.Jugador(nombre=nombre)

@@ -1,3 +1,6 @@
+from fastapi import HTTPException,Body
+from pony.orm import db_session, select
+from models.database import Partida, create_db, Carta
 from fastapi import HTTPException, Body
 from models.database import Partida
 from pony.orm import db_session
@@ -59,11 +62,22 @@ def database_utils_iniciar_partida(match_id: int, user_id: int):
                 status_code=400, detail="El user_id no corresponde al creador de la ")
 
         if partida.iniciado == True:
-            raise HTTPException(
-                status_code=400, detail="La partida ya esta inicializada.")
+            raise HTTPException(status_code=400, detail="La partida ya esta inicializada.")
+        
+        try: partida.iniciado = True
+        except:raise HTTPException(status_code=400, detail="No se le pudo inicializar la ")
+    
 
-        try:
-            partida.iniciado = True
-        except:
-            raise HTTPException(
-                status_code=400, detail="No se le pudo inicializar la ")
+@db_session
+def construir_mazo(num_jugadores: int):
+    cartas_seleccionadas = select(c.id for c in Carta if c.numero_jugadores <= num_jugadores)
+    mazo = list(cartas_seleccionadas)
+    return mazo
+#            raise HTTPException(
+#                status_code=400, detail="La partida ya esta inicializada.")
+#
+#        try:
+#            partida.iniciado = True
+#        except:
+#            raise HTTPException(
+#                status_code=400, detail="No se le pudo inicializar la ")
