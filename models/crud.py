@@ -1,15 +1,26 @@
 from pony.orm import *
-from .database import * 
+from .database import *
 from .database_utils import *
 from models.database import*
 from typing import Dict
+from pony.orm import *
+
+
+# Carta
+# READ
+@db_session
+def read_carta(id: int) -> Carta:
+    carta = get(c for c in Carta if c.id == id)
+    return carta
 
 
 """
     MATCH
 """
 
-#Create
+# Create
+
+
 @db_session
 def init_match(match_):
     with db_session:
@@ -31,23 +42,25 @@ def init_match(match_):
                 Jugador.select().show()
     return new_match.id
 
+
 @db_session
-def update_add_player(user_id:int,match_id:int):
+def update_add_player(user_id: int, match_id: int):
     if get_exist_user(user_id):
         user_creator = Jugador.get(id=user_id)
-        match_update = Partida.get(id=match_id)        
-        if user_creator is not None and match_update is not None :
+        match_update = Partida.get(id=match_id)
+        if user_creator is not None and match_update is not None:
             match_update.jugadores.add(user_creator)
-            
 
 
 """
     USER
 """
-#Create
+# Create
+
+
 @db_session
 def db_create_user(db: Database, nombre: str) -> Dict[str, int]:
-    user_in_db = db.Jugador(nombre = nombre)
+    user_in_db = db.Jugador(nombre=nombre)
     user_in_db.flush()
     result = {"user_name": user_in_db.nombre, "id": user_in_db.id}
     return result

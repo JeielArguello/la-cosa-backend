@@ -9,5 +9,6 @@ venv
 .vscode
 
 # sqlite
-.sqlite
 *.sqlite
+database.sqlite
+
