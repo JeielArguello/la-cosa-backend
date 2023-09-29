@@ -15,12 +15,18 @@ async def match_create(id_usuario_creador: int = Form(),
                        num_max_jugadores: int = Form(),
                        num_min_jugadores: int = Form()
                        ):
-    # validar pedidio
-    validar_partida(id_usuario_creador, num_max_jugadores, num_min_jugadores)
-    # crear instancia
-    partida = crear_partida(id_usuario_creador, id_name, contraseña,
-                            num_max_jugadores, num_min_jugadores)
-    return partida
+   try:
+        # validar pedidio
+        validar_partida(id_usuario_creador, num_max_jugadores, num_min_jugadores)
+        # crear instancia
+        partida = crear_partida(id_usuario_creador, id_name, contraseña,
+                                num_max_jugadores, num_min_jugadores)
+        return partida
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Error al crear la partida."
+        )
 
 
 @router.post("/start")
