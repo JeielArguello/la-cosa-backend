@@ -42,17 +42,62 @@ def validar_partida(
             detail="Numero maximo de jugadores mayor a 11"
         )
 
+@db_session
+def validar_entrada_partida(id_player:int,id_match:int):
+    #existe el usuario
+    if not get_exist_user(id_player):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Usuario no existe"
+        )
+    #usuario en otra partida
+    if get_exist_user_in_game(id_player):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Usuario ya ingresado en una partida"
+        )
+    #existe partida
+    if not get_exist_match(id_match):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Partida no existe"
+        )
+    partida = get_match(id_match)
+    if partida is None:
+        Partida.select().show()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="no se pudo cargar la partida"
+        ) 
+    if not get_partida_habilitada(partida):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Partida no habilitada"
+        )
+    if partida.iniciado == True:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Partida ya iniciada"
+        )
+    
+    
+@db_session
+def get_partida_habilitada(partida_select : Partida):
+    cantidad_jugadores = partida_select.jugadores.count()
+    cantidad_max = partida_select.maximo_jugadores 
+    return   cantidad_max > cantidad_jugadores
 
 @db_session
 def get_exist_user_in_game(id_user: int):
-    partidas_con_id_creador = Partida.get(id_jugador_creador=id_user)
-    return partidas_con_id_creador is not None
+    jugador = get(p for p in Jugador if p.id == id_user)
+    check = jugador.partida is not None 
+    return check
 
 
 @db_session
-def get_match(db: Database, match_id: int):
-    match_ = db.Partida.get(id=match_id)
-    return match_
+def get_match( match_id: int):
+    match = get(p for p in Partida if p.id == match_id)
+    return match
 
 
 @db_session

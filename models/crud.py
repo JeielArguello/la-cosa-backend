@@ -27,6 +27,11 @@ def crear_partida(id_usuario_creador, id_name, contraseña,
                       maximo_jugadores=num_max_jugadores,
                       minimo_jugadores=num_min_jugadores,
                       jugadores=[])
+    if(user is None):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Nose pudo obtener el usuario"
+        )
     partida.jugadores.add(user)
     partida.flush()
     result = {"id_partida": partida.id}
@@ -50,9 +55,21 @@ def get_estado_partida(match_id: int) -> Dict[bool, int]:
 def update_add_player(user_id: int, match_id: int):
     if get_exist_user(user_id):
         user_creator = Jugador.get(id=user_id)
-        match_update = Partida.get(id=match_id)
+        if(user_creator is None):
+            raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No se pudo obtener el usuario"
+            )
+        match_update = get_match(match_id)
+        if(match_update is None):
+            raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No se pudo obtener la partida"
+            )
         if user_creator is not None and match_update is not None:
             match_update.jugadores.add(user_creator)
+           
+
 # Delete
 
 # # USUARIO
