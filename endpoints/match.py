@@ -15,17 +15,24 @@ async def match_create(id_usuario_creador: int = Form(),
                        num_max_jugadores: int = Form(),
                        num_min_jugadores: int = Form()
                        ):
-   try:
+    try:
         # validar pedidio
         validar_partida(id_usuario_creador, num_max_jugadores, num_min_jugadores)
         # crear instancia
         partida = crear_partida(id_usuario_creador, id_name, contraseña,
                                 num_max_jugadores, num_min_jugadores)
         return partida
-    except Exception as e:
+    except ValueError as ve :
+        error_msg = f"Error: {ve}"
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Error al crear la partida."
+            detail=error_msg
+        )
+    except HTTPException as e:
+        error_msg = f"Error: {e.detail}"
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_msg
         )
 
 
@@ -50,15 +57,29 @@ async def get_state(match_id: int):
 @router.post('/join')
 async def match_join( match_id : int = Form(),
                       user_id : int = Form()):
-    #validar datos
-    validar_entrada_partida(user_id,match_id)
-    #actualizar base de datos
-    update_add_player(user_id,match_id)
+    try:
+        #validar datos
+        validar_entrada_partida(user_id,match_id)
+        #actualizar base de datos
+        update_add_player(user_id,match_id)
+    except ValueError as ve :
+        error_msg = f"Error: {ve}"
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_msg
+        )
+    except HTTPException as e:
+        error_msg = f"Error: {e.detail}"
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_msg
+        )
     
-@router.get('/list')
+""" @router.get('/list')
 async def match_list(): 
     list_rooms=[]
     for room in all_matchs:
         list_rooms.append({'id_room': room.id_Match,'name_room': room.name, 'players_amount':room.player_amount})  
 
     return list_rooms
+ """

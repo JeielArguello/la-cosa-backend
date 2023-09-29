@@ -22,63 +22,32 @@ def validar_partida(
         num_max_jugadores: int,
         num_min_jugadores: int):
     if not get_exist_user(id_usuario_creador):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Usuario no existe"
-        )
+        raise ValueError("usuario no existe.")
     if get_exist_user_in_game(id_usuario_creador):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Usuario ya ingresado en una partida"
-        )
+        raise ValueError("Usuario ya ingresado en una partida.")
     if num_min_jugadores < 4:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Numero minimo de jugadores menor a 4"
-        )
+        raise ValueError("Numero minimo de jugadores menor a 4.")
     if num_max_jugadores > 12:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Numero maximo de jugadores mayor a 11"
-        )
+        raise ValueError("Numero maximo de jugadores mayor a 11.")
 
 @db_session
 def validar_entrada_partida(id_player:int,id_match:int):
     #existe el usuario
     if not get_exist_user(id_player):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Usuario no existe"
-        )
+        raise ValueError("Usuario no existe")
     #usuario en otra partida
     if get_exist_user_in_game(id_player):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Usuario ya ingresado en una partida"
-        )
+        raise ValueError("Usuario ya ingresado en una partida")
     #existe partida
     if not get_exist_match(id_match):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Partida no existe"
-        )
+        raise ValueError("Partida no existe")
     partida = get_match(id_match)
     if partida is None:
-        Partida.select().show()
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="no se pudo cargar la partida"
-        ) 
+        raise HTTPException(detail="no se pudo cargar la partida de base de datos") 
     if not get_partida_habilitada(partida):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Partida no habilitada"
-        )
+        raise ValueError("Partida no habilitada")
     if partida.iniciado == True:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Partida ya iniciada"
-        )
+        raise ValueError("Partida ya iniciada")
     
     
 @db_session
