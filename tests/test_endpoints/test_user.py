@@ -29,3 +29,5 @@ def test_create_user_fail(mocker):
     response = client.post("/user/create", data={"usuario": "TestUser"})
     assert response.status_code == 400
     assert response.json() == {"detail":"Error al crear usuario."}
+
+

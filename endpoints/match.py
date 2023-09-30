@@ -41,7 +41,6 @@ async def iniciar_partida(user_id: int = Form(), match_id: int = Form()):
     database_utils_iniciar_partida(match_id, user_id)
     return {"message": "Se inició con éxito la partida."}
 
-
 @router.get("/state/{match_id}")
 async def get_state(match_id: int):
     try:

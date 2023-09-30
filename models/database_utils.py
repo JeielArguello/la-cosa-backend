@@ -77,27 +77,26 @@ def get_exist_match(id_match: int):
 
 @db_session
 def database_utils_iniciar_partida(match_id: int, user_id: int):
-    try:
-        partida = Partida.get(id=match_id)
-    except BaseException:
-        raise HTTPException(
-            status_code=400, detail="Error al acceder a la base de datos.")
-
+    
+    partida = Partida.get(id=match_id)
+    
     if partida is None:
-        raise HTTPException(
-            status_code=400, detail="El match_id no es válido")
+        raise HTTPException(status_code=400,detail="El match_id no es válido")
 
     if partida.id_jugador_creador != user_id:
-        raise HTTPException(
-            status_code=400,
-            detail="El user_id no corresponde al creador de la ")
+        raise ValueError( 
+            "El user_id no corresponde al creador de la partida ")
 
     if partida.iniciado:
         raise HTTPException(
-            status_code=400, detail="La partida ya esta inicializada.")
+             status_code=400
+             ,detail="La partida ya esta inicializada.")
 
-    try:
-        partida.iniciado = True
-    except BaseException:
+    partida.iniciado = True
+
+    if partida.iniciado != True:
         raise HTTPException(
-            status_code=400, detail="No se le pudo inicializar la ")
+              status_code=400  
+             ,detail="No se puede inicializar la partida. ")
+
+
