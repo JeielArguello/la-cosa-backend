@@ -7,9 +7,9 @@ router = APIRouter()
 
 
 @router.post("/create")
-async def create_user(usuario: str = Form()):
+async def create_user(user_name: str = Form()):
     try:
-        jugador = db_create_user(usuario)
+        jugador = db_create_user(user_name)
         return jugador
     except Exception as e:
         raise HTTPException(
