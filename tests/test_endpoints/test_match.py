@@ -73,3 +73,24 @@ def test_join_match_success(mocker):
     response = client.post("/match/join", data={"match_id":2,"user_id": 1})
     
     assert response.status_code == 200
+
+def test_iniciar_partida_success(mocker):
+    mocker.patch("endpoints.match.database_utils_iniciar_partida"
+                 ,return_value=None
+                 ,autospec=True) 
+    
+    response = client.post("/match/start",data={"user_id":1,"match_id":1}) 
+
+    assert(response.status_code==200)
+    assert(response.json() == {"message":"Se inició con éxito la partida."} )
+
+
+def test_iniciar_partida_fail(mocker):
+    mocker.patch("endpoints.match.database_utils_iniciar_partida"
+                 ,side_effect=HTTPException(status_code=400,detail="La partida ya esta inicializada.")
+                 ,autospec=True) 
+    
+    response = client.post("/match/start",data={"user_id":1,"match_id":1}) 
+
+    assert(response.status_code==400)
+    assert(response.json() == {"detail":"La partida ya esta inicializada."} ) 

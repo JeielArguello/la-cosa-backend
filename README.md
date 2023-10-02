@@ -7,16 +7,16 @@ Repositorio backend para ingeniería del software 1.
 ## Creación entorno virtual
 
 ```
-$ virtualenv <name>
-$ source ./<name>/bin/activate
+$ virtualenv venv
+$ source ./venv/bin/activate
 ```
 
 ## Instalación packages
 
 ```
 $ pip install -r requirements.txt
+export PYTHONPATH=$PYTHONPATH:home/<usuario>/<directorio_del_proyecto>/Back
 ```
-
 ## Correr el servidor
 
 ```
