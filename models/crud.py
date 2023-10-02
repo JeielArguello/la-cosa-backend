@@ -28,10 +28,12 @@ def crear_partida(id_usuario_creador, id_name, contraseña,
                       minimo_jugadores=num_min_jugadores,
                       jugadores=[])
     if(user is None):
-        raise HTTPException(detail="No se pudo obtener el usuario de la base de datos.")
+        raise HTTPException(
+            detail="No se pudo obtener el usuario de la base de datos.")
     if(partida is None):
-        raise HTTPException(detail="No se pudo inicializar la partida en base de datos.")
-    
+        raise HTTPException(
+            detail="No se pudo inicializar la partida en base de datos.")
+
     partida.jugadores.add(user)
     partida.flush()
     result = {"id_partida": partida.id}
@@ -43,10 +45,19 @@ def crear_partida(id_usuario_creador, id_name, contraseña,
 
 @db_session
 def get_estado_partida(match_id: int) -> Dict[bool, int]:
-    partida = get(p for p in Partida if p.id == match_id)
+    # Dict[bool, str, int, int, int]
+    partida = Partida.get(id=match_id)
+    if(partida is None):
+        raise HTTPException(detail="La partida no existe")
     cantidad_jugadores = partida.jugadores.count()
     estado = {'iniciada': partida.iniciado,
               'cantidad_jugadores': cantidad_jugadores}
+    # estado = {
+    #     'iniciada': partida.iniciado,
+    #     'nombre_partida': partida.nombre,
+    #     'minimo': partida.minimo_jugadores,
+    #     'maximo': partida.maximo_jugadores,
+    #     'cantidad_jugadores': cantidad_jugadores}
     return estado
 # Update
 
@@ -62,7 +73,7 @@ def update_add_player(user_id: int, match_id: int):
             raise HTTPException(detail="No se pudo obtener la partida")
         if user_creator is not None and match_update is not None:
             match_update.jugadores.add(user_creator)
-           
+
 
 # Delete
 

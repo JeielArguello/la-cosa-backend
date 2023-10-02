@@ -17,12 +17,13 @@ async def match_create(id_usuario_creador: int = Form(),
                        ):
     try:
         # validar pedidio
-        validar_partida(id_usuario_creador, num_max_jugadores, num_min_jugadores)
+        validar_partida(id_usuario_creador,
+                        num_max_jugadores, num_min_jugadores)
         # crear instancia
         partida = crear_partida(id_usuario_creador, id_name, contraseña,
                                 num_max_jugadores, num_min_jugadores)
         return partida
-    except ValueError as ve :
+    except ValueError as ve:
         error_msg = f"Error: {ve}"
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -41,27 +42,22 @@ async def iniciar_partida(user_id: int = Form(), match_id: int = Form()):
     database_utils_iniciar_partida(match_id, user_id)
     return {"message": "Se inició con éxito la partida."}
 
+
 @router.get("/state/{match_id}")
 async def get_state(match_id: int):
-    try:
-        estado = get_estado_partida(match_id)
-        return estado
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Error al pedir el estado de la partida."
-        )
+    estado = get_estado_partida(match_id)
+    return estado
 
 
 @router.post('/join')
-async def match_join( match_id : int = Form(),
-                      user_id : int = Form()):
+async def match_join(match_id: int = Form(),
+                     user_id: int = Form()):
     try:
-        #validar datos
-        validar_entrada_partida(user_id,match_id)
-        #actualizar base de datos
-        update_add_player(user_id,match_id)
-    except ValueError as ve :
+        # validar datos
+        validar_entrada_partida(user_id, match_id)
+        # actualizar base de datos
+        update_add_player(user_id, match_id)
+    except ValueError as ve:
         error_msg = f"Error: {ve}"
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -73,12 +69,14 @@ async def match_join( match_id : int = Form(),
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=error_msg
         )
-    
-""" @router.get('/list')
-async def match_list(): 
-    list_rooms=[]
-    for room in all_matchs:
-        list_rooms.append({'id_room': room.id_Match,'name_room': room.name, 'players_amount':room.player_amount})  
 
-    return list_rooms
- """
+
+# @router.get('/list')
+# async def match_list():
+#     list_rooms = []
+#     for room in all_matchs:
+#         list_rooms.append({'id_room': room.id_Match,
+#                            'name_room': room.name,
+#                            'players_amount': room.player_amount})
+
+#     return list_rooms
