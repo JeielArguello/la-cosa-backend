@@ -4,6 +4,7 @@ from models.card_init import create_cards
 from fastapi.middleware.cors import CORSMiddleware
 from endpoints.user import router as user_router
 from endpoints.match import router as match_Router
+from os import remove
 
 app = FastAPI()
 
@@ -29,6 +30,11 @@ app.include_router(match_Router, prefix="/match")
 def startup_db():
     create_db()
     create_cards()
+
+
+@app.on_event("shutdown")
+def shutdown_event():
+    remove("models/database.sqlite")
 
 
 @app.get("/")
