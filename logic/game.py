@@ -64,16 +64,16 @@ class Juego:
 
     def manejar_turnos(self):
         if self.sentido == 1:
-            self.turno = (self.turno+1) % len(self.jugadores_en_partida)
+            self.turno = (self.turno + 1) % len(self.jugadores_en_partida)
         elif self.sentido == 0:
-            self.turno = (self.turno-1) % len(self.jugadores_en_partida)
+            self.turno = (self.turno - 1) % len(self.jugadores_en_partida)
 
         jugador = self.jugadores_en_partida[self.turno]
         jugador.cambiar_turno()
         print("manejador turno")
 
     def jugar_partida(self):
-        while 1:
+        while True:
             self.manejar_turnos()
             self.jugar_turno()
             # chequear ganador
