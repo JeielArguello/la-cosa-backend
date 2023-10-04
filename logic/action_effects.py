@@ -1,4 +1,4 @@
-from game import Juego
+from logic.game import Juego
 
 
 def play_lanzallamas(atacante_in: int, objetivo_in: int, juego: Juego):

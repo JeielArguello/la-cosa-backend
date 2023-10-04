@@ -1,4 +1,4 @@
-from player import JugadorPartida
+from logic.player import JugadorPartida
 from models.crud import read_carta
 
 
@@ -24,8 +24,8 @@ class Juego:
 
         # Estados iniciales
         # otorgar posiciones
-        for jugador in self.jugadores_id:
-            self.posiciones.append(self.jugadores_id[jugador])
+        for jugador_id in self.jugadores_id:
+            self.posiciones.append(jugador_id)
             self.posiciones.append(0)
         # crear mazo
         # elegir la cosa
