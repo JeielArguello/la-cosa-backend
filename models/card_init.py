@@ -8,46 +8,126 @@ def create_cards():
         carta1 = Carta(nombre="La Cosa", numero_jugadores=1,
                        tipo_dorso=0, tipo_de_accion='La cosa', descripcion='')
 
-        carta2 = Carta(nombre="Infectado", numero_jugadores=4,
-                       tipo_dorso=0, tipo_de_accion='Infectado', descripcion='')
-        carta3 = Carta(nombre="Infectado", numero_jugadores=4,
-                       tipo_dorso=0, tipo_de_accion='Infectado', descripcion='')
-        carta4 = Carta(nombre="Infectado", numero_jugadores=4,
-                       tipo_dorso=0, tipo_de_accion='Infectado', descripcion='')
-        carta5 = Carta(nombre="Infectado", numero_jugadores=4,
-                       tipo_dorso=0, tipo_de_accion='Infectado', descripcion='')
-        carta6 = Carta(nombre="Infectado", numero_jugadores=4,
-                       tipo_dorso=0, tipo_de_accion='Infectado', descripcion='')
-        carta7 = Carta(nombre="Infectado", numero_jugadores=4,
-                       tipo_dorso=0, tipo_de_accion='Infectado', descripcion='')
-        carta8 = Carta(nombre="Infectado", numero_jugadores=4,
-                       tipo_dorso=0, tipo_de_accion='Infectado', descripcion='')
-        carta9 = Carta(nombre="Infectado", numero_jugadores=4,
-                       tipo_dorso=0, tipo_de_accion='Infectado', descripcion='')
-        carta10 = Carta(nombre="Infectado", numero_jugadores=6,
-                        tipo_dorso=0, tipo_de_accion='Infectado', descripcion='')
-        carta11 = Carta(nombre="Infectado", numero_jugadores=6,
-                        tipo_dorso=0, tipo_de_accion='Infectado', descripcion='')
-        carta12 = Carta(nombre="Infectado", numero_jugadores=7,
-                        tipo_dorso=0, tipo_de_accion='Infectado', descripcion='')
-        carta13 = Carta(nombre="Infectado", numero_jugadores=7,
-                        tipo_dorso=0, tipo_de_accion='Infectado', descripcion='')
-        carta14 = Carta(nombre="Infectado", numero_jugadores=8,
-                        tipo_dorso=0, tipo_de_accion='Infectado', descripcion='')
-        carta15 = Carta(nombre="Infectado", numero_jugadores=9,
-                        tipo_dorso=0, tipo_de_accion='Infectado', descripcion='')
-        carta16 = Carta(nombre="Infectado", numero_jugadores=9,
-                        tipo_dorso=0, tipo_de_accion='Infectado', descripcion='')
-        carta17 = Carta(nombre="Infectado", numero_jugadores=10,
-                        tipo_dorso=0, tipo_de_accion='Infectado', descripcion='')
-        carta18 = Carta(nombre="Infectado", numero_jugadores=10,
-                        tipo_dorso=0, tipo_de_accion='Infectado', descripcion='')
-        carta19 = Carta(nombre="Infectado", numero_jugadores=11,
-                        tipo_dorso=0, tipo_de_accion='Infectado', descripcion='')
-        carta20 = Carta(nombre="Infectado", numero_jugadores=11,
-                        tipo_dorso=0, tipo_de_accion='Infectado', descripcion='')
-        carta21 = Carta(nombre="Infectado", numero_jugadores=11,
-                        tipo_dorso=0, tipo_de_accion='Infectado', descripcion='')
+        carta2 = Carta(
+            nombre="Infectado",
+            numero_jugadores=4,
+            tipo_dorso=0,
+            tipo_de_accion='Infectado',
+            descripcion='')
+        carta3 = Carta(
+            nombre="Infectado",
+            numero_jugadores=4,
+            tipo_dorso=0,
+            tipo_de_accion='Infectado',
+            descripcion='')
+        carta4 = Carta(
+            nombre="Infectado",
+            numero_jugadores=4,
+            tipo_dorso=0,
+            tipo_de_accion='Infectado',
+            descripcion='')
+        carta5 = Carta(
+            nombre="Infectado",
+            numero_jugadores=4,
+            tipo_dorso=0,
+            tipo_de_accion='Infectado',
+            descripcion='')
+        carta6 = Carta(
+            nombre="Infectado",
+            numero_jugadores=4,
+            tipo_dorso=0,
+            tipo_de_accion='Infectado',
+            descripcion='')
+        carta7 = Carta(
+            nombre="Infectado",
+            numero_jugadores=4,
+            tipo_dorso=0,
+            tipo_de_accion='Infectado',
+            descripcion='')
+        carta8 = Carta(
+            nombre="Infectado",
+            numero_jugadores=4,
+            tipo_dorso=0,
+            tipo_de_accion='Infectado',
+            descripcion='')
+        carta9 = Carta(
+            nombre="Infectado",
+            numero_jugadores=4,
+            tipo_dorso=0,
+            tipo_de_accion='Infectado',
+            descripcion='')
+        carta10 = Carta(
+            nombre="Infectado",
+            numero_jugadores=6,
+            tipo_dorso=0,
+            tipo_de_accion='Infectado',
+            descripcion='')
+        carta11 = Carta(
+            nombre="Infectado",
+            numero_jugadores=6,
+            tipo_dorso=0,
+            tipo_de_accion='Infectado',
+            descripcion='')
+        carta12 = Carta(
+            nombre="Infectado",
+            numero_jugadores=7,
+            tipo_dorso=0,
+            tipo_de_accion='Infectado',
+            descripcion='')
+        carta13 = Carta(
+            nombre="Infectado",
+            numero_jugadores=7,
+            tipo_dorso=0,
+            tipo_de_accion='Infectado',
+            descripcion='')
+        carta14 = Carta(
+            nombre="Infectado",
+            numero_jugadores=8,
+            tipo_dorso=0,
+            tipo_de_accion='Infectado',
+            descripcion='')
+        carta15 = Carta(
+            nombre="Infectado",
+            numero_jugadores=9,
+            tipo_dorso=0,
+            tipo_de_accion='Infectado',
+            descripcion='')
+        carta16 = Carta(
+            nombre="Infectado",
+            numero_jugadores=9,
+            tipo_dorso=0,
+            tipo_de_accion='Infectado',
+            descripcion='')
+        carta17 = Carta(
+            nombre="Infectado",
+            numero_jugadores=10,
+            tipo_dorso=0,
+            tipo_de_accion='Infectado',
+            descripcion='')
+        carta18 = Carta(
+            nombre="Infectado",
+            numero_jugadores=10,
+            tipo_dorso=0,
+            tipo_de_accion='Infectado',
+            descripcion='')
+        carta19 = Carta(
+            nombre="Infectado",
+            numero_jugadores=11,
+            tipo_dorso=0,
+            tipo_de_accion='Infectado',
+            descripcion='')
+        carta20 = Carta(
+            nombre="Infectado",
+            numero_jugadores=11,
+            tipo_dorso=0,
+            tipo_de_accion='Infectado',
+            descripcion='')
+        carta21 = Carta(
+            nombre="Infectado",
+            numero_jugadores=11,
+            tipo_dorso=0,
+            tipo_de_accion='Infectado',
+            descripcion='')
 
         carta22 = Carta(nombre="Lanzallamas", numero_jugadores=4,
                         tipo_dorso=0, tipo_de_accion='Accion', descripcion='')
@@ -188,17 +268,37 @@ def create_cards():
         carta83 = Carta(nombre="Nada de barbacoas", numero_jugadores=11,
                         tipo_dorso=0, tipo_de_accion='Defensa', descripcion='')
 
-        carta84 = Carta(nombre="Cuarentena", numero_jugadores=5,
-                        tipo_dorso=0, tipo_de_accion='Obstaculo', descripcion='')
-        carta85 = Carta(nombre="Cuarentena", numero_jugadores=9,
-                        tipo_dorso=0, tipo_de_accion='Obstaculo', descripcion='')
+        carta84 = Carta(
+            nombre="Cuarentena",
+            numero_jugadores=5,
+            tipo_dorso=0,
+            tipo_de_accion='Obstaculo',
+            descripcion='')
+        carta85 = Carta(
+            nombre="Cuarentena",
+            numero_jugadores=9,
+            tipo_dorso=0,
+            tipo_de_accion='Obstaculo',
+            descripcion='')
 
-        carta86 = Carta(nombre="Puerta Atrancada", numero_jugadores=4,
-                        tipo_dorso=0, tipo_de_accion='Obstaculo', descripcion='')
-        carta87 = Carta(nombre="Puerta Atrancada", numero_jugadores=7,
-                        tipo_dorso=0, tipo_de_accion='Obstaculo', descripcion='')
-        carta88 = Carta(nombre="Puerta Atrancada", numero_jugadores=11,
-                        tipo_dorso=0, tipo_de_accion='Obstaculo', descripcion='')
+        carta86 = Carta(
+            nombre="Puerta Atrancada",
+            numero_jugadores=4,
+            tipo_dorso=0,
+            tipo_de_accion='Obstaculo',
+            descripcion='')
+        carta87 = Carta(
+            nombre="Puerta Atrancada",
+            numero_jugadores=7,
+            tipo_dorso=0,
+            tipo_de_accion='Obstaculo',
+            descripcion='')
+        carta88 = Carta(
+            nombre="Puerta Atrancada",
+            numero_jugadores=11,
+            tipo_dorso=0,
+            tipo_de_accion='Obstaculo',
+            descripcion='')
 
         carta89 = Carta(nombre="Cuerdas podridas", numero_jugadores=6,
                         tipo_dorso=1, tipo_de_accion='Panico', descripcion='')

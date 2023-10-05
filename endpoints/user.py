@@ -1,17 +1,16 @@
-from fastapi import FastAPI, status, Depends, APIRouter, Form
+from fastapi import status, APIRouter, Form
 from fastapi.exceptions import HTTPException
-from pony.orm import Database
 from models.crud import *
 
 
 router = APIRouter()
 
 
-@router.post("/create", status_code=status.HTTP_201_CREATED)
-async def create_user(usuario: str = Form(), db: Database = Depends(get_db)):
+@router.post("/create")
+async def create_user(user_name: str = Form()):
     try:
-        resultado = db_create_user(db, usuario)
-        return resultado
+        jugador = db_create_user(user_name)
+        return jugador
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
