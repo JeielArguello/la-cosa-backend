@@ -100,3 +100,19 @@ def database_utils_iniciar_partida(match_id: int, user_id: int):
     if not partida.iniciado:
         raise HTTPException(
             status_code=400, detail="No se puede inicializar la partida. ")
+
+@db_session
+def db_cantidad_partidas():
+    Total_partida = count(p for p in Partida)
+    return Total_partida
+
+@db_session
+def get_matches():
+    matches= select(p for p in Partida)
+    return matches
+
+@db_session
+def db_cantidad_jugadores(match_id):
+    partida = Partida.get(id = match_id)
+    cantidad_jugadores = partida.jugadores.count()
+    return cantidad_jugadores

@@ -3,7 +3,8 @@ from fastapi import APIRouter, Form, HTTPException, status, WebSocket
 # from models.match_models import Match, all_matchs
 from models.crud import *
 from models.database_utils import *
-
+from utils.match_utils import *
+from models.match_models import *
 
 router = APIRouter()
 
@@ -19,9 +20,13 @@ async def match_create(id_usuario_creador: int = Form(),
         # validar pedidio
         validar_partida(id_usuario_creador,
                         num_max_jugadores, num_min_jugadores)
-        # crear instancia
+        # crear partida en base de datos
         partida = crear_partida(id_usuario_creador, id_name, contraseña,
                                 num_max_jugadores, num_min_jugadores)
+        #crear instancia de partida
+        match = Match(id_usuario_creador, id_name, contraseña,
+                                num_max_jugadores, num_min_jugadores,partida["id_partida"])
+        all_matchs.append(match)
         return partida
     except ValueError as ve:
         error_msg = f"Error: {ve}"
@@ -74,12 +79,24 @@ async def match_join(match_id: int = Form(),
         )
 
 
-# @router.get('/list')
-# async def match_list():
-#     list_rooms = []
-#     for room in all_matchs:
-#         list_rooms.append({'id_room': room.id_Match,
-#                            'name_room': room.name,
-#                            'players_amount': room.player_amount})
+@router.get('/list')
+async def match_list():
+    try:
+        list_partidas = listar_partidas() 
+        return list_partidas
 
-#     return list_rooms
+    except ValueError as ve:
+        error_msg = f"Error: {ve}"
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_msg
+        )
+    except HTTPException as e:
+        error_msg = f"Error: {e.detail}"
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_msg
+        )
+    
+    
+   

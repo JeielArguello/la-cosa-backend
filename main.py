@@ -4,6 +4,7 @@ from models.card_init import create_cards
 from fastapi.middleware.cors import CORSMiddleware
 from endpoints.user import router as user_router
 from endpoints.match import router as match_Router
+from endpoints.websocket import router as websocket_router
 from os import remove
 
 app = FastAPI()
@@ -24,7 +25,7 @@ app.add_middleware(
 # Routers
 app.include_router(user_router, prefix="/user")
 app.include_router(match_Router, prefix="/match")
-
+app.include_router(websocket_router, prefix="/ws")
 
 @app.on_event("startup")
 def startup_db():
@@ -36,7 +37,3 @@ def startup_db():
 def shutdown_event():
     remove("models/database.sqlite")
 
-
-@app.get("/")
-async def root():
-    return {"message": "Hello there!"}
