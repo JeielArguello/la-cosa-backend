@@ -28,19 +28,39 @@ def test_lanzallamas(mocker):
     play_lanzallamas(4, 5, mock_juego)
     response1 = {'jugadores': len(mock_juego.jugadores_en_partida),
                  'posiciones': mock_juego.posiciones}
-    assert response1 == {'jugadores': 9,
-                         'posiciones': [1, 0, 2, 0, 3, 0, 4, 0, 6, 0, 7, 0, 8, 0, 9, 0, 10, 0]}
+    assert response1 == {
+        'jugadores': 9,
+        'posiciones': [
+            1,
+            0,
+            2,
+            0,
+            3,
+            0,
+            4,
+            0,
+            6,
+            0,
+            7,
+            0,
+            8,
+            0,
+            9,
+            0,
+            10,
+            0]}
     play_lanzallamas(9, 8, mock_juego)
     response2 = {'jugadores': len(mock_juego.jugadores_en_partida),
                  'posiciones': mock_juego.posiciones}
 
-    assert response2 == {'jugadores': 8,
-                         'posiciones': [1, 0, 2, 0, 3, 0, 4, 0, 6, 0, 7, 0, 9, 0, 10, 0]}
+    assert response2 == {'jugadores': 8, 'posiciones': [
+        1, 0, 2, 0, 3, 0, 4, 0, 6, 0, 7, 0, 9, 0, 10, 0]}
     play_lanzallamas(10, 1, mock_juego)
     response3 = {'jugadores': len(mock_juego.jugadores_en_partida),
                  'posiciones': mock_juego.posiciones}
-    assert response3 == {'jugadores': 7,
-                         'posiciones': [2, 0, 3, 0, 4, 0, 6, 0, 7, 0, 9, 0, 10, 0]}
+    assert response3 == {
+        'jugadores': 7, 'posiciones': [
+            2, 0, 3, 0, 4, 0, 6, 0, 7, 0, 9, 0, 10, 0]}
     play_lanzallamas(2, 10, mock_juego)
     response4 = {'jugadores': len(mock_juego.jugadores_en_partida),
                  'posiciones': mock_juego.posiciones}

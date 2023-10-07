@@ -10,7 +10,10 @@ def play_lanzallamas(atacante_in: int, objetivo_in: int, juego: Juego):
     indice_posicion_intermedia = get_posicion_intermedia(
         len_posiciones, indice_objetivo, indice_atacante)
     # check vecinos
-    validar_posiciones_vecinas(indice_atacante, indice_objetivo, len_posiciones)
+    validar_posiciones_vecinas(
+        indice_atacante,
+        indice_objetivo,
+        len_posiciones)
     # check obstaculos
     validar_obstaculo(indice_posicion_intermedia, juego)
     # check defensa
@@ -26,7 +29,10 @@ def play_lanzallamas(atacante_in: int, objetivo_in: int, juego: Juego):
     del juego.posiciones[indice_objetivo]
 
 
-def validar_posiciones_vecinas(indice_objetivo: int, indice_atacante: int, len_posiciones: int):
+def validar_posiciones_vecinas(
+        indice_objetivo: int,
+        indice_atacante: int,
+        len_posiciones: int):
     primero = min(indice_objetivo, indice_atacante)
     segundo = max(indice_objetivo, indice_atacante)
     if primero == 0 and segundo != len_posiciones - 2:
@@ -37,7 +43,7 @@ def validar_posiciones_vecinas(indice_objetivo: int, indice_atacante: int, len_p
         raise HTTPException(
             status_code=400,
             detail="Los jugadores no son vecinos")
-    elif (primero != 0 and segundo != 0) and primero+2 != segundo:
+    elif (primero != 0 and segundo != 0) and primero + 2 != segundo:
         raise HTTPException(
             status_code=400,
             detail="Los jugadores no son vecinos")
