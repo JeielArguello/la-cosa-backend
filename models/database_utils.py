@@ -81,3 +81,26 @@ def construir_mazo(num_jugadores: int):
 #        except:
 #            raise HTTPException(
 #                status_code=400, detail="No se le pudo inicializar la ")
+@db_session
+def get_jugadores_en_juego(partida: Partida):
+    try:
+        if partida is not None:
+            jugadores = partida.jugadores
+            return jugadores
+    except Exception as e:
+        return{"error al obtener jugadores en la partida"}
+
+
+@db_session
+def finalizar_partida(partida: Partida):
+    assert partida is not None
+    jugadores_vivos = get_jugadores_en_juego(partida)
+    
+    if len(jugadores_vivos) == 1:
+        ganador = jugadores_vivos.pop()
+        id_ganador = ganador.id
+        return {"mensaje": "La partida ha finalizado", "ganador": id_ganador}
+    if len(jugadores_vivos) == 0:
+         return {"mensaje": "partida sin jugadores"}
+    elif len(jugadores_vivos)>1:
+            return {"mensaje": "La partida aún no ha finalizado"}
