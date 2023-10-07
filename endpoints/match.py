@@ -5,6 +5,7 @@ from models.crud import *
 from models.database_utils import *
 from utils.match_utils import *
 from models.match_models import *
+from endpoints.websocket import broadcast,ws_players_list
 
 router = APIRouter()
 
@@ -23,6 +24,8 @@ async def match_create(id_usuario_creador: int = Form(),
         # crear partida en base de datos
         partida = crear_partida(id_usuario_creador, id_name, contraseña,
                                 num_max_jugadores, num_min_jugadores)
+        
+        await broadcast(listar_partidas())
         #crear instancia de partida
         match = Match(id_usuario_creador, id_name, contraseña,
                                 num_max_jugadores, num_min_jugadores,partida["id_partida"])

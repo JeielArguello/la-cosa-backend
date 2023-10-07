@@ -135,3 +135,19 @@ def test_get_state_fail(mocker):
     response = client.get('/match/state/1')
     assert response.status_code == 400
     assert response.json() == {'detail': 'La partida no existe'}
+
+
+def test_list_match_success(mocker):
+    mocker.patch("endpoints.match.validar_partida",
+                 return_value=True, autospec=True,)
+    mocker.patch("endpoints.match.crear_partida", return_value={
+                 "id_partida": 1}, autospec=True,)
+
+    response = client.post("/match/create", data={"id_usuario_creador": 1,
+                                                  "id_name": "sala 1",
+                                                  "contraseña": "1234",
+                                                  "num_max_jugadores": 11,
+                                                  "num_min_jugadores": 4})
+
+    assert response.status_code == 200
+    assert response.json() == {"id_partida": 1}

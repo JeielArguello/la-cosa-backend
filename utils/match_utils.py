@@ -12,11 +12,12 @@ def listar_partidas():
         if cant_jugadores is None:
             raise HTTPException(status_code=400,detail="No se pudo obtener la partida")
 
-        list_rooms.append({'id_partida': partida.id,
-                            'name_partida': partida.nombre,
-                            'cantidad_jugadores': cant_jugadores,
-                            'cantidad_jugadores_maximos': partida.maximo_jugadores,
-                            'contrasena': (partida.contrasena is not None),
-                            'iniciado':partida.iniciado})
+        if not partida.iniciado  and cant_jugadores<partida.maximo_jugadores :
+            list_rooms.append({'id_partida': partida.id,
+                                'name_partida': partida.nombre,
+                                'cantidad_jugadores': cant_jugadores,
+                                'cantidad_jugadores_maximos': partida.maximo_jugadores,
+                                'contrasena': (partida.contrasena is not None),
+                                'iniciado':partida.iniciado})
 
     return list_rooms
