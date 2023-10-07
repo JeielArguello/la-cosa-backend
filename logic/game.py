@@ -1,6 +1,7 @@
-from player import JugadorPartida
-from models.crud import read_carta
-from models.database_utils import construir_mazo
+from logic.player import JugadorPartida
+from fastapi import HTTPException
+# from logic.deck import robar_carta
+
 
 class Juego:
     def __init__(self, partida_id: int, cantidad_jugadores: int, creador: int,
@@ -21,14 +22,12 @@ class Juego:
         for id in jugadores_id:
             jugador = JugadorPartida(id)
             self.jugadores_en_partida.append(jugador)
-
         # Estados iniciales
         # otorgar posiciones
-        for jugador in self.jugadores_id:
-            self.posiciones.append(self.jugadores_id[jugador])
+        for jugador_id in self.jugadores_id:
+            self.posiciones.append(jugador_id)
             self.posiciones.append(0)
         # crear mazo
-        self.mazo = construir_mazo(self.cantidad_jugadores)
         # elegir la cosa
         # repartir cartas
 
@@ -36,23 +35,23 @@ class Juego:
         for jugador in self.jugadores_en_partida:
             if jugador.get_turno:
                 # robar carta
-                carta_id = self.mazo.pop
-                carta = read_carta(carta_id)
-                # chequear superinfeccion
-                if carta.tipo_de_accion == "Panico":
-                    # aplicar panico
-                    # descartarla
-                    pass
-                else:
-                    jugador.agregar_carta(carta_id)
-                    # # jugar carta/descartar
-                    # await accion(accion: str, carta_id_in: int):
-                    #     if accion == jugar_carta:
-                    #         aplicar_efecto_accion(carta_id_in):
-                    #             carta = read_carta(db, carta_id_in)
-                    # # descartar
-                    # jugador.descartar_carta(carta_id_in)
-                    # self.mazo_descarte.append(carta_id_in)
+                # robar_carta(self, jugador)
+
+                # # chequear superinfeccion
+                # if carta.tipo_de_accion == "Panico":
+                #     # aplicar panico
+                #     # descartarla
+                #     pass
+                # else:
+                #     jugador.agregar_carta(carta_id)
+                # # jugar carta/descartar
+                # await accion(accion: str, carta_id_in: int):
+                #     if accion == jugar_carta:
+                #         aplicar_efecto_accion(carta_id_in):
+                #             carta = read_carta(db, carta_id_in)
+                # # descartar
+                # jugador.descartar_carta(carta_id_in)
+                # self.mazo_descarte.append(carta_id_in)
                 # # intercambiar
                 # intercambiar_cartas(jugador_en_turno: int, jugador_fuera_turno: int):
                 #     # await jugador turno
@@ -65,16 +64,16 @@ class Juego:
 
     def manejar_turnos(self):
         if self.sentido == 1:
-            self.turno = (self.turno+1) % len(self.jugadores_en_partida)
+            self.turno = (self.turno + 1) % len(self.jugadores_en_partida)
         elif self.sentido == 0:
-            self.turno = (self.turno-1) % len(self.jugadores_en_partida)
+            self.turno = (self.turno - 1) % len(self.jugadores_en_partida)
 
         jugador = self.jugadores_en_partida[self.turno]
         jugador.cambiar_turno()
         print("manejador turno")
 
     def jugar_partida(self):
-        while 1:
+        while True:
             self.manejar_turnos()
             self.jugar_turno()
             # chequear ganador
@@ -86,3 +85,12 @@ class Juego:
         # notificar resultados
         # finalizar partida
         print("partida")
+
+
+def robar_carta(juego: Juego, jugador: JugadorPartida):
+    if len(juego.mazo) == 0:
+        raise HTTPException(
+            status_code=400,
+            detail="El mazo esta vacio")
+    carta_id = juego.mazo.pop()
+    jugador.agregar_carta(carta_id)
