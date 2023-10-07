@@ -65,6 +65,8 @@ async def match_join(match_id: int = Form(),
         validar_entrada_partida(user_id, match_id)
         # actualizar base de datos
         update_add_player(user_id, match_id)
+        await broadcast(listar_partidas())
+
         estado = get_estado_partida(match_id)
         return estado
 

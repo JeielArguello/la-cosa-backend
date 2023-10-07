@@ -46,7 +46,7 @@ async def websocket_endpoint(websocket: WebSocket):
           await websocket.accept()
           ws_players_list.append(websocket)
           await broadcast({"message":"Usuario viendo lista de partida"})
-          await broadcast(listar_partidas())
+          await websocket.send_json(listar_partidas())
           
           while True:
                msg = await websocket.receive() 
@@ -59,6 +59,7 @@ async def websocket_endpoint(websocket: WebSocket):
                await broadcast(listar_partidas())
                await broadcast(msg)
      except :
-          ws_players_list.remove(websocket)
+          if websocket in ws_players_list:
+               ws_players_list.remove(websocket)
           print(f"error")
      
