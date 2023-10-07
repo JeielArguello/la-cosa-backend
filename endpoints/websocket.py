@@ -1,3 +1,4 @@
+import asyncio
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from models.match_models import all_matchs
 #from endpoints.match import iniciar_partida 
@@ -22,7 +23,7 @@ async def websocket_endpoint(websocket: WebSocket, match_id: int):
                 #await iniciar_partida(1,1)
                 await match.broadcast("se inicio la partida")
              await match.broadcast(msg)
-    except WebSocketDisconnect:
+    except :
          match.disconnect(websocket)
          await match.broadcast("Client left the chat")
 
@@ -33,9 +34,7 @@ async def broadcast( message: dict):
         for p in ws_players_list:
             await p.send_json(message)
 
-async def disconnect(self, websocket: WebSocket):
-        await self.broadcast({"message": "se desconecto un usuario"})
-        self.ws_players.remove(websocket)
+      
 
 ws_players_list: List[WebSocket] = []
 
@@ -43,16 +42,23 @@ ws_players_list: List[WebSocket] = []
 @router.websocket('/match/list')
 async def websocket_endpoint(websocket: WebSocket):
     
-     await websocket.accept()
-     ws_players_list.append(websocket)
-     await broadcast({"message":"Usuario viendo lista de partida"})
-     while True:
-          msg = await websocket.receive()
-          await broadcast(msg)
-          if msg["text"] == "iniciar":
-                #await database_utils_iniciar_partida(1,1)
-                await broadcast("se inicio la partida")
+     try:
+          await websocket.accept()
+          ws_players_list.append(websocket)
+          await broadcast({"message":"Usuario viendo lista de partida"})
           await broadcast(listar_partidas())
-          if(msg["text"] == "desconeccion"): 
-               await disconnect(websocket)
-   
+          
+          while True:
+               msg = await websocket.receive() 
+               if msg["text"] == "iniciar":
+                    #await database_utils_iniciar_partida(1,1)
+                    await broadcast("se inicio la partida")
+               if(msg["text"] == "desconeccion"): 
+                    ws_players_list.remove(websocket)
+                    print(len(ws_players_list))
+               await broadcast(listar_partidas())
+               await broadcast(msg)
+     except :
+          ws_players_list.remove(websocket)
+          print(f"error")
+     

@@ -44,8 +44,8 @@ class Match:
         await self.broadcast({"message": "se agrego un usuario"})
 
     async def disconnect(self, websocket: WebSocket):
+        await self.ws_players.remove(websocket)
         await self.broadcast({"message": "se desconecto un usuario"})
-        self.ws_players.remove(websocket)
 
 
 all_matchs: List[Match] = []
