@@ -96,7 +96,7 @@ class Juego:
             #range(0, 5) generará los números del 0 al 4, inclusive. 
             for iteration in range(0, 4):  # se deben repartir cuatro cartas a cada jugador
                 for jugador in self.jugadores_en_partida:  # por cada jugador en la partida
-                    if iteration == 1 and jugador.id == indice_la_cosa:  # Corregir esta línea
+                    if iteration == 0 and jugador.id == indice_la_cosa:  # Corregir esta línea
                         jugador.agregar_carta(1)  # el id 1 corresponde a la carta la cosa
                         jugador.la_cosa = True
                         mazo.remove(1)  # elimina el primer elemento con valor 1
@@ -108,7 +108,10 @@ class Juego:
                                 jugador.agregar_carta(id_carta_seleccionada)
                                 del mazo[indice_random]
                                 break
-
+               
+                if iteration == 3:
+                    self.mazo = mazo 
+            
 
 
 def robar_carta(juego: Juego, jugador: JugadorPartida):
