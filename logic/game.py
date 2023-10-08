@@ -1,7 +1,9 @@
+import random
+from logic.deck import deck_es_carta_alejate
 from logic.player import JugadorPartida
 from fastapi import HTTPException
 # from logic.deck import robar_carta
-
+from typing import List
 
 class Juego:
     def __init__(self, partida_id: int, cantidad_jugadores: int, creador: int,
@@ -11,10 +13,10 @@ class Juego:
         self.creador = creador
         self.jugadores_id = jugadores_id
 
-        self.jugadores_en_partida = []
+        self.jugadores_en_partida:List[JugadorPartida] = []
         self.sentido = 1
         self.turno = -1
-        self.mazo = []
+        self.mazo:List[int] = []
         self.mazo_descarte = []
         self.posiciones = []
 
@@ -87,6 +89,28 @@ class Juego:
         print("partida")
 
 
+
+    def repartir_cartas(self, players_num: int):
+            mazo = list(self.mazo)  # Convierte el conjunto a una lista para poder acceder por índice
+            indice_la_cosa = random.randint(0, players_num - 1)
+
+            for iteration in range(0, 4):  # se deben repartir cuatro cartas a cada jugador
+                for jugador in self.jugadores_en_partida:  # por cada jugador en la partida
+                    if iteration == 1 and jugador.id == indice_la_cosa:  # Corregir esta línea
+                        jugador.agregar_carta(1)  # el id 1 corresponde a la carta la cosa
+                        jugador.la_cosa = True
+                        mazo.remove(1)  # elimina el primer elemento con valor 1
+                    else:
+                        while True:
+                            indice_random = random.randint(0, len(mazo) - 1)
+                            id_carta_seleccionada = mazo[indice_random]
+                            if deck_es_carta_alejate(id_carta_seleccionada):
+                                jugador.agregar_carta(id_carta_seleccionada)
+                                del mazo[indice_random]
+                                break
+
+
+
 def robar_carta(juego: Juego, jugador: JugadorPartida):
     if len(juego.mazo) == 0:
         raise HTTPException(
@@ -94,3 +118,4 @@ def robar_carta(juego: Juego, jugador: JugadorPartida):
             detail="El mazo esta vacio")
     carta_id = juego.mazo.pop()
     jugador.agregar_carta(carta_id)
+
