@@ -4,7 +4,7 @@ from fastapi import WebSocket
 from pydantic import BaseModel
 
 
-class CreateMatchRequest(BaseModel):
+class CreateLobbyRequest(BaseModel):
     id_usuario_creador: int
     id_name: str
     contraseña: Optional[str] = None
@@ -12,8 +12,7 @@ class CreateMatchRequest(BaseModel):
     num_min_jugadores: int
 
 
-class Match:
-    id_Match: int
+class Lobby:
     def __init__(self, id_usuario_creador: int,
                        id_name: str ,
                        contraseña: str,
@@ -34,18 +33,18 @@ class Match:
     def add_player(self):
         self.player_amount = self.player_amount + 1
 
-    async def broadcast(self, message: dict):
+    async def broadcast_lobby(self, message: dict):
         for p in self.ws_players:
             await p.send_json(message)
 
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
         self.ws_players.append(websocket)
-        await self.broadcast({"message": "se agrego un usuario"})
-
+        await self.broadcast_lobby({"message": "se agrego un usuario al lobby"})
+        
     async def disconnect(self, websocket: WebSocket):
-        await self.ws_players.remove(websocket)
-        await self.broadcast({"message": "se desconecto un usuario"})
+        self.ws_players.remove(websocket)
+        
 
 
-all_matchs: List[Match] = []
+all_lobby: List[Lobby] = []

@@ -12,6 +12,7 @@ app = FastAPI()
 # Middleware
 origins = [
     "http://localhost:3000",
+    "ws://127.0.0.1:8000/ws/1",
 ]
 
 app.add_middleware(

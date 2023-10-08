@@ -11,7 +11,7 @@
     <div id="messageLog"></div>
     
     <script>
-        const socket = new WebSocket("ws://127.0.0.1:8000/ws/match/list"); // Reemplaza con la dirección de tu servidor FastAPI
+        const socket = new WebSocket("ws://127.0.0.1:8000/ws/lobby/1"); // Reemplaza con la dirección de tu servidor FastAPI
         
         socket.onopen = (event) => {
             console.log("Conexión WebSocket abierta", event);

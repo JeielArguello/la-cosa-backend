@@ -1,5 +1,6 @@
 from models.crud import *
 from models.database_utils import *
+from models.lobby_models import all_lobby
 
 @db_session
 def listar_partidas():
@@ -21,3 +22,9 @@ def listar_partidas():
                                 'iniciado':partida.iniciado})
 
     return list_rooms
+
+def get_lobby(lobby_id : int):
+    for p in all_lobby:
+        if p.id_partida == lobby_id:
+            lobby = p
+    return lobby
