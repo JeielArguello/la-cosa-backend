@@ -5,7 +5,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from endpoints.user import router as user_router
 from endpoints.match import router as match_Router
 from os import remove
+##########
+from logic.game import Juego
 
+global_juegos: list[Juego]
+##########
 app = FastAPI()
 
 # Middleware

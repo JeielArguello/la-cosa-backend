@@ -9,7 +9,9 @@ from endpoints.websocket import broadcast, ws_players_list
 from logic.game import Juego
 from logic.player import JugadorPartida
 from logic.action_effects import play_lanzallamas
-
+##########
+from main import global_juegos
+##########
 router = APIRouter()
 
 ######
@@ -92,7 +94,7 @@ def finalizar_partida(juego: Juego):
 ######
 # Funcion que obtiene juego
 ######
-global_juegos = list[Juego]
+# global_juegos: list[Juego]
 
 
 def get_global_juego(match_id: int) -> Juego:
