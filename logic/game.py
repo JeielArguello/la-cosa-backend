@@ -93,18 +93,19 @@ class Juego:
     def repartir_cartas(self, players_num: int):
             mazo = list(self.mazo)  # Convierte el conjunto a una lista para poder acceder por índice
             indice_la_cosa = random.randint(0, players_num - 1)
-            #range(0, 5) generará los números del 0 al 4, inclusive. 
+            #range(0, 5) generará los números del 0 al
             for iteration in range(0, 4):  # se deben repartir cuatro cartas a cada jugador
-                for jugador in self.jugadores_en_partida:  # por cada jugador en la partida
-                    if iteration == 0 and jugador.id == indice_la_cosa:  # Corregir esta línea
-                        jugador.agregar_carta(1)  # el id 1 corresponde a la carta la cosa
+                for indexJugador in range(0,len(self.jugadores_en_partida) ):  # por cada jugador en la partida
+                    jugador = self.jugadores_en_partida[indexJugador]
+                    if iteration == 0 and indexJugador == indice_la_cosa:  # Corregir esta línea
+                        jugador.agregar_carta(1)  # el id 1 corresponde a la carta la cos
                         jugador.la_cosa = True
                         mazo.remove(1)  # elimina el primer elemento con valor 1
                     else:
-                        while True:
+                        while len(mazo) > 0:
                             indice_random = random.randint(0, len(mazo) - 1)
                             id_carta_seleccionada = mazo[indice_random]
-                            if deck_es_carta_alejate(id_carta_seleccionada):
+                            if deck_es_carta_alejate(id_carta_seleccionada) :
                                 jugador.agregar_carta(id_carta_seleccionada)
                                 del mazo[indice_random]
                                 break
