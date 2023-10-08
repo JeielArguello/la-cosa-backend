@@ -3,6 +3,8 @@ from typing import List, Optional
 from fastapi import WebSocket
 from pydantic import BaseModel
 
+from models.crud import get_estado_partida
+
 
 class CreateLobbyRequest(BaseModel):
     id_usuario_creador: int
@@ -29,9 +31,11 @@ class Lobby:
         self.cantidad_jugadores: int = 1
         self.iniciada: bool = False
         self.ws_players: List[WebSocket] = []
+        self.users_id: List[int] = [id_usuario_creador]
 
-    def add_player(self):
-        self.player_amount = self.player_amount + 1
+    def add_player(self,user_id):
+        self.cantidad_jugadores = self.cantidad_jugadores + 1
+        self.users_id.append(user_id)
 
     async def broadcast_lobby(self, message: dict):
         for p in self.ws_players:
@@ -41,9 +45,14 @@ class Lobby:
         await websocket.accept()
         self.ws_players.append(websocket)
         await self.broadcast_lobby({"message": "se agrego un usuario al lobby"})
+        await self.broadcast_lobby(get_estado_partida(self.id_partida))
         
     async def disconnect(self, websocket: WebSocket):
         self.ws_players.remove(websocket)
+        await websocket.send_text("cerrando conexion")
+        await websocket.close(reason="cliente pide desconexion")
+        await self.broadcast_lobby("se desconecto un usuario")
+
         
 
 

@@ -16,13 +16,17 @@ async def websocket_endpoint(websocket: WebSocket, match_id: int):
 
      try:
           while True:
-               msg = await websocket.receive()
-               await websocket._raise_on_disconnect(msg)
+               msg = await websocket.receive() 
+               websocket._raise_on_disconnect(msg)
+               if(msg["text"] == "desconexion"): 
+                    await lobby.disconnect(websocket)
+                    break
                await lobby.broadcast_lobby(msg)
 
      except WebSocketDisconnect:
           if websocket in lobby.ws_players:
-               await lobby.disconnect(websocket)
+               lobby.ws_players.remove(websocket)
+          await lobby.broadcast_lobby("se desconecto un usuario")
 
 
 async def broadcast( message: dict):
@@ -45,13 +49,15 @@ async def websocket_endpoint(websocket: WebSocket):
           
           while True:
                msg = await websocket.receive() 
-               if(msg["text"] == "desconeccion"): 
+               if(msg["text"] == "desconexion"): 
                     ws_players_list.remove(websocket)
-                    print(len(ws_players_list))
+                    await websocket.send_json("cerrando conexion")
+                    await websocket.close(reason="cliente pide desconexion")
+                    break
                await broadcast(listar_partidas())
                await broadcast(msg)
      except :
           if websocket in ws_players_list:
                ws_players_list.remove(websocket)
-          print(f"error")
+          
      

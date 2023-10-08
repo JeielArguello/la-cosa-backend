@@ -64,6 +64,8 @@ async def match_join(match_id: int = Form(),
         validar_entrada_partida(user_id, match_id)
         # actualizar base de datos
         update_add_player(user_id, match_id)
+        lobby = get_lobby(match_id)
+        lobby.add_player(user_id)
         await broadcast(listar_partidas())
 
         estado = get_estado_partida(match_id)
@@ -82,25 +84,5 @@ async def match_join(match_id: int = Form(),
             detail=error_msg
         )
 
-
-@router.get('/list')
-async def match_list():
-    try:
-        list_partidas = listar_partidas() 
-        return list_partidas
-
-    except ValueError as ve:
-        error_msg = f"Error: {ve}"
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=error_msg
-        )
-    except HTTPException as e:
-        error_msg = f"Error: {e.detail}"
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=error_msg
-        )
-    
     
    
