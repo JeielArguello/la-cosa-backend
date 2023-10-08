@@ -93,7 +93,7 @@ class Juego:
     def repartir_cartas(self, players_num: int):
             mazo = list(self.mazo)  # Convierte el conjunto a una lista para poder acceder por índice
             indice_la_cosa = random.randint(0, players_num - 1)
-
+            #range(0, 5) generará los números del 0 al 4, inclusive. 
             for iteration in range(0, 4):  # se deben repartir cuatro cartas a cada jugador
                 for jugador in self.jugadores_en_partida:  # por cada jugador en la partida
                     if iteration == 1 and jugador.id == indice_la_cosa:  # Corregir esta línea

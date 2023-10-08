@@ -10,7 +10,7 @@ def test_repartirCartas_4jugadoresCon4Cartas(mocker):
     j3 = JugadorPartida(3)
     j4 = JugadorPartida(4)
     
-    mazo : list[int] = {22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,1}
+    mazo : List[int] = {22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,1}
 
     juego                      = Juego(1,4,2,[1,2,3,4])
     juego.jugadores_en_partida = [j1,j2,j3,j4]
