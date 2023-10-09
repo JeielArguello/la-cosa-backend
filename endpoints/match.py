@@ -24,7 +24,6 @@ async def match_create(id_usuario_creador: int = Form(),
         partida = crear_partida(id_usuario_creador, id_name, contraseña,
                                 num_max_jugadores, num_min_jugadores)
         
-        await broadcast(listar_partidas())
         #crear instancia de partida
         lobby = Lobby(id_usuario_creador, id_name, contraseña,
                                 num_max_jugadores, num_min_jugadores,partida["id_partida"])
@@ -66,7 +65,6 @@ async def match_join(match_id: int = Form(),
         update_add_player(user_id, match_id)
         lobby = get_lobby(match_id)
         lobby.add_player(user_id)
-        await broadcast(listar_partidas())
 
         estado = get_estado_partida(match_id)
         return estado

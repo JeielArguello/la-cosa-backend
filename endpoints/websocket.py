@@ -39,47 +39,6 @@ async def websocket_endpoint_lobby(websocket: WebSocket, match_id: int):
                lobby.ws_players.remove(websocket)
           await lobby.broadcast_lobby("se desconecto un usuario")
 
-
-async def broadcast( message: dict):
-        for p in ws_players_list:
-            await p.send_json(message)
-
-      
-
-ws_players_list: List[WebSocket] = []
-
-#websocket general para listar partidas
-@router.websocket('/match/list')
-async def websocket_endpoint_list(websocket: WebSocket):
-    
-     try:
-          #acepto el websocket del cliente
-          await websocket.accept()
-          #agrego el ws a la lista de ws
-          ws_players_list.append(websocket)
-          await broadcast({"message":"Usuario viendo lista de partida"})
-          #le envio la lista de partias actualizadas
-          await websocket.send_json(listar_partidas())
-          
-          while True:
-               #espero hasta recibir un mensaje
-               msg = await websocket.receive()
-               #verifico que no sea una mala desconexion 
-               websocket._raise_on_disconnect(msg)
-               #verifico si el cliente se quiere desconectar
-               if(msg["text"] == "desconexion"): 
-                    ws_players_list.remove(websocket)
-                    await websocket.send_json("cerrando conexion")
-                    await websocket.close(reason="cliente pide desconexion")
-                    break
-               #actualizo el listado de partidas
-               await broadcast(listar_partidas())
-               
-     except WebSocketDisconnect:
-          if websocket in ws_players_list:
-               ws_players_list.remove(websocket)
-
-
 #websocket para juego
 @router.websocket('/game/{match_id}')
 async def websocket_endpoint_game(websocket: WebSocket, match_id: int):
