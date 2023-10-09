@@ -24,54 +24,19 @@ class Juego:
         self.ws_players_game: List[WebSocket] = []
 
         # spawnear jugadores
-        for id in jugadores_id:
-            jugador = JugadorPartida(id)
-            self.jugadores_en_partida.append(jugador)
-        # Estados iniciales
+        crear_jugadores_partida(self)
         # otorgar posiciones
-        for jugador_id in self.jugadores_id:
-            self.posiciones.append(jugador_id)
-            self.posiciones.append(0)
-        # crear mazo
-        # elegir la cosa
-        # repartir cartas
+        otorgar_posiciones(self)
+        # # crear mazo
+        # construir_mazo(self)
+        # # repartir cartas
+        # repartir_cartas(self, cantidad_jugadores)
 
-    def jugar_turno(self):
-        for jugador in self.jugadores_en_partida:
-            if jugador.get_turno:
-                # robar carta
-                # robar_carta(self, jugador)
-
-                # # chequear superinfeccion
-                # if carta.tipo_de_accion == "Panico":
-                #     # aplicar panico
-                #     # descartarla
-                #     pass
-                # else:
-                #     jugador.agregar_carta(carta_id)
-                # # jugar carta/descartar
-                # await accion(accion: str, carta_id_in: int):
-                #     if accion == jugar_carta:
-                #         aplicar_efecto_accion(carta_id_in):
-                #             carta = read_carta(db, carta_id_in)
-                # # descartar
-                # jugador.descartar_carta(carta_id_in)
-                # self.mazo_descarte.append(carta_id_in)
-                # # intercambiar
-                # intercambiar_cartas(jugador_en_turno: int, jugador_fuera_turno: int):
-                #     # await jugador turno
-                #     # select carta
-                #     # await jugador fuera turno
-                #     # select carta
-                #     # swap ()
-                print(f"turno de {jugador.id}")
-                jugador.cambiar_turno()
-
-    def manejar_turnos(self):
-        if self.sentido == 1:
-            self.turno = (self.turno + 1) % len(self.jugadores_en_partida)
-        elif self.sentido == 0:
-            self.turno = (self.turno - 1) % len(self.jugadores_en_partida)
+    # def manejar_turnos(juego: Juego):
+    #     if juego.sentido == 1:
+    #         juego.turno = (juego.turno + 1) % len(juego.jugadores_en_partida)
+    #     elif juego.sentido == 0:
+    #         juego.turno = (juego.turno - 1) % len(juego.jugadores_en_partida)
 
         jugador = self.jugadores_en_partida[self.turno]
         jugador.cambiar_turno()
@@ -141,3 +106,16 @@ def robar_carta(juego: Juego, jugador: JugadorPartida):
             detail="El mazo esta vacio")
     carta_id = juego.mazo.pop()
     jugador.agregar_carta(carta_id)
+
+
+def crear_jugadores_partida(juego: Juego):
+    jugadores_id = juego.jugadores_id
+    for id in jugadores_id:
+        jugador = JugadorPartida(id)
+        juego.jugadores_en_partida.append(jugador)
+
+
+def otorgar_posiciones(juego: Juego):
+    for jugador_id in juego.jugadores_id:
+        juego.posiciones.append(jugador_id)
+        juego.posiciones.append(0)
