@@ -5,12 +5,11 @@ from models.crud import *
 from models.database_utils import *
 from utils.match_utils import *
 from models.match_models import *
-from endpoints.websocket import broadcast, ws_players_list
 from logic.game import Juego
 from logic.player import JugadorPartida
 from logic.action_effects import play_lanzallamas
 ##########
-from main import global_juegos
+from endpoints.match import global_juegos
 ##########
 router = APIRouter()
 
@@ -20,7 +19,7 @@ router = APIRouter()
 
 
 @router.post('/pick')
-async def pick_a_card_from_deck(match_id: int, player_id: int):
+async def pick_a_card_from_deck(match_id: int = Form(), player_id: int = Form()):
     juego = get_global_juego(match_id)
     for jugador_en_partida in juego.jugadores_en_partida:
         if jugador_en_partida.id == player_id:
@@ -42,7 +41,7 @@ def robar_carta(juego: Juego, jugador: JugadorPartida):
 
 
 @router.post('/play')
-async def jugar_carta(match_id: int, card_id: int, player_objective: int, player_orig: int):
+async def jugar_carta(match_id: int = Form(), card_id: int = Form(), player_objective: int = Form(), player_orig: int = Form()):
     juego = get_global_juego(match_id)
     resultado = jugar_la_carta(juego, card_id, player_objective, player_orig)
     if descartar_carta(card_id, player_orig, match_id):
@@ -66,6 +65,16 @@ def descartar_carta(card_id: int, player_orig: int, match_id: int):
         juego.jugadores_en_partida[player_orig].cartas.pop(card_id)
         return True
     return False
+######
+# Descartar carta
+######
+
+
+@router.post('/discard')
+async def descartar_carta(match_id: int = Form(), card_id: int = Form(), player_id: int = Form()):
+    juego = get_global_juego(match_id)
+    if descartar_carta(card_id, player_id, match_id):
+        return {"carta": card_id, "Descartada por": player_id}
 
 ######
 # Finalizar Partida
@@ -73,7 +82,7 @@ def descartar_carta(card_id: int, player_orig: int, match_id: int):
 
 
 @router.post('/finish')
-async def finish_match(match_id: int):
+async def finish_match(match_id: int = Form()):
     juego = get_global_juego(match_id)
     result = finalizar_partida(juego)
     delete_global_juego(match_id)
@@ -81,11 +90,11 @@ async def finish_match(match_id: int):
 
 
 def finalizar_partida(juego: Juego):
-    if len(juego.cantidad_jugadores) == 1:
+    if len(juego.jugadores_en_partida) == 1:
         ganador = juego.jugadores_en_partida.pop()
         ganador_id = ganador.id
         return {"mensaje": "La partida ha finalizado", "ganador": ganador_id}
-    elif len(juego.cantidad_jugadores) == 0:
+    elif len(juego.jugadores_en_partida) == 0:
         return {"mensaje": "partida sin jugadores", "ganador": 0}
     else:
         return {"mensaje": "La partida aún no ha finalizado", "ganador": 0}
@@ -99,13 +108,13 @@ def finalizar_partida(juego: Juego):
 
 def get_global_juego(match_id: int) -> Juego:
     for juego in global_juegos:
-        if juego.id == match_id:
+        if juego.partida_id == match_id:
             result = juego
     return result
 
 
 def delete_global_juego(match_id):
     for juego in global_juegos:
-        if juego.id == match_id:
+        if juego.partida_id == match_id:
             result = juego
     global_juegos.remove(result)

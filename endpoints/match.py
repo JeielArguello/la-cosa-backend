@@ -4,8 +4,9 @@ from fastapi import APIRouter, Form, HTTPException, status, WebSocket
 from models.crud import *
 from models.database_utils import *
 ##########
-from main import global_juegos
 from logic.game import Juego
+
+global_juegos: list[Juego] = []
 ##########
 
 router = APIRouter()
@@ -43,16 +44,17 @@ async def match_create(id_usuario_creador: int = Form(),
 @router.post("/start")
 async def iniciar_partida(user_id: int = Form(), match_id: int = Form()):
     database_utils_iniciar_partida(match_id, user_id)
-    ##########
-    partida = get_match(match_id)
-    jugadores_id = []
-    for jugador in partida.jugadores:
-        id = jugador.id
-        jugadores_id.append(id)
+    # ##########
+    with db_session:
+        partida = get_match(match_id)
+        jugadores_id = []
+        for jugador in partida.jugadores:
+            id = jugador.id
+            jugadores_id.append(id)
 
     juego = Juego(partida.id, len(partida.jugadores), user_id, jugadores_id)
     global_juegos.append(juego)
-    ##########
+    # ##########
     return {"message": "Se inició con éxito la partida."}
 
 
