@@ -92,22 +92,22 @@ def test_finalizar_partida_fail2(mocker):
         finalizar_partida(partida_simulada2)
 
 
-
-
 def test_construir_mazo(mocker):
-    mocker.patch("models.database_utils.select", 
-                 return_value=[1,2,3,4,5,6])
+    mocker.patch("models.database_utils.select",
+                 return_value=[1, 2, 3, 4, 5, 6])
     resultado = construir_mazo(5)
-    assert  resultado == [1,2,3,4,5,6]
+    assert resultado == [1, 2, 3, 4, 5, 6]
+
 
 def test_construir_mazo1(mocker):
     resultado = construir_mazo(15)
-    assert  resultado == {"error": 
-                          "numero de jugadores incorrecto"
+    assert resultado == {"error":
+                         "numero de jugadores incorrecto"
                          }
 
+
 def test_construir_mazo_fail(mocker):
-    mocker.patch("models.database_utils.select", 
+    mocker.patch("models.database_utils.select",
                  return_value=None)
     resultado = construir_mazo(5)
-    assert  resultado == {"error al construir el mazo"}
+    assert resultado == {"error al construir el mazo"}

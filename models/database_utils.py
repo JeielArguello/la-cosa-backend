@@ -113,7 +113,8 @@ def database_utils_iniciar_partida(match_id: int, user_id: int):
 def construir_mazo(num_jugadores: int):
     if num_jugadores > 3 and num_jugadores < 13:
         try:
-            cartas_seleccionadas = select(c.id for c in Carta if c.numero_jugadores <= num_jugadores)
+            cartas_seleccionadas = select(
+                c.id for c in Carta if c.numero_jugadores <= num_jugadores)
             mazo = list(cartas_seleccionadas)
             return mazo
         except Exception as e:

@@ -75,6 +75,11 @@ def update_add_player(user_id: int, match_id: int):
 
 
 # Delete
+@db_session
+def delete_match(match_id: int):
+    match = Partida.get(id=match_id)
+    if match:
+        match.delete()
 
 # # USUARIO
 # Create
