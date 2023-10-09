@@ -53,11 +53,11 @@ def get_estado_partida(match_id: int) -> Dict:
     """ estado = {'iniciada': partida.iniciado,
               'cantidad_jugadores': cantidad_jugadores} """
     estado = {
-         'iniciada': partida.iniciado,
-         'nombre_partida': partida.nombre,
-         'minimo': partida.minimo_jugadores,
-         'maximo': partida.maximo_jugadores,
-         'cantidad_jugadores': cantidad_jugadores}
+        'iniciada': partida.iniciado,
+        'nombre_partida': partida.nombre,
+        'minimo': partida.minimo_jugadores,
+        'maximo': partida.maximo_jugadores,
+        'cantidad_jugadores': cantidad_jugadores}
     return estado
 
 # Update

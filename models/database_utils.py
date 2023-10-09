@@ -116,3 +116,65 @@ def db_cantidad_jugadores(match_id):
     partida = Partida.get(id = match_id)
     cantidad_jugadores = partida.jugadores.count()
     return cantidad_jugadores
+
+@db_session
+def construir_mazo(num_jugadores: int):
+    if num_jugadores > 3 and num_jugadores < 13:
+        try:
+            cartas_seleccionadas = select(c.id for c in Carta if c.numero_jugadores <= num_jugadores)
+            mazo = list(cartas_seleccionadas)
+            return mazo
+        except Exception as e:
+            return {"error al construir el mazo"}
+    else:
+        return{"error": "numero de jugadores incorrecto"}
+
+#            raise HTTPException(
+#                status_code=400, detail="La partida ya esta inicializada.")
+#
+#        try:
+#            partida.iniciado = True
+#        except:
+#            raise HTTPException(
+#                status_code=400, detail="No se le pudo inicializar la ")
+
+
+@db_session
+def get_jugadores_en_juego(partida: Partida):
+    try:
+        if partida is not None:
+            jugadores = partida.jugadores
+            return jugadores
+    except Exception as e:
+        return{"error al obtener jugadores en la partida"}
+
+
+@db_session
+def finalizar_partida(partida: Partida):
+    assert partida is not None
+    jugadores_vivos = get_jugadores_en_juego(partida)
+
+    if len(jugadores_vivos) == 1:
+        ganador = jugadores_vivos.pop()
+        id_ganador = ganador.id
+        return {"mensaje": "La partida ha finalizado", "ganador": id_ganador}
+    if len(jugadores_vivos) == 0:
+        return {"mensaje": "partida sin jugadores"}
+    elif len(jugadores_vivos) > 1:
+        return {"mensaje": "La partida aún no ha finalizado"}
+
+@db_session
+def db_cantidad_partidas():
+    Total_partida = count(p for p in Partida)
+    return Total_partida
+
+@db_session
+def get_matches():
+    matches= select(p for p in Partida)
+    return matches
+
+@db_session
+def db_cantidad_jugadores(match_id):
+    partida = Partida.get(id = match_id)
+    cantidad_jugadores = partida.jugadores.count()
+    return cantidad_jugadores

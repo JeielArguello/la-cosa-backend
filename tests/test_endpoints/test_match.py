@@ -79,6 +79,7 @@ def test_create_match_fail_3(mocker, mock_partida: dict[str, any]):
     assert response.json() == {
         "detail": "Error: No se pudo inicializar la partida en base de datos."}
 
+
 '''
 def test_join_match_success(mocker):
     mocker.patch("endpoints.match.validar_entrada_partida",
@@ -90,6 +91,7 @@ def test_join_match_success(mocker):
 
     assert response.status_code == 200
 '''
+
 
 def test_iniciar_partida_success(mocker):
     mocker.patch("endpoints.match.database_utils_iniciar_partida",
