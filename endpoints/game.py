@@ -41,11 +41,11 @@ def robar_carta(juego: Juego, jugador: JugadorPartida):
 
 
 @router.post('/play')
-async def jugar_carta(match_id: int = Form(), card_id: int = Form(), player_objective: int = Form(), player_orig: int = Form()):
+async def jugar_carta(match_id: int = Form(), card_id: int = Form(), player_objective: int = Form(), player_origin: int = Form()):
     juego = get_global_juego(match_id)
-    resultado = jugar_la_carta(juego, card_id, player_objective, player_orig)
+    resultado = jugar_la_carta(juego, card_id, player_objective, player_origin)
     # if descartar_carta(card_id, player_orig, match_id):
-    return {"carta": card_id, "jugada contra": player_objective, "por": player_orig}
+    return {"carta": card_id, "jugada contra": player_objective, "por": player_origin}
     # return {"error al jugar la carta": card_id, "contra": player_objective, "por": player_orig}
 
 
@@ -88,6 +88,7 @@ async def finish_match(match_id: int = Form()):
         result = finalizar_partida(juego)
         if result != {"mensaje": "La partida aún no ha finalizado", "ganador": 0}:
             delete_global_juego(match_id)
+            delete_match(match_id)
         return result
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"

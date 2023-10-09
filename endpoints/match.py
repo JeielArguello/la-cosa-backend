@@ -82,6 +82,7 @@ async def iniciar_partida(user_id: int = Form(), match_id: int = Form()):
         cantidad_jugadores = len(partida.jugadores)
         juego = Juego(partida.id, cantidad_jugadores, creador, jugadores_id)
     global_juegos.append(juego)
+    print(juego.posiciones)
     # ##########
     return {"message": "Se inició con éxito la partida."}
 

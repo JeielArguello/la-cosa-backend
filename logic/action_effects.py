@@ -5,6 +5,12 @@ from logic.game import Juego
 def play_lanzallamas(atacante_in: int, objetivo_in: int, juego: Juego):
     # get indices
     len_posiciones = len(juego.posiciones)
+    if atacante_in not in juego.posiciones:
+        raise HTTPException(
+            status_code=400, detail="Atacante no esta en el juego")
+    if objetivo_in not in juego.posiciones:
+        raise HTTPException(
+            status_code=400, detail="Objetivo no esta en el juego")
     indice_objetivo = juego.posiciones.index(objetivo_in)
     indice_atacante = juego.posiciones.index(atacante_in)
     indice_posicion_intermedia = get_posicion_intermedia(
@@ -35,15 +41,7 @@ def validar_posiciones_vecinas(
         len_posiciones: int):
     primero = min(indice_objetivo, indice_atacante)
     segundo = max(indice_objetivo, indice_atacante)
-    if primero == 0 and segundo != len_posiciones - 2:
-        raise HTTPException(
-            status_code=400,
-            detail="Los jugadores no son vecinos")
-    elif segundo == 0 and primero != len_posiciones - 2:
-        raise HTTPException(
-            status_code=400,
-            detail="Los jugadores no son vecinos")
-    elif (primero != 0 and segundo != 0) and primero + 2 != segundo:
+    if (primero + 2 != segundo) and (primero != 0 or segundo != len_posiciones-2):
         raise HTTPException(
             status_code=400,
             detail="Los jugadores no son vecinos")
