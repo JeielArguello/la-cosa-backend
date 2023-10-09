@@ -28,7 +28,10 @@ def validar_partida(
     if num_min_jugadores < 4:
         raise ValueError("Numero minimo de jugadores menor a 4.")
     if num_max_jugadores > 12:
-        raise ValueError("Numero maximo de jugadores mayor a 11.")
+        raise ValueError("Numero maximo de jugadores mayor a 12.")
+    if num_max_jugadores < num_min_jugadores:
+        raise ValueError(
+            "Numero maximo de jugadores debe ser mayor al numero minimo.")
 
 
 @db_session
@@ -47,7 +50,7 @@ def validar_entrada_partida(id_player: int, id_match: int):
         raise HTTPException(
             detail="no se pudo cargar la partida de base de datos")
     if not get_partida_habilitada(partida):
-        raise ValueError("Partida no habilitada")
+        raise ValueError("Partida llena")
     if partida.iniciado:
         raise ValueError("Partida ya iniciada")
 
@@ -94,6 +97,10 @@ def database_utils_iniciar_partida(match_id: int, user_id: int):
     if partida.iniciado:
         raise HTTPException(
             status_code=400, detail="La partida ya esta inicializada.")
+
+    if partida.jugadores.count() < partida.minimo_jugadores:
+        raise HTTPException(
+            status_code=400, detail="No se cumple la cantidad minima de jugadores.")
 
     partida.iniciado = True
 
