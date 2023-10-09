@@ -83,10 +83,18 @@ def descartar_carta(card_id: int, player_orig: int, match_id: int):
 
 @router.post('/finish')
 async def finish_match(match_id: int = Form()):
-    juego = get_global_juego(match_id)
-    result = finalizar_partida(juego)
-    delete_global_juego(match_id)
-    return result
+    try:
+        juego = get_global_juego(match_id)
+        result = finalizar_partida(juego)
+        if result != {"mensaje": "La partida aún no ha finalizado", "ganador": 0}:
+            delete_global_juego(match_id)
+        return result
+    except HTTPException as e:
+        error_msg = f"Error: {e.detail}"
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_msg
+        )
 
 
 def finalizar_partida(juego: Juego):
@@ -107,14 +115,22 @@ def finalizar_partida(juego: Juego):
 
 
 def get_global_juego(match_id: int) -> Juego:
+    result = None
     for juego in global_juegos:
         if juego.partida_id == match_id:
             result = juego
+    if(result is None):
+        raise HTTPException(
+            status_code=400, detail="No se pudo acceder al juego")
     return result
 
 
 def delete_global_juego(match_id):
+    result = None
     for juego in global_juegos:
         if juego.partida_id == match_id:
             result = juego
+    if(result is None):
+        raise HTTPException(
+            status_code=400, detail="No se puedo borrar el juego")
     global_juegos.remove(result)
