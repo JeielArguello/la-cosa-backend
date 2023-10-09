@@ -111,10 +111,16 @@ def database_utils_iniciar_partida(match_id: int, user_id: int):
 
 @db_session
 def construir_mazo(num_jugadores: int):
-    cartas_seleccionadas = select(
-        c.id for c in Carta if c.numero_jugadores <= num_jugadores)
-    mazo = list(cartas_seleccionadas)
-    return mazo
+    if num_jugadores > 3 and num_jugadores < 13:
+        try:
+            cartas_seleccionadas = select(c.id for c in Carta if c.numero_jugadores <= num_jugadores)
+            mazo = list(cartas_seleccionadas)
+            return mazo
+        except Exception as e:
+            return {"error al construir el mazo"}
+    else:
+        return{"error": "numero de jugadores incorrecto"}
+
 #            raise HTTPException(
 #                status_code=400, detail="La partida ya esta inicializada.")
 #
