@@ -48,10 +48,8 @@ def get_estado_partida(match_id: int) -> Dict:
     # Dict[bool, str, int, int, int]
     partida = Partida.get(id=match_id)
     if(partida is None):
-        raise HTTPException(detail="La partida no existe")
+        raise HTTPException(status_code=400, detail="La partida no existe")
     cantidad_jugadores = partida.jugadores.count()
-    """ estado = {'iniciada': partida.iniciado,
-              'cantidad_jugadores': cantidad_jugadores} """
     estado = {
         'iniciada': partida.iniciado,
         'nombre_partida': partida.nombre,

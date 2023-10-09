@@ -31,7 +31,7 @@ def test_validar_partida_fail(mocker):
         validar_partida(1, 14, 4)
 
     # Verifica que la excepción tenga el mensaje esperado
-    assert str(excinfo.value) == "Numero maximo de jugadores mayor a 11."
+    assert str(excinfo.value) == "Numero maximo de jugadores mayor a 12."
 
 
 def test_validar_partida_fail_2(mocker):

@@ -44,9 +44,9 @@ def robar_carta(juego: Juego, jugador: JugadorPartida):
 async def jugar_carta(match_id: int = Form(), card_id: int = Form(), player_objective: int = Form(), player_orig: int = Form()):
     juego = get_global_juego(match_id)
     resultado = jugar_la_carta(juego, card_id, player_objective, player_orig)
-    if descartar_carta(card_id, player_orig, match_id):
-        return {"carta": card_id, "jugada contra": player_objective, "por": player_orig}
-    return {"error al jugar la carta": card_id, "contra": player_objective, "por": player_orig}
+    # if descartar_carta(card_id, player_orig, match_id):
+    return {"carta": card_id, "jugada contra": player_objective, "por": player_orig}
+    # return {"error al jugar la carta": card_id, "contra": player_objective, "por": player_orig}
 
 
 def jugar_la_carta(juego: Juego, card_id: int, player_objective: int, player_orig: int):
@@ -70,11 +70,11 @@ def descartar_carta(card_id: int, player_orig: int, match_id: int):
 ######
 
 
-@router.post('/discard')
-async def descartar_carta(match_id: int = Form(), card_id: int = Form(), player_id: int = Form()):
-    juego = get_global_juego(match_id)
-    if descartar_carta(card_id, player_id, match_id):
-        return {"carta": card_id, "Descartada por": player_id}
+# @router.post('/discard')
+# async def descartar_carta(match_id: int = Form(), card_id: int = Form(), player_id: int = Form()):
+#     juego = get_global_juego(match_id)
+#     if descartar_carta(card_id, player_id, match_id):
+#         return {"carta": card_id, "Descartada por": player_id}
 
 ######
 # Finalizar Partida

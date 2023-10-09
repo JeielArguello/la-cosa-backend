@@ -12,7 +12,7 @@ router = APIRouter()
 @router.post('/create')
 async def match_create(id_usuario_creador: int = Form(),
                        id_name: str = Form(),
-                       contraseña: str = Form(),
+                       contraseña: str = Form(default=None),
                        num_max_jugadores: int = Form(),
                        num_min_jugadores: int = Form()
                        ):
@@ -49,12 +49,13 @@ async def iniciar_partida(user_id: int = Form(), match_id: int = Form()):
     # ##########
     with db_session:
         partida = get_match(match_id)
+        creador = partida.id_jugador_creador
         jugadores_id = []
         for jugador in partida.jugadores:
             id = jugador.id
             jugadores_id.append(id)
-
-    juego = Juego(partida.id, len(partida.jugadores), user_id, jugadores_id)
+        cantidad_jugadores = len(partida.jugadores)
+        juego = Juego(partida.id, cantidad_jugadores, creador, jugadores_id)
     global_juegos.append(juego)
     # ##########
     return {"message": "Se inició con éxito la partida."}
@@ -62,8 +63,15 @@ async def iniciar_partida(user_id: int = Form(), match_id: int = Form()):
 
 @router.get("/state/{match_id}")
 async def get_state(match_id: int):
-    estado = get_estado_partida(match_id)
-    return estado
+    try:
+        estado = get_estado_partida(match_id)
+        return estado
+    except HTTPException as e:
+        error_msg = f"Error: {e.detail}"
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_msg
+        )
 
 
 @router.post('/join')

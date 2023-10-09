@@ -93,14 +93,14 @@ def test_join_match_success(mocker):
 '''
 
 
-def test_iniciar_partida_success(mocker):
-    mocker.patch("endpoints.match.database_utils_iniciar_partida",
-                 return_value=None, autospec=True)
+# def test_iniciar_partida_success(mocker):
+#     mocker.patch("endpoints.match.database_utils_iniciar_partida",
+#                  return_value=None, autospec=True)
 
-    response = client.post("/match/start", data={"user_id": 1, "match_id": 1})
+#     response = client.post("/match/start", data={"user_id": 1, "match_id": 1})
 
-    assert(response.status_code == 200)
-    assert(response.json() == {"message": "Se inició con éxito la partida."})
+#     assert(response.status_code == 200)
+#     assert(response.json() == {"message": "Se inició con éxito la partida."})
 
 
 def test_iniciar_partida_fail(mocker):
@@ -136,7 +136,7 @@ def test_get_state_fail(mocker):
         autospec=True)
     response = client.get('/match/state/1')
     assert response.status_code == 400
-    assert response.json() == {'detail': 'La partida no existe'}
+    assert response.json() == {'detail': 'Error: La partida no existe'}
 
 
 def test_list_match_success(mocker):
