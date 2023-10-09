@@ -4,13 +4,10 @@ from models.card_init import create_cards
 from fastapi.middleware.cors import CORSMiddleware
 from endpoints.user import router as user_router
 from endpoints.match import router as match_Router
+from endpoints.game import router as game_Router
 from endpoints.websocket import router as websocket_router
 from os import remove
-##########
-from logic.game import Juego
 
-global_juegos: list[Juego]
-##########
 app = FastAPI()
 
 # Middleware
@@ -31,6 +28,7 @@ app.add_middleware(
 app.include_router(user_router, prefix="/user")
 app.include_router(match_Router, prefix="/match")
 app.include_router(websocket_router, prefix="/ws")
+app.include_router(game_Router, prefix="/game")
 
 @app.on_event("startup")
 def startup_db():
