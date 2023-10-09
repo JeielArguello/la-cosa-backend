@@ -4,7 +4,7 @@ from models.crud import *
 from models.database_utils import *
 from utils.match_utils import *
 from models.lobby_models import *
-from endpoints.websocket import broadcast
+#from endpoints.websocket import broadcast
 
 router = APIRouter()
 

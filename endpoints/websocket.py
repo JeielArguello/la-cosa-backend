@@ -3,7 +3,7 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from utils.match_utils import *
 from typing import List
 from logic.game import Juego
-from endpoints.game import get_global_juego
+#from endpoints.game import get_global_juego
 
 
 router = APIRouter()
