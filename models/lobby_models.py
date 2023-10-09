@@ -1,23 +1,12 @@
 
 from typing import List, Optional
 from fastapi import WebSocket
-from pydantic import BaseModel
-
-from models.crud import get_estado_partida
-
-
-class CreateLobbyRequest(BaseModel):
-    id_usuario_creador: int
-    id_name: str
-    contraseña: Optional[str] = None
-    num_max_jugadores: int
-    num_min_jugadores: int
 
 
 class Lobby:
     def __init__(self, id_usuario_creador: int,
                        id_name: str ,
-                       contraseña: str,
+                       contraseña: Optional[str],
                        num_max_jugadores: int,
                        num_min_jugadores: int,
                        id_partida : int 
@@ -36,6 +25,14 @@ class Lobby:
     def add_player(self,user_id):
         self.cantidad_jugadores = self.cantidad_jugadores + 1
         self.users_id.append(user_id)
+    
+    def remove_player(self,user_id):
+        self.cantidad_jugadores = self.cantidad_jugadores - 1
+        self.users_id.remove(user_id)
+    
+    def list_players(self):
+        list_player = self.users_id 
+        return list_player
 
     async def broadcast_lobby(self, message: dict):
         for p in self.ws_players:
@@ -45,15 +42,18 @@ class Lobby:
         await websocket.accept()
         self.ws_players.append(websocket)
         await self.broadcast_lobby({"message": "se agrego un usuario al lobby"})
-        await self.broadcast_lobby(get_estado_partida(self.id_partida))
+        await self.broadcast_lobby({'type':"cantidadJugadores",'body':{"cantidad_jugadores": self.cantidad_jugadores} }
+)
         
     async def disconnect(self, websocket: WebSocket):
         self.ws_players.remove(websocket)
         await websocket.send_text("cerrando conexion")
         await websocket.close(reason="cliente pide desconexion")
         await self.broadcast_lobby("se desconecto un usuario")
+        await self.broadcast_lobby({'type':"cantidadJugadores",'body':{'cantidad_jugadores': self.cantidad_jugadores}})
 
         
+
 
 
 all_lobby: List[Lobby] = []

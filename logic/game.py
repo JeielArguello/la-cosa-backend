@@ -1,5 +1,8 @@
 from player import JugadorPartida
 from models.crud import read_carta
+from fastapi import WebSocket
+from typing import List
+
 
 
 class Juego:
@@ -16,6 +19,7 @@ class Juego:
         self.mazo = []
         self.mazo_descarte = []
         self.posiciones = []
+        self.ws_players_game: List[WebSocket] = []
 
         # spawnear jugadores
         for id in jugadores_id:
@@ -85,3 +89,19 @@ class Juego:
         # notificar resultados
         # finalizar partida
         print("partida")
+    
+    #Funciones para conexion del websocket
+    async def connect_game(self, websocket: WebSocket):
+        await websocket.accept()
+        self.ws_players_game.append(websocket)
+        await self.broadcast_global({"message": "se agrego un usuario al game"})
+        
+    async def disconnect_game(self, websocket: WebSocket):
+        self.ws_players_game.remove(websocket)
+        await websocket.send_text("cerrando conexion")
+        await websocket.close(reason="cliente pide desconexion")
+        await self.broadcast_global("se desconecto un usuario")
+    
+    async def broadcast_global(self, message: dict):
+        for p in self.ws_players_game:
+            await p.send_json(message)
