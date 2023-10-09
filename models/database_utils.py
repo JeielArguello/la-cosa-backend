@@ -101,21 +101,6 @@ def database_utils_iniciar_partida(match_id: int, user_id: int):
         raise HTTPException(
             status_code=400, detail="No se puede inicializar la partida. ")
 
-@db_session
-def db_cantidad_partidas():
-    Total_partida = count(p for p in Partida)
-    return Total_partida
-
-@db_session
-def get_matches():
-    matches= select(p for p in Partida)
-    return matches
-
-@db_session
-def db_cantidad_jugadores(match_id):
-    partida = Partida.get(id = match_id)
-    cantidad_jugadores = partida.jugadores.count()
-    return cantidad_jugadores
 
 @db_session
 def construir_mazo(num_jugadores: int):
@@ -162,6 +147,7 @@ def finalizar_partida(partida: Partida):
         return {"mensaje": "partida sin jugadores"}
     elif len(jugadores_vivos) > 1:
         return {"mensaje": "La partida aún no ha finalizado"}
+
 
 @db_session
 def db_cantidad_partidas():
