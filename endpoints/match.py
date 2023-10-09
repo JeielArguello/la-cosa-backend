@@ -41,6 +41,31 @@ async def match_create(id_usuario_creador: int = Form(),
         )
 
 
+@router.post('/join')
+async def match_join(match_id: int = Form(),
+                     user_id: int = Form()):
+    try:
+        # validar datos
+        validar_entrada_partida(user_id, match_id)
+        # actualizar base de datos
+        update_add_player(user_id, match_id)
+        estado = get_estado_partida(match_id)
+        return estado
+
+    except ValueError as ve:
+        error_msg = f"Error: {ve}"
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_msg
+        )
+    except HTTPException as e:
+        error_msg = f"Error: {e.detail}"
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_msg
+        )
+
+
 @router.post("/start")
 async def iniciar_partida(user_id: int = Form(), match_id: int = Form()):
     database_utils_iniciar_partida(match_id, user_id)
@@ -64,31 +89,6 @@ async def get_state(match_id: int):
     try:
         estado = get_estado_partida(match_id)
         return estado
-    except HTTPException as e:
-        error_msg = f"Error: {e.detail}"
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=error_msg
-        )
-
-
-@router.post('/join')
-async def match_join(match_id: int = Form(),
-                     user_id: int = Form()):
-    try:
-        # validar datos
-        validar_entrada_partida(user_id, match_id)
-        # actualizar base de datos
-        update_add_player(user_id, match_id)
-        estado = get_estado_partida(match_id)
-        return estado
-
-    except ValueError as ve:
-        error_msg = f"Error: {ve}"
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=error_msg
-        )
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
         raise HTTPException(
