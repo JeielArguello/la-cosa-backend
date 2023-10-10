@@ -1,6 +1,12 @@
+from pony.orm import *
+from models.database import *
+
+
 class JugadorPartida:
     def __init__(self, id: int):
         self.id = id
+        self.name: str
+        self.muerto = False
         self.la_cosa = False
         self.infectado = False
         self.turno_actual = False
