@@ -28,9 +28,9 @@ class Juego:
         # otorgar posiciones
         otorgar_posiciones(self)
         # # crear mazo
-        # construir_mazo(self)
+        self.mazo = construir_mazo(self.cantidad_jugadores)
         # # repartir cartas
-        # repartir_cartas(self, cantidad_jugadores)
+        # self.repartir_cartas(self.cantidad_jugadores)
 
     # def manejar_turnos(juego: Juego):
     #     if juego.sentido == 1:
@@ -119,3 +119,17 @@ def otorgar_posiciones(juego: Juego):
     for jugador_id in juego.jugadores_id:
         juego.posiciones.append(jugador_id)
         juego.posiciones.append(0)
+
+
+@db_session
+def construir_mazo(num_jugadores: int):
+    if num_jugadores > 3 and num_jugadores < 13:
+        try:
+            cartas_seleccionadas = select(
+                c.id for c in Carta if c.numero_jugadores <= num_jugadores)
+            mazo = list(cartas_seleccionadas)
+            return mazo
+        except Exception as e:
+            return {"error al construir el mazo"}
+    else:
+        return{"error": "numero de jugadores incorrecto"}
