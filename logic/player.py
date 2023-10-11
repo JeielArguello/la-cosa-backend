@@ -5,10 +5,11 @@ from models.database import *
 class JugadorPartida:
     def __init__(self, id: int):
         self.id = id
-        self.name: str
+        # self.name: str
         self.muerto = False
         self.la_cosa = False
         self.infectado = False
+        self.humano = True
         self.turno_actual = False
         self.posicion = 0
         self.cartas = []
