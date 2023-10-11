@@ -84,10 +84,10 @@ async def iniciar_partida(user_id: int = Form(), match_id: int = Form()):
             jugadores_id.append(id)
         cantidad_jugadores = len(partida.jugadores)
         juego = Juego(partida.id, cantidad_jugadores, creador, jugadores_id)
-        # juego.crear_mazo
-        # juego.repartir_cartas
+        juego.repartir_cartas(cantidad_jugadores)
     global_juegos.append(juego)
     print(juego.posiciones)
+    print(juego.mazo)
     # ##########
     await broadcast("A")
     return {"message": "Se inició con éxito la partida."}
@@ -170,6 +170,7 @@ async def get_player_state(match_id: int, player_id: int):
     try:
         juego = get_global_juego(match_id)
         result = get_status_player(juego, player_id)
+        print(juego.mazo)
         return result
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
@@ -186,7 +187,7 @@ def get_status_player(juego: Juego, player_id: int):
             jugador = j
     if jugador is None:
         raise HTTPException(
-            status_code=400, 
+            status_code=400,
             detail="El jugador no se encuentra en la partida")
     mano = jugador.cartas
     muerto = jugador.muerto
