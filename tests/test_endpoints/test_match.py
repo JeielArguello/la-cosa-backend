@@ -243,3 +243,48 @@ def test_get_game_state_fail_game_no_exist(mocker):
     response = client.get('/match/game/state/1')
     assert response.status_code == 400
     assert response.json() == {'detail': 'Error: No se pudo acceder al juego'}
+
+
+def test_get_player_state_succes(mocker):
+    mock_juego = Juego(partida_id=1, cantidad_jugadores=2,
+                       creador=1, jugadores_id=[1, 2])
+
+    mock_status_player = {'mano': [
+        1, 2, 3, 4], 'muerto': False, 'la_cosa': True, 'humano': False, 'infectado': True}
+    mocker.patch('endpoints.match.get_global_juego',
+                 return_value=mock_juego, autospec=True)
+    mocker.patch('endpoints.match.get_status_player',
+                 return_value=mock_status_player, autospec=True)
+
+    response = client.get('/match/player/state/1/1')
+    assert response.status_code == 200
+    assert response.json() == mock_status_player
+
+
+def test_get_player_state_fail_game_no_exist(mocker):
+    mocker.patch(
+        'endpoints.match.get_global_juego',
+        side_effect=HTTPException(
+            status_code=400,
+            detail="No se pudo acceder al juego"),
+        autospec=True)
+    response = client.get('/match/player/state/1/1')
+    assert response.status_code == 400
+    assert response.json() == {'detail': 'Error: No se pudo acceder al juego'}
+
+
+def test_get_player_state_fail_game_no_exist(mocker):
+    mock_juego = Juego(partida_id=1, cantidad_jugadores=2,
+                       creador=1, jugadores_id=[1, 2])
+    mocker.patch('endpoints.match.get_global_juego',
+                 return_value=mock_juego, autospec=True)
+    mocker.patch(
+        'endpoints.match.get_status_player',
+        side_effect=HTTPException(
+            status_code=400,
+            detail="El jugador no se encuentra en la partida"),
+        autospec=True)
+    response = client.get('/match/player/state/1/1')
+    assert response.status_code == 400
+    assert response.json() == {
+        'detail': 'Error: El jugador no se encuentra en la partida'}
