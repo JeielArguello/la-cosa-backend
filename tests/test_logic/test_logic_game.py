@@ -104,7 +104,7 @@ def test_repartirCartas_diferentes_cartas_a_jugadores(mocker):
 
     for i in range(0, 3):
         jugadorI = juego.jugadores_en_partida[i]
-        for j in range(i+1, 4):
+        for j in range(i + 1, 4):
             jugadorJ = juego.jugadores_en_partida[j]
             for k in range(0, 4):
                 cartaI = jugadorI.cartas[k]
@@ -149,7 +149,7 @@ def test_asignar_cartas_orden_aleatorio(mocker):
     juego.mazo = mazo
     juego.repartir_cartas(4)
 
-    assert j1.cartas == [1,  25, 29, 33]
+    assert j1.cartas == [1, 25, 29, 33]
     assert j2.cartas == [22, 26, 30, 34]
     assert j3.cartas == [23, 27, 31, 35]
     assert j4.cartas == [24, 28, 32, 36]

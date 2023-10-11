@@ -27,6 +27,7 @@ app.include_router(user_router, prefix="/user")
 app.include_router(match_Router, prefix="/match")
 app.include_router(game_Router, prefix="/game")
 
+
 @app.on_event("startup")
 def startup_db():
     create_db()

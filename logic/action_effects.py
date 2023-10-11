@@ -41,7 +41,8 @@ def validar_posiciones_vecinas(
         len_posiciones: int):
     primero = min(indice_objetivo, indice_atacante)
     segundo = max(indice_objetivo, indice_atacante)
-    if (primero + 2 != segundo) and (primero != 0 or segundo != len_posiciones-2):
+    if (primero + 2 != segundo) and (primero !=
+                                     0 or segundo != len_posiciones - 2):
         raise HTTPException(
             status_code=400,
             detail="Los jugadores no son vecinos")

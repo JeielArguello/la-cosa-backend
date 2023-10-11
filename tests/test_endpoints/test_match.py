@@ -175,8 +175,16 @@ def test_get_player_state_succes(mocker):
     mock_juego = Juego(partida_id=1, cantidad_jugadores=2,
                        creador=1, jugadores_id=[1, 2])
 
-    mock_status_player = {'mano': [
-        1, 2, 3, 4], 'muerto': False, 'la_cosa': True, 'humano': False, 'infectado': True}
+    mock_status_player = {
+        'mano': [
+            1,
+            2,
+            3,
+            4],
+        'muerto': False,
+        'la_cosa': True,
+        'humano': False,
+        'infectado': True}
     mocker.patch('endpoints.match.get_global_juego',
                  return_value=mock_juego, autospec=True)
     mocker.patch('endpoints.match.get_status_player',

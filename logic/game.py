@@ -45,7 +45,8 @@ class Juego:
         mazo = list(self.mazo)
         indice_la_cosa = random.randint(0, players_num - 1)
         # range(0, 5) generará los números del 0 al
-        for iteration in range(0, 4):  # se deben repartir cuatro cartas a cada jugador
+        for iteration in range(
+                0, 4):  # se deben repartir cuatro cartas a cada jugador
             # por cada jugador en la partida
             for indexJugador in range(0, len(self.jugadores_en_partida)):
                 jugador = self.jugadores_en_partida[indexJugador]
