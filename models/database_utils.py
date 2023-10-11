@@ -35,7 +35,7 @@ def validar_partida(
 
 
 @db_session
-def validar_entrada_partida(id_player: int, id_match: int):
+def validar_entrada_partida(id_player: int, id_match: int,contrasena : str):
     # existe el usuario
     if not get_exist_user(id_player):
         raise ValueError("Usuario no existe")
@@ -53,6 +53,8 @@ def validar_entrada_partida(id_player: int, id_match: int):
         raise ValueError("Partida llena")
     if partida.iniciado:
         raise ValueError("Partida ya iniciada")
+    if partida.contrasena != contrasena:
+        raise ValueError("Contraseña incorrecta")
 
 
 @db_session
