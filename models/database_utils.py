@@ -78,6 +78,16 @@ def get_match(match_id: int):
 
 
 @db_session
+def get_jugadores_match(match_id: int):
+    match = get_match(match_id)
+    jugadores = []
+    for j in match.jugadores:
+        jugador = {'id': j.id, 'nombre': j.nombre}
+        jugadores.append(jugador)
+    return jugadores
+
+
+@db_session
 def get_exist_match(id_match: int):
     match_in_db = Partida.get(id=id_match)
     return match_in_db is not None
