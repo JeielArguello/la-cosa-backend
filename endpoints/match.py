@@ -104,7 +104,7 @@ async def get_state(match_id: int):
 
 
 @router.get("/game/state/{match_id}")
-async def get_state(match_id: int):
+async def get_game_state(match_id: int):
     try:
         juego = get_global_juego(match_id)
         result = get_status_game(juego)
@@ -137,3 +137,38 @@ def get_global_juego(match_id: int) -> Juego:
     return result
 
 # falta mover las funciones sin importaciones circulares T_T
+
+# Player state
+
+
+@router.get("/player/state/{match_id}/{player_id}")
+async def get_player_state(match_id: int, player_id: int):
+    try:
+        juego = get_global_juego(match_id)
+        result = get_status_player(juego, player_id)
+        return result
+    except HTTPException as e:
+        error_msg = f"Error: {e.detail}"
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_msg
+        )
+
+
+def get_status_player(juego: Juego, player_id: int):
+    jugador = None
+    for j in juego.jugadores_en_partida:
+        if j.id == player_id:
+            jugador = j
+    if jugador is None:
+        raise HTTPException(
+            status_code=400, 
+            detail="El jugador no se encuentra en la partida")
+    mano = jugador.cartas
+    muerto = jugador.muerto
+    la_cosa = jugador.la_cosa
+    humano = jugador.humano
+    infectado = jugador.infectado
+    response = {'mano': mano, 'muerto': muerto, 'la_cosa': la_cosa,
+                'humano': humano, 'infectado': infectado}
+    return response
