@@ -76,6 +76,16 @@ def get_match(match_id: int):
 
 
 @db_session
+def get_jugadores_match(match_id: int):
+    match = get_match(match_id)
+    jugadores = []
+    for j in match.jugadores:
+        jugador = {'id': j.id, 'nombre': j.nombre}
+        jugadores.append(jugador)
+    return jugadores
+
+
+@db_session
 def get_exist_match(id_match: int):
     match_in_db = Partida.get(id=id_match)
     return match_in_db is not None
@@ -100,7 +110,8 @@ def database_utils_iniciar_partida(match_id: int, user_id: int):
 
     if partida.jugadores.count() < partida.minimo_jugadores:
         raise HTTPException(
-            status_code=400, detail="No se cumple la cantidad minima de jugadores.")
+            status_code=400,
+            detail="No se cumple la cantidad minima de jugadores.")
 
     partida.iniciado = True
 

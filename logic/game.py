@@ -29,8 +29,6 @@ class Juego:
         otorgar_posiciones(self)
         # # crear mazo
         self.mazo = construir_mazo(self.cantidad_jugadores)
-        # # repartir cartas
-        # self.repartir_cartas(self.cantidad_jugadores)
 
     # def manejar_turnos(juego: Juego):
     #     if juego.sentido == 1:
@@ -47,7 +45,8 @@ class Juego:
         mazo = list(self.mazo)
         indice_la_cosa = random.randint(0, players_num - 1)
         # range(0, 5) generará los números del 0 al
-        for iteration in range(0, 4):  # se deben repartir cuatro cartas a cada jugador
+        for iteration in range(
+                0, 4):  # se deben repartir cuatro cartas a cada jugador
             # por cada jugador en la partida
             for indexJugador in range(0, len(self.jugadores_en_partida)):
                 jugador = self.jugadores_en_partida[indexJugador]
@@ -55,6 +54,7 @@ class Juego:
                     # el id 1 corresponde a la carta la cos
                     jugador.agregar_carta(1)
                     jugador.la_cosa = True
+                    jugador.humano = False
                     mazo.remove(1)  # elimina el primer elemento con valor 1
                 else:
                     while len(mazo) > 0:
@@ -67,6 +67,7 @@ class Juego:
 
             if iteration == 3:
                 self.mazo = mazo
+        random.shuffle(self.mazo)
 
 
 def robar_carta(juego: Juego, jugador: JugadorPartida):
@@ -76,6 +77,7 @@ def robar_carta(juego: Juego, jugador: JugadorPartida):
             detail="El mazo esta vacio")
     carta_id = juego.mazo.pop()
     jugador.agregar_carta(carta_id)
+    return carta_id
 
 
 def crear_jugadores_partida(juego: Juego):

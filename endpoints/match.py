@@ -5,6 +5,7 @@ from models.crud import *
 from models.database_utils import *
 ##########
 from logic.game import Juego
+# from endpoints.game import get_global_juego
 
 global_juegos: list[Juego] = []
 ##########
@@ -79,8 +80,10 @@ async def iniciar_partida(user_id: int = Form(), match_id: int = Form()):
             jugadores_id.append(id)
         cantidad_jugadores = len(partida.jugadores)
         juego = Juego(partida.id, cantidad_jugadores, creador, jugadores_id)
+        juego.repartir_cartas(cantidad_jugadores)
     global_juegos.append(juego)
     print(juego.posiciones)
+    print(juego.mazo)
     # ##########
     return {"message": "Se inició con éxito la partida."}
 
@@ -97,13 +100,76 @@ async def get_state(match_id: int):
             detail=error_msg
         )
 
+# Game state
 
-# @router.get('/list')
-# async def match_list():
-#     list_rooms = []
-#     for room in all_matchs:
-#         list_rooms.append({'id_room': room.id_Match,
-#                            'name_room': room.name,
-#                            'players_amount': room.player_amount})
 
-#     return list_rooms
+@router.get("/game/state/{match_id}")
+async def get_game_state(match_id: int):
+    try:
+        juego = get_global_juego(match_id)
+        result = get_status_game(juego)
+        return result
+    except HTTPException as e:
+        error_msg = f"Error: {e.detail}"
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_msg
+        )
+
+
+def get_status_game(juego: Juego):
+    posiciones = juego.posiciones
+    sentido = juego.sentido
+    jugadores = get_jugadores_match(juego.partida_id)
+    response = {'posiciones': posiciones,
+                'jugadores': jugadores, 'sentido': sentido}
+    return response
+
+
+def get_global_juego(match_id: int) -> Juego:
+    result = None
+    for juego in global_juegos:
+        if juego.partida_id == match_id:
+            result = juego
+    if(result is None):
+        raise HTTPException(
+            status_code=400, detail="No se pudo acceder al juego")
+    return result
+
+# falta mover las funciones sin importaciones circulares T_T
+
+# Player state
+
+
+@router.get("/player/state/{match_id}/{player_id}")
+async def get_player_state(match_id: int, player_id: int):
+    try:
+        juego = get_global_juego(match_id)
+        result = get_status_player(juego, player_id)
+        print(juego.mazo)
+        return result
+    except HTTPException as e:
+        error_msg = f"Error: {e.detail}"
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_msg
+        )
+
+
+def get_status_player(juego: Juego, player_id: int):
+    jugador = None
+    for j in juego.jugadores_en_partida:
+        if j.id == player_id:
+            jugador = j
+    if jugador is None:
+        raise HTTPException(
+            status_code=400,
+            detail="El jugador no se encuentra en la partida")
+    mano = jugador.cartas
+    muerto = jugador.muerto
+    la_cosa = jugador.la_cosa
+    humano = jugador.humano
+    infectado = jugador.infectado
+    response = {'mano': mano, 'muerto': muerto, 'la_cosa': la_cosa,
+                'humano': humano, 'infectado': infectado}
+    return response

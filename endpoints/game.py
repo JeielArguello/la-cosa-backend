@@ -5,7 +5,7 @@ from models.crud import *
 from models.database_utils import *
 from utils.match_utils import *
 from models.match_models import *
-from logic.game import Juego
+from logic.game import Juego, robar_carta
 from logic.player import JugadorPartida
 from logic.action_effects import play_lanzallamas
 ##########
@@ -24,16 +24,9 @@ async def pick_a_card_from_deck(match_id: int = Form(), player_id: int = Form())
     for jugador_en_partida in juego.jugadores_en_partida:
         if jugador_en_partida.id == player_id:
             jugador = jugador_en_partida
-    robar_carta(juego, jugador)
+    carta = robar_carta(juego, jugador)
+    return {'card_id': carta}
 
-
-def robar_carta(juego: Juego, jugador: JugadorPartida):
-    if len(juego.mazo) == 0:
-        raise HTTPException(
-            status_code=400,
-            detail="El mazo esta vacio")
-    carta_id = juego.mazo.pop()
-    jugador.agregar_carta(carta_id)
 
 ######
 # Jugar carta
@@ -45,22 +38,33 @@ async def jugar_carta(match_id: int = Form(), card_id: int = Form(), player_obje
     juego = get_global_juego(match_id)
     resultado = jugar_la_carta(juego, card_id, player_objective, player_origin)
     # if descartar_carta(card_id, player_orig, match_id):
+    return {
+        "carta": card_id,
+        "jugada contra": player_objective,
+        "por": player_origin}
+    # return {"error al jugar la carta": card_id, "contra": player_objective,
+    # "por": player_orig}
     return {"carta": card_id, "jugada contra": player_objective, "por": player_origin}
     # return {"error al jugar la carta": card_id, "contra": player_objective, "por": player_orig}
 '''
+
+
 @router.post("/play", status_code=status.HTTP_200_OK)
-async def jugar_carta(match_id : int = Form(), card_id : int = Form() ,
-                       player_objective : int = Form(), player_orig : int = Form()):
+async def jugar_carta(match_id: int = Form(), card_id: int = Form(),
+                      player_objective: int = Form(), player_orig: int = Form()):
     juego = get_global_juego(match_id)
     resultado = jugar_la_carta(juego, card_id,
-                       player_objective, player_orig)
-    #if descartar_carta(card_id, player_orig, juego):
+                               player_objective, player_orig)
+    # if descartar_carta(card_id, player_orig, juego):
     return {"carta": card_id, "jugada contra": player_objective, "por": player_orig}
-    #return {"error al jugar la carta": card_id, "contra": player_objective, "por": player_orig}
+    # return {"error al jugar la carta": card_id, "contra": player_objective, "por": player_orig}
 
 
-
-def jugar_la_carta(juego: Juego, card_id: int, player_objective: int, player_orig: int):
+def jugar_la_carta(
+        juego: Juego,
+        card_id: int,
+        player_objective: int,
+        player_orig: int):
     if card_id in [22, 23, 24, 25, 26]:
         play_lanzallamas(player_orig, player_objective, juego)
         return True
@@ -97,7 +101,9 @@ async def finish_match(match_id: int = Form()):
     try:
         juego = get_global_juego(match_id)
         result = finalizar_partida(juego)
-        if result != {"mensaje": "La partida aún no ha finalizado", "ganador": 0}:
+        if result != {
+            "mensaje": "La partida aún no ha finalizado",
+                "ganador": 0}:
             delete_global_juego(match_id)
             delete_match(match_id)
         return result
