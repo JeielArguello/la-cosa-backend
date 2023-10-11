@@ -112,7 +112,8 @@ def database_utils_iniciar_partida(match_id: int, user_id: int):
 
     if partida.jugadores.count() < partida.minimo_jugadores:
         raise HTTPException(
-            status_code=400, detail="No se cumple la cantidad minima de jugadores.")
+            status_code=400,
+            detail="No se cumple la cantidad minima de jugadores.")
 
     partida.iniciado = True
 

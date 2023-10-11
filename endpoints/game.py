@@ -38,11 +38,19 @@ async def jugar_carta(match_id: int = Form(), card_id: int = Form(), player_obje
     juego = get_global_juego(match_id)
     resultado = jugar_la_carta(juego, card_id, player_objective, player_origin)
     # if descartar_carta(card_id, player_orig, match_id):
-    return {"carta": card_id, "jugada contra": player_objective, "por": player_origin}
-    # return {"error al jugar la carta": card_id, "contra": player_objective, "por": player_orig}
+    return {
+        "carta": card_id,
+        "jugada contra": player_objective,
+        "por": player_origin}
+    # return {"error al jugar la carta": card_id, "contra": player_objective,
+    # "por": player_orig}
 
 
-def jugar_la_carta(juego: Juego, card_id: int, player_objective: int, player_orig: int):
+def jugar_la_carta(
+        juego: Juego,
+        card_id: int,
+        player_objective: int,
+        player_orig: int):
     if card_id in [22, 23, 24, 25, 26]:
         play_lanzallamas(player_orig, player_objective, juego)
         return True
@@ -79,7 +87,9 @@ async def finish_match(match_id: int = Form()):
     try:
         juego = get_global_juego(match_id)
         result = finalizar_partida(juego)
-        if result != {"mensaje": "La partida aún no ha finalizado", "ganador": 0}:
+        if result != {
+            "mensaje": "La partida aún no ha finalizado",
+                "ganador": 0}:
             delete_global_juego(match_id)
             delete_match(match_id)
         return result
