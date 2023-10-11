@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from endpoints.user import router as user_router
 from endpoints.match import router as match_Router
 from endpoints.game import router as game_Router
+from endpoints.websocket import router as websocket_Router
 from os import remove
 
 app = FastAPI()
@@ -26,6 +27,7 @@ app.add_middleware(
 app.include_router(user_router, prefix="/user")
 app.include_router(match_Router, prefix="/match")
 app.include_router(game_Router, prefix="/game")
+app.include_router(websocket_Router, prefix="/ws")
 
 @app.on_event("startup")
 def startup_db():
