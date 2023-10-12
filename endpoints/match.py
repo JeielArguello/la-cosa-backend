@@ -105,7 +105,6 @@ async def get_state(match_id: int):
             detail=error_msg
         )
 
-
 @router.get('/list')
 async def match_list():
     try:
@@ -125,7 +124,6 @@ async def match_list():
             detail=error_msg
         )
 # Game state
-
 
 @router.get("/game/state/{match_id}")
 async def get_game_state(match_id: int):
