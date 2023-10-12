@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 from unittest.mock import Mock
-from logic.game import Juego
+from models.game import Juego
 from logic.action_effects import *
 
 

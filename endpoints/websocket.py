@@ -41,3 +41,36 @@ async def broadcast( message: dict):
 
 ws_players_list: List[WebSocket] = []
 
+
+
+
+#websocket para sala
+@router.websocket('/lobby/{match_id}')
+async def websocket_endpoint_lobby(websocket: WebSocket, match_id: int):
+     
+     #obtengo el lobby al que se quiere conectar
+     lobby = get_lobby(match_id)
+
+     #conecto el ws del cliente a el lobby y aviso a todos que se unio alguien
+     # actualizando la cantidad de jugadores
+     await lobby.connect(websocket)
+
+     try:
+          while True:
+               #espero un mensaje
+               msg = await websocket.receive() 
+
+               #verifico que no sea una mala desconexion 
+               websocket._raise_on_disconnect(msg)
+
+               #verifico si el cliente se quiere desconectar
+               if(msg["text"] == "desconexion"): 
+                    await lobby.disconnect(websocket)
+                    break
+               #
+               await lobby.broadcast_lobby(msg)
+
+     except WebSocketDisconnect:
+          if websocket in lobby.ws_players:
+               lobby.ws_players.remove(websocket)
+          await lobby.broadcast_lobby("se desconecto un usuario")

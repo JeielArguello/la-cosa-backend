@@ -3,7 +3,7 @@ from fastapi import WebSocket
 from typing import List
 import random
 from logic.deck import deck_es_carta_alejate
-from logic.player import JugadorPartida
+from models.player import JugadorPartida
 from fastapi import HTTPException
 
 

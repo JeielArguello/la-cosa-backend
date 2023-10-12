@@ -1,6 +1,9 @@
 
 from typing import List, Optional
 from fastapi import WebSocket
+from fastapi import HTTPException
+from utils.game_utils import global_juegos
+from models.game import Juego
 
 
 class Lobby:
@@ -33,6 +36,12 @@ class Lobby:
     def list_players(self):
         list_player = self.users_id 
         return list_player
+    
+    def init_game(self):
+        juego = Juego(self.id_partida, self.cantidad_jugadores, self.id_usuario_creador, self.users_id)
+        juego.repartir_cartas(self.cantidad_jugadores)
+        global_juegos.append(juego)
+        self.iniciada = True
 
     async def broadcast_lobby(self, message: dict):
         for p in self.ws_players:
@@ -41,19 +50,24 @@ class Lobby:
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
         self.ws_players.append(websocket)
-        await self.broadcast_lobby({"message": "se agrego un usuario al lobby"})
-        await self.broadcast_lobby({'type':"cantidadJugadores",'body':{"cantidad_jugadores": self.cantidad_jugadores} }
-)
+        await self.broadcast_lobby("B")
         
     async def disconnect(self, websocket: WebSocket):
         self.ws_players.remove(websocket)
         await websocket.send_text("cerrando conexion")
         await websocket.close(reason="cliente pide desconexion")
-        await self.broadcast_lobby("se desconecto un usuario")
-        await self.broadcast_lobby({'type':"cantidadJugadores",'body':{'cantidad_jugadores': self.cantidad_jugadores}})
+        await self.broadcast_lobby("B")
 
         
-
+def delete_lobby(match_id):
+    result = None
+    for lobby in all_lobby:
+        if lobby.id_partida == match_id:
+            result = lobby
+    if(result is None):
+        raise HTTPException(
+            status_code=400, detail="No se encontro el lobby")
+    all_lobby.remove(result)
 
 
 all_lobby: List[Lobby] = []

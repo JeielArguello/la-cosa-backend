@@ -4,12 +4,12 @@ from fastapi import APIRouter, Form, HTTPException, status, WebSocket
 from models.crud import *
 from models.database_utils import *
 from utils.match_utils import *
-from models.match_models import *
-from logic.game import Juego, robar_carta
-from logic.player import JugadorPartida
+from models.lobby_models import *
+from models.game import Juego, robar_carta
+from models.player import JugadorPartida
 from logic.action_effects import play_lanzallamas
 ##########
-from endpoints.match import global_juegos
+from utils.game_utils import global_juegos
 ##########
 router = APIRouter()
 
