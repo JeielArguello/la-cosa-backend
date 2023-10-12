@@ -1,8 +1,9 @@
-from fastapi import HTTPException, Body
-from fastapi import APIRouter, Form, HTTPException, status, WebSocket
-# from models.match_models import Match, all_matchs
+from fastapi import HTTPException
+from fastapi import APIRouter, Form, HTTPException, status
+from endpoints.websocket import broadcast
 from models.crud import *
 from models.database_utils import *
+from utils.match_utils import *
 ##########
 from logic.game import Juego
 # from endpoints.game import get_global_juego
@@ -27,6 +28,7 @@ async def match_create(id_usuario_creador: int = Form(),
         # crear instancia
         partida = crear_partida(id_usuario_creador, id_name, contraseña,
                                 num_max_jugadores, num_min_jugadores)
+        await broadcast("A")
         return partida
     except ValueError as ve:
         error_msg = f"Error: {ve}"
@@ -44,13 +46,15 @@ async def match_create(id_usuario_creador: int = Form(),
 
 @router.post('/join')
 async def match_join(match_id: int = Form(),
-                     user_id: int = Form()):
+                     user_id: int = Form(),
+                     contrasena: str = Form(default=None)):
     try:
         # validar datos
-        validar_entrada_partida(user_id, match_id)
+        validar_entrada_partida(user_id, match_id,contrasena)
         # actualizar base de datos
         update_add_player(user_id, match_id)
         estado = get_estado_partida(match_id)
+        await broadcast("A")
         return estado
 
     except ValueError as ve:
@@ -85,6 +89,7 @@ async def iniciar_partida(user_id: int = Form(), match_id: int = Form()):
     print(juego.posiciones)
     print(juego.mazo)
     # ##########
+    await broadcast("A")
     return {"message": "Se inició con éxito la partida."}
 
 
@@ -100,8 +105,25 @@ async def get_state(match_id: int):
             detail=error_msg
         )
 
-# Game state
+@router.get('/list')
+async def match_list():
+    try:
+        list_partida = listar_partidas()
+        return list_partida
 
+    except ValueError as ve:
+        error_msg = f"Error: {ve}"
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_msg
+        )
+    except HTTPException as e:
+        error_msg = f"Error: {e.detail}"
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_msg
+        )
+# Game state
 
 @router.get("/game/state/{match_id}")
 async def get_game_state(match_id: int):

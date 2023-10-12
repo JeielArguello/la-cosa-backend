@@ -49,6 +49,7 @@ async def jugar_carta(match_id: int = Form(), card_id: int = Form(), player_obje
 '''
 
 
+
 @router.post("/play", status_code=status.HTTP_200_OK)
 async def jugar_carta(match_id: int = Form(), card_id: int = Form(),
                       player_objective: int = Form(), player_orig: int = Form()):
@@ -58,7 +59,6 @@ async def jugar_carta(match_id: int = Form(), card_id: int = Form(),
     # if descartar_carta(card_id, player_orig, juego):
     return {"carta": card_id, "jugada contra": player_objective, "por": player_orig}
     # return {"error al jugar la carta": card_id, "contra": player_objective, "por": player_orig}
-
 
 def jugar_la_carta(
         juego: Juego,
