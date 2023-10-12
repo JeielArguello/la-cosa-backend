@@ -1,11 +1,12 @@
 import pytest
 from fastapi.testclient import TestClient
-from unittest.mock import patch, Mock
+from unittest.mock import Mock
 from models.database import Jugador, Partida
 from pony.orm import *
 from models.database_utils import *
 from models.crud import *
-from logic.game import Juego
+from models.game import Juego
+from models.lobby_models import Lobby
 
 from main import app
 
@@ -39,6 +40,13 @@ def mock_partida():
                          "num_max_jugadores": 100,
                          "num_min_jugadores": 4}
     return mock_partida_dict
+
+@pytest.fixture
+def mock_lobby():
+    mock_lobby = Lobby(id_usuario_creador=1, id_name="sala 1", contraseña="1234",
+                       num_max_jugadores=11, num_min_jugadores=4, id_partida=1)
+    return mock_lobby
+
 
 
 def test_create_match_fail(mocker, mock_partida: dict[str, any]):
@@ -85,7 +93,7 @@ def test_create_match_fail_3(mocker, mock_partida: dict[str, any]):
 
 
 
-def test_join_match_success(mocker):
+def test_join_match_success(mocker,mock_lobby: Lobby):
     mocker.patch("endpoints.match.validar_entrada_partida",
                  return_value=None, autospec=True,)
     mocker.patch("endpoints.match.update_add_player",
@@ -100,12 +108,16 @@ def test_join_match_success(mocker):
 
     mocker.patch("endpoints.match.get_estado_partida",
                  return_value=estado, autospec=True,)
+    mocker.patch("endpoints.match.get_lobby",
+                 return_value=mock_lobby, autospec=True,)
+    
     mocker.patch("endpoints.match.broadcast",
                  return_value=None, autospec=True,)
-    response = client.post("/match/join", data={"match_id": 2, "user_id": 1})
+    response = client.post("/match/join", data={"match_id": 2, "user_id": 1, "contrasena": "1234"})
 
+    assert len(mock_lobby.list_players() ) == 2
     assert response.status_code != 422, "Los parametros de entrada del endpoint no pueden ser procesados"
-    assert response.status_code == 200
+    assert response.status_code == 200, "El status_code es distinto de 200"
     assert response.json() == estado 
 
 def test_join_match_password_fail(mocker):
