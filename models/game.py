@@ -1,6 +1,6 @@
 import random
 from logic.deck import deck_es_carta_alejate
-from logic.player import JugadorPartida
+from models.player import JugadorPartida
 from fastapi import HTTPException
 # from logic.deck import robar_carta
 from typing import List

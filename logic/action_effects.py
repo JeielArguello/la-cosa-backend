@@ -1,5 +1,5 @@
 from fastapi import HTTPException
-from logic.game import Juego
+from models.game import Juego
 
 
 def play_lanzallamas(atacante_in: int, objetivo_in: int, juego: Juego):

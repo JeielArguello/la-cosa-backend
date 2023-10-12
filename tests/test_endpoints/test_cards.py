@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 from unittest.mock import Mock
-from logic.game import Juego, robar_carta
-from logic.player import JugadorPartida
+from models.game import Juego, robar_carta
+from models.player import JugadorPartida
 from fastapi import HTTPException
 
 

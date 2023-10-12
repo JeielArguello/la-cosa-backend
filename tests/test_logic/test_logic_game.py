@@ -1,7 +1,7 @@
 import random
 import pytest
-from logic.game import Juego
-from logic.player import JugadorPartida
+from models.game import Juego
+from models.player import JugadorPartida
 from logic.deck import deck_es_carta_alejate
 from unittest.mock import Mock, patch
 from typing import List
