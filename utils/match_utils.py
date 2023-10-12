@@ -16,8 +16,8 @@ def listar_partidas():
     list_rooms = []
         
     partidas = get_matches()
-
     for partida in partidas:
+        print(partida)
         cant_jugadores = db_cantidad_jugadores(partida.id)
         if cant_jugadores is None:
             raise HTTPException(status_code=400,detail="No se pudo obtener la partida")

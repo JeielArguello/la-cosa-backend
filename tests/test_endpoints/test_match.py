@@ -296,3 +296,49 @@ def test_get_player_state_fail_game_no_exist(mocker):
     assert response.status_code == 400
     assert response.json() == {
         'detail': 'Error: El jugador no se encuentra en la partida'}
+
+def test_list_succes_empty(mocker):
+    
+    lista_partida =[]
+
+    mocker.patch("endpoints.match.listar_partidas",
+                 return_value=[], autospec=True,)
+    
+    response = client.get("/match/list")
+
+    assert response.status_code == 200
+    assert response.json() == lista_partida 
+
+
+
+
+def test_list_succes_1(mocker):
+    
+    lista_partida = [{
+        'iniciada': 1,
+        'nombre_partida': "sala 1",
+        'minimo': 4,
+        'maximo': 12,
+        'cantidad_jugadores': 2}]
+
+    mocker.patch("endpoints.match.listar_partidas",
+                 return_value=lista_partida, autospec=True,)
+    
+    response = client.get("/match/list")
+
+    assert response.status_code == 200
+    assert response.json() == lista_partida 
+
+
+def test_list_fail(mocker):
+    
+
+    mocker.patch("endpoints.match.listar_partidas",
+                 side_effect=HTTPException(status_code=400,detail="No se pudo obtener la partida"), autospec=True,)
+    
+    response = client.get("/match/list")
+
+    assert response.status_code == 400
+    assert response.json() == {'detail': "Error: No se pudo obtener la partida"} 
+
+
