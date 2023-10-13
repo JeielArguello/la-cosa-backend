@@ -2,10 +2,10 @@
 from fastapi import HTTPException
 from models.game import Juego
 from models.database_utils import get_jugadores_match
+from models.crud import get_name
 
 
 global_juegos: list[Juego] = []
-
 
 
 def get_status_game(juego: Juego):
@@ -45,3 +45,64 @@ def get_status_player(juego: Juego, player_id: int):
     response = {'mano': mano, 'muerto': muerto, 'la_cosa': la_cosa,
                 'humano': humano, 'infectado': infectado}
     return response
+
+
+def check_ganador(juego: Juego) -> bool:
+    first = check_la_cosa_eliminada(juego)
+    second = check_no_humanos(juego)
+    result = first or second
+    return result
+
+
+def finalizar_juego(juego: Juego):
+    la_cosa = []
+    humanos = []
+    infectados = []
+    for j in juego.jugadores_en_partida:
+        name = get_name(j.id)
+        if j.get_la_cosa():
+            la_cosa.append(name)
+        if j.get_infectado():
+            infectados.append(name)
+        if j.get_humano():
+            humanos.append(name)
+
+    if check_la_cosa_eliminada(juego):
+        return {'message': 'Ganan los Humanos', 'winners': humanos, 'losers': la_cosa+infectados}
+    elif check_no_humanos_no_eliminados(juego):
+        return {'message': 'Gana La Cosa', 'winners': la_cosa, 'losers': infectados+humanos}
+    elif check_no_humanos(juego):
+        return {'message': 'Ganan La Cosa y Los Infectados', 'winners': la_cosa+infectados, 'losers': humanos}
+    else:
+        raise HTTPException(
+            status_code=400, detail="No hay ganadores.")
+
+
+def check_la_cosa_eliminada(juego: Juego) -> bool:
+    la_cosa_eliminada = True
+    for j in juego.jugadores_en_partida:
+        if j.get_la_cosa() and not j.get_muerto():
+            la_cosa_eliminada = False
+    print(f'la_cosa_eliminada:{la_cosa_eliminada}')
+    return la_cosa_eliminada
+
+
+def check_no_humanos(juego: Juego) -> bool:
+    no_humanos = True
+    for j in juego.jugadores_en_partida:
+        if j.get_humano() and not j.get_muerto():
+            no_humanos = False
+    print(f'no_humanos:{no_humanos}')
+    return no_humanos
+
+
+def check_no_humanos_no_eliminados(juego: Juego) -> bool:
+    no_humanos = True
+    no_muertos = True
+    for j in juego.jugadores_en_partida:
+        if j.get_humano() and not j.get_muerto():
+            no_humanos = False
+        if j.get_muerto() :
+            no_muertos = False
+    print(f'no_humanos_no_eliminados:{no_humanos and no_muertos}')
+    return no_humanos and no_muertos

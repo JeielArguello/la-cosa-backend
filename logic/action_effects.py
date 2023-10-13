@@ -28,9 +28,11 @@ def play_lanzallamas(atacante_in: int, objetivo_in: int, juego: Juego):
     # get Jugador objetivo
     for jugador in juego.jugadores_en_partida:
         if jugador.id == objetivo_in:
-            objetivo = jugador
+            # objetivo = jugador
+            jugador.set_muerto()
+
     # eliminar jugador y posiciones
-    juego.jugadores_en_partida.remove(objetivo)
+    # juego.jugadores_en_partida.remove(objetivo)
     del juego.posiciones[indice_objetivo]
     del juego.posiciones[indice_objetivo]
 

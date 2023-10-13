@@ -91,6 +91,13 @@ def db_create_user(nombre: str) -> Dict[str, int]:
     jugador.flush()
     result = {"user_name": jugador.nombre, "id": jugador.id}
     return result
+
 # Read
+
+
+@db_session
+def get_name(user_id: int) -> str:
+    user = get(u for u in Jugador if u.id == user_id)
+    return user.nombre
 # Update
 # Delete

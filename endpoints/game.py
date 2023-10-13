@@ -9,7 +9,7 @@ from models.game import Juego, robar_carta
 from models.player import JugadorPartida
 from logic.action_effects import play_lanzallamas
 ##########
-from utils.game_utils import global_juegos
+from utils.game_utils import global_juegos, finalizar_juego
 ##########
 router = APIRouter()
 
@@ -32,23 +32,6 @@ async def pick_a_card_from_deck(match_id: int = Form(), player_id: int = Form())
 # Jugar carta
 ######
 
-'''
-@router.post('/play')
-async def jugar_carta(match_id: int = Form(), card_id: int = Form(), player_objective: int = Form(), player_origin: int = Form()):
-    juego = get_global_juego(match_id)
-    resultado = jugar_la_carta(juego, card_id, player_objective, player_origin)
-    # if descartar_carta(card_id, player_orig, match_id):
-    return {
-        "carta": card_id,
-        "jugada contra": player_objective,
-        "por": player_origin}
-    # return {"error al jugar la carta": card_id, "contra": player_objective,
-    # "por": player_orig}
-    return {"carta": card_id, "jugada contra": player_objective, "por": player_origin}
-    # return {"error al jugar la carta": card_id, "contra": player_objective, "por": player_orig}
-'''
-
-
 
 @router.post("/play", status_code=status.HTTP_200_OK)
 async def jugar_carta(match_id: int = Form(), card_id: int = Form(),
@@ -59,6 +42,7 @@ async def jugar_carta(match_id: int = Form(), card_id: int = Form(),
     # if descartar_carta(card_id, player_orig, juego):
     return {"carta": card_id, "jugada contra": player_objective, "por": player_orig}
     # return {"error al jugar la carta": card_id, "contra": player_objective, "por": player_orig}
+
 
 def jugar_la_carta(
         juego: Juego,
@@ -100,12 +84,9 @@ def descartar_carta(card_id: int, player_orig: int, match_id: int):
 async def finish_match(match_id: int = Form()):
     try:
         juego = get_global_juego(match_id)
-        result = finalizar_partida(juego)
-        if result != {
-            "mensaje": "La partida aún no ha finalizado",
-                "ganador": 0}:
-            delete_global_juego(match_id)
-            delete_match(match_id)
+        result = finalizar_juego(juego)
+        delete_global_juego(match_id)
+        delete_match(match_id)
         return result
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
@@ -113,23 +94,6 @@ async def finish_match(match_id: int = Form()):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=error_msg
         )
-
-
-def finalizar_partida(juego: Juego):
-    if len(juego.jugadores_en_partida) == 1:
-        ganador = juego.jugadores_en_partida.pop()
-        ganador_id = ganador.id
-        return {"mensaje": "La partida ha finalizado", "ganador": ganador_id}
-    elif len(juego.jugadores_en_partida) == 0:
-        return {"mensaje": "partida sin jugadores", "ganador": 0}
-    else:
-        return {"mensaje": "La partida aún no ha finalizado", "ganador": 0}
-
-
-######
-# Funcion que obtiene juego
-######
-# global_juegos: list[Juego]
 
 
 def get_global_juego(match_id: int) -> Juego:
