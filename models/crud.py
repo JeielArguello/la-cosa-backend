@@ -2,7 +2,6 @@ from pony.orm import *
 from .database import *
 from .database_utils import *
 from typing import Dict
-from pony.orm import *
 
 
 # # CARTA

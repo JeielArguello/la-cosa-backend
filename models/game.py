@@ -1,5 +1,6 @@
 import random
 from logic.deck import deck_es_carta_alejate
+from models.database_utils import construir_mazo
 from models.player import JugadorPartida
 from fastapi import HTTPException, WebSocket
 # from logic.deck import robar_carta
@@ -107,15 +108,3 @@ def otorgar_posiciones(juego: Juego):
         juego.posiciones.append(0)
 
 
-@db_session
-def construir_mazo(num_jugadores: int):
-    if num_jugadores > 3 and num_jugadores < 13:
-        try:
-            cartas_seleccionadas = select(
-                c.id for c in Carta if c.numero_jugadores <= num_jugadores)
-            mazo = list(cartas_seleccionadas)
-            return mazo
-        except Exception as e:
-            return {"error al construir el mazo"}
-    else:
-        return{"error": "numero de jugadores incorrecto"}

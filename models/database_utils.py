@@ -15,24 +15,25 @@ def get_exist_user(id_user: int):
     return jugador_en_db is not None
 
 # PARTIDA
+@db_session
+def listar_partidas():
+    list_rooms = []
+        
+    partidas = get_matches()
+    for partida in partidas:
+        cant_jugadores = db_cantidad_jugadores(partida.id)
+        if cant_jugadores is None:
+            raise HTTPException(status_code=400,detail="No se pudo obtener la partida")
 
+        if not partida.iniciado  and cant_jugadores<partida.maximo_jugadores :
+            list_rooms.append({'id_partida': partida.id,
+                                'name_partida': partida.nombre,
+                                'cantidad_jugadores': cant_jugadores,
+                                'cantidad_jugadores_maximos': partida.maximo_jugadores,
+                                'contrasena': (partida.contrasena is not None),
+                                'iniciado':partida.iniciado})
 
-def validar_partida(
-        id_usuario_creador: int,
-        num_max_jugadores: int,
-        num_min_jugadores: int):
-    if not get_exist_user(id_usuario_creador):
-        raise ValueError("usuario no existe.")
-    if get_exist_user_in_game(id_usuario_creador):
-        raise ValueError("Usuario ya ingresado en una partida.")
-    if num_min_jugadores < 4:
-        raise ValueError("Numero minimo de jugadores menor a 4.")
-    if num_max_jugadores > 12:
-        raise ValueError("Numero maximo de jugadores mayor a 12.")
-    if num_max_jugadores < num_min_jugadores:
-        raise ValueError(
-            "Numero maximo de jugadores debe ser mayor al numero minimo.")
-
+    return list_rooms
 
 @db_session
 def validar_entrada_partida(id_player: int, id_match: int,contrasena : str):
@@ -122,6 +123,7 @@ def database_utils_iniciar_partida(match_id: int, user_id: int):
             status_code=400, detail="No se puede inicializar la partida. ")
 
 
+
 @db_session
 def construir_mazo(num_jugadores: int):
     if num_jugadores > 3 and num_jugadores < 13:
@@ -143,6 +145,15 @@ def construir_mazo(num_jugadores: int):
 #        except:
 #            raise HTTPException(
 #                status_code=400, detail="No se le pudo inicializar la ")
+
+@db_session
+def descartar_carta(card_id: int, player_orig: int, match_id: int):
+    juego = select(j for j in Partida if j.id == match_id).first()
+    if juego:
+        juego.mazo_descarte.append(card_id)
+        juego.jugadores_en_partida[player_orig].cartas.pop(card_id)
+        return True
+    return False
 
 
 @db_session

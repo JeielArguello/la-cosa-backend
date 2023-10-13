@@ -2,25 +2,24 @@ from models.crud import *
 from models.database_utils import *
 from models.lobby_models import all_lobby
 
-@db_session
-def listar_partidas():
-    list_rooms = []
-        
-    partidas = get_matches()
-    for partida in partidas:
-        cant_jugadores = db_cantidad_jugadores(partida.id)
-        if cant_jugadores is None:
-            raise HTTPException(status_code=400,detail="No se pudo obtener la partida")
 
-        if not partida.iniciado  and cant_jugadores<partida.maximo_jugadores :
-            list_rooms.append({'id_partida': partida.id,
-                                'name_partida': partida.nombre,
-                                'cantidad_jugadores': cant_jugadores,
-                                'cantidad_jugadores_maximos': partida.maximo_jugadores,
-                                'contrasena': (partida.contrasena is not None),
-                                'iniciado':partida.iniciado})
 
-    return list_rooms
+def validar_partida(
+        id_usuario_creador: int,
+        num_max_jugadores: int,
+        num_min_jugadores: int):
+    if not get_exist_user(id_usuario_creador):
+        raise ValueError("usuario no existe.")
+    if get_exist_user_in_game(id_usuario_creador):
+        raise ValueError("Usuario ya ingresado en una partida.")
+    if num_min_jugadores < 4:
+        raise ValueError("Numero minimo de jugadores menor a 4.")
+    if num_max_jugadores > 12:
+        raise ValueError("Numero maximo de jugadores mayor a 12.")
+    if num_max_jugadores < num_min_jugadores:
+        raise ValueError(
+            "Numero maximo de jugadores debe ser mayor al numero minimo.")
+
 
 def get_lobby(lobby_id : int):
     for p in all_lobby:
