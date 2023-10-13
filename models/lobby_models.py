@@ -54,7 +54,7 @@ class Lobby:
         
     async def disconnect(self, websocket: WebSocket):
         self.ws_players.remove(websocket)
-        await websocket.send_text("cerrando conexion")
+        await websocket.send_json("cerrando conexion")
         await websocket.close(reason="cliente pide desconexion")
         await self.broadcast_lobby("B")
 

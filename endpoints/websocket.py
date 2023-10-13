@@ -15,7 +15,7 @@ async def websocket_endpoint_list(websocket: WebSocket):
           ws_players_list.append(websocket)
           await broadcast({"message":"Usuario viendo lista de partida"})
           #le envio el mensaje para que el cliente pida la lista de partias actualizadas
-          await websocket.send_text("A")
+          await websocket.send_json("A")
           
           while True:
                #espero hasta recibir un mensaje
