@@ -169,12 +169,6 @@ def finalizar_partida(partida: Partida):
     elif len(jugadores_vivos) > 1:
         return {"mensaje": "La partida aún no ha finalizado"}
 
-
-@db_session
-def db_cantidad_partidas():
-    Total_partida = count(p for p in Partida)
-    return Total_partida
-
 @db_session
 def get_matches():
     matches= select(p for p in Partida)

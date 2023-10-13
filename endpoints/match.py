@@ -1,6 +1,6 @@
-from fastapi import HTTPException, Body
-from fastapi import APIRouter, Form, HTTPException, status, WebSocket
-# from models.match_models import Match, all_matchs
+from fastapi import HTTPException
+from fastapi import APIRouter, Form, HTTPException, status
+from endpoints.websocket import broadcast
 from models.crud import *
 from models.database_utils import *
 from utils.game_utils import get_global_juego, get_status_game, get_status_player
@@ -22,10 +22,9 @@ async def match_create(id_usuario_creador: int = Form(),
         # validar pedidio
         validar_partida(id_usuario_creador,
                         num_max_jugadores, num_min_jugadores)
-        # crear partida en base de datos
+        # crear instancia
         partida = crear_partida(id_usuario_creador, id_name, contraseña,
                                 num_max_jugadores, num_min_jugadores)
-        
         #crear instancia de partida
         lobby = Lobby(id_usuario_creador, id_name, contraseña,
                                 num_max_jugadores, num_min_jugadores,partida["id_partida"])
@@ -102,36 +101,6 @@ async def get_state(match_id: int):
             detail=error_msg
         )
 
-
-@router.post('/join')
-async def match_join(match_id: int = Form(),
-                     user_id: int = Form()):
-    try:
-        # validar datos
-        validar_entrada_partida(user_id, match_id)
-        # actualizar base de datos
-        update_add_player(user_id, match_id)
-        lobby = get_lobby(match_id)
-        lobby.add_player(user_id)
-
-        estado = get_estado_partida(match_id)
-        return estado
-
-    except ValueError as ve:
-        error_msg = f"Error: {ve}"
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=error_msg
-        )
-    except HTTPException as e:
-        error_msg = f"Error: {e.detail}"
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=error_msg
-        )
-
-    
-   
 @router.get('/list')
 async def match_list():
     try:
@@ -151,7 +120,6 @@ async def match_list():
             detail=error_msg
         )
 # Game state
-
 
 @router.get("/game/state/{match_id}")
 async def get_game_state(match_id: int):

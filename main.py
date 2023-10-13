@@ -13,7 +13,6 @@ app = FastAPI()
 # Middleware
 origins = [
     "http://localhost:3000",
-    "ws://127.0.0.1:8000/ws/1",
 ]
 
 app.add_middleware(
@@ -27,7 +26,6 @@ app.add_middleware(
 # Routers
 app.include_router(user_router, prefix="/user")
 app.include_router(match_Router, prefix="/match")
-app.include_router(websocket_router, prefix="/ws")
 app.include_router(game_Router, prefix="/game")
 app.include_router(websocket_Router, prefix="/ws")
 
@@ -43,3 +41,7 @@ def startup_db():
 def shutdown_event():
     remove("models/database.sqlite")
 
+
+@app.get("/")
+async def root():
+    return {"message": "Hello there!"}

@@ -217,7 +217,6 @@ def test_list_succes_1(mocker):
 
 def test_list_fail(mocker):
     
-
     mocker.patch("endpoints.match.listar_partidas",
                  side_effect=HTTPException(status_code=400,detail="No se pudo obtener la partida"), autospec=True,)
     
@@ -225,8 +224,6 @@ def test_list_fail(mocker):
 
     assert response.status_code == 400
     assert response.json() == {'detail': "Error: No se pudo obtener la partida"} 
-
-
 
 
 def test_get_game_state_succes(mocker):
