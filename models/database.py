@@ -18,7 +18,7 @@ class Partida(db.Entity):
     id_jugador_creador = Required(int)
     minimo_jugadores = Required(int)
     maximo_jugadores = Required(int)
-    contrasena = Optional(str, nullable=True)
+    contrasena = Optional(str, nullable=True,default=None)
     jugadores = Set(Jugador)
 
 

@@ -21,11 +21,21 @@ def read_carta(id: int) -> Carta:
 def crear_partida(id_usuario_creador, id_name, contraseña,
                   num_max_jugadores, num_min_jugadores):
     user = Jugador.get(id=id_usuario_creador)
-    partida = Partida(id_jugador_creador=id_usuario_creador, nombre=id_name,
+
+    if contraseña != "" or contraseña != " ":
+        partida = Partida(id_jugador_creador=id_usuario_creador, nombre=id_name,
                       iniciado=False, contrasena=contraseña,
                       maximo_jugadores=num_max_jugadores,
                       minimo_jugadores=num_min_jugadores,
                       jugadores=[])
+    else:
+        partida = Partida(id_jugador_creador=id_usuario_creador, nombre=id_name,
+                      iniciado=False,
+                      maximo_jugadores=num_max_jugadores,
+                      minimo_jugadores=num_min_jugadores,
+                      jugadores=[])
+    
+
     if(user is None):
         raise HTTPException(
             detail="No se pudo obtener el usuario de la base de datos.")
