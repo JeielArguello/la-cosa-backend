@@ -15,6 +15,7 @@ def get_exist_user(id_user: int):
     return jugador_en_db is not None
 
 # PARTIDA
+
 @db_session
 def listar_partidas():
     list_rooms = []
@@ -32,8 +33,8 @@ def listar_partidas():
                                 'cantidad_jugadores_maximos': partida.maximo_jugadores,
                                 'contrasena': (partida.contrasena is not None),
                                 'iniciado':partida.iniciado})
-
     return list_rooms
+
 
 @db_session
 def validar_entrada_partida(id_player: int, id_match: int,contrasena : str):
@@ -190,3 +191,4 @@ def db_cantidad_jugadores(match_id):
     partida = Partida.get(id = match_id)
     cantidad_jugadores = partida.jugadores.count()
     return cantidad_jugadores
+

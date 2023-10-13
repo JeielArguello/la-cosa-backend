@@ -23,6 +23,7 @@ class Juego:
         self.mazo: List[int] = []
         self.mazo_descarte = []
         self.posiciones = []
+
         self.ws_players_game: List[WebSocket] = []
 
         # spawnear jugadores
@@ -70,6 +71,7 @@ class Juego:
             if iteration == 3:
                 self.mazo = mazo
         random.shuffle(self.mazo)
+
     #Funciones para conexion del websocket
     async def connect_game(self, websocket: WebSocket):
         await websocket.accept()
@@ -106,5 +108,4 @@ def otorgar_posiciones(juego: Juego):
     for jugador_id in juego.jugadores_id:
         juego.posiciones.append(jugador_id)
         juego.posiciones.append(0)
-
 

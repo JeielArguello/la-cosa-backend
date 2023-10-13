@@ -14,6 +14,7 @@ mocked_juego.creador = 1
 mocked_juego.jugadores_id = [1, 2, 3, 4]
 
 mocker = Mock()
+
 juego = AsyncMock()
 juego.partida_id = 1
 juego.cantidad_jugadores = 6
@@ -29,6 +30,7 @@ def test_jugar_carta_success(mocker):
                  autospec = True,)
     mocker.patch("endpoints.game.Juego.broadcast_global", return_value = None, 
                  autospec = True,)
+
     response = client.post("/game/play", data = {"match_id" : 1, 
                                                   "card_id" : 2,
                                                   "player_objective" : 3, 

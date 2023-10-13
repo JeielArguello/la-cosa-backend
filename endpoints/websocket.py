@@ -75,7 +75,6 @@ async def websocket_endpoint_lobby(websocket: WebSocket, match_id: int):
           if websocket in lobby.ws_players:
                lobby.ws_players.remove(websocket)
 
-
 #websocket para juego
 @router.websocket('/game/{match_id}')
 async def websocket_endpoint_game(websocket: WebSocket, match_id: int):
@@ -96,3 +95,4 @@ async def websocket_endpoint_game(websocket: WebSocket, match_id: int):
      except WebSocketDisconnect:
           if websocket in game.ws_players_game:
                game.ws_players_game.remove(websocket)
+

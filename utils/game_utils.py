@@ -29,6 +29,7 @@ def get_global_juego(match_id: int) -> Juego:
     return result
 
 
+
 def delete_global_juego(match_id):
     result = None
     for juego in global_juegos:
@@ -57,6 +58,7 @@ def get_status_player(juego: Juego, player_id: int):
     response = {'mano': mano, 'muerto': muerto, 'la_cosa': la_cosa,
                 'humano': humano, 'infectado': infectado}
     return response
+
 
 
 def jugar_la_carta(

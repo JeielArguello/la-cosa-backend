@@ -3,7 +3,6 @@ from models.database_utils import *
 from models.lobby_models import all_lobby
 
 
-
 def validar_partida(
         id_usuario_creador: int,
         num_max_jugadores: int,
@@ -19,6 +18,7 @@ def validar_partida(
     if num_max_jugadores < num_min_jugadores:
         raise ValueError(
             "Numero maximo de jugadores debe ser mayor al numero minimo.")
+
 
 
 def get_lobby(lobby_id : int):

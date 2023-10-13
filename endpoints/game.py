@@ -7,6 +7,7 @@ from models.lobby_models import *
 from models.game import robar_carta
 ##########
 from utils.game_utils import *
+
 ##########
 router = APIRouter()
 
@@ -53,7 +54,9 @@ async def jugar_carta(match_id: int = Form(), card_id: int = Form(),
     juego = get_global_juego(match_id)
     resultado = jugar_la_carta(juego, card_id,
                                player_objective, player_orig)
+
     await juego.broadcast_global("C")
+
     # if descartar_carta(card_id, player_orig, juego):
     return {"carta": card_id, "jugada contra": player_objective, "por": player_orig}
     # return {"error al jugar la carta": card_id, "contra": player_objective, "por": player_orig}
