@@ -1,7 +1,7 @@
 import random
 from logic.deck import deck_es_carta_alejate
 from models.player import JugadorPartida
-from fastapi import HTTPException
+from fastapi import HTTPException, WebSocket
 # from logic.deck import robar_carta
 from typing import List
 from pony.orm import *
@@ -22,6 +22,7 @@ class Juego:
         self.mazo: List[int] = []
         self.mazo_descarte = []
         self.posiciones = []
+        self.ws_players_game: List[WebSocket] = []
 
         # spawnear jugadores
         crear_jugadores_partida(self)
@@ -68,6 +69,19 @@ class Juego:
             if iteration == 3:
                 self.mazo = mazo
         random.shuffle(self.mazo)
+    #Funciones para conexion del websocket
+    async def connect_game(self, websocket: WebSocket):
+        await websocket.accept()
+        self.ws_players_game.append(websocket)
+        
+    async def disconnect_game(self, websocket: WebSocket):
+        self.ws_players_game.remove(websocket)
+        await websocket.send_text("cerrando conexion")
+        await websocket.close(reason="cliente pide desconexion")
+    
+    async def broadcast_global(self, message: dict):
+        for p in self.ws_players_game:
+            await p.send_json(message)
 
 
 def robar_carta(juego: Juego, jugador: JugadorPartida):
