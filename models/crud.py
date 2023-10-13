@@ -59,6 +59,13 @@ def get_estado_partida(match_id: int) -> Dict:
     return estado
 
 # Update
+@db_session
+def models_crud_eliminar_jugador_no_creador_de_pratida_sin_inicializar(id_jugador:int,match_id:int):
+    partida = Partida(match_id)
+    if(id_jugador != partida.id_jugador_creador):
+        Jugador(id_jugador).partida = None
+        list(partida.jugadores).remove(id_jugador)
+            
 
 
 @db_session

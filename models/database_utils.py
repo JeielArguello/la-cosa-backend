@@ -179,3 +179,4 @@ def db_cantidad_jugadores(match_id):
     partida = Partida.get(id = match_id)
     cantidad_jugadores = partida.jugadores.count()
     return cantidad_jugadores
+
