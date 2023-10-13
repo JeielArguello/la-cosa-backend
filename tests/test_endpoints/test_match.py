@@ -10,6 +10,7 @@ from models.crud import *
 from models.game import Juego
 from models.lobby_models import Lobby, delete_lobby
 
+
 from main import app
 
 client = TestClient(app)
@@ -372,7 +373,7 @@ def test_abandonar_partida_jugador_no_creador(mocker):
 
     response = client.post("/match/exit", data={"id_jugador": 2, "match_id": 1})
 
-    assert response.status_code == 200  # Asegúrate de usar el código de estado correcto
+    assert response.status_code == 200  
     assert 2 not in mock_lobby.list_players()  # Verifica que el jugador se haya eliminado del lobby
 
 
@@ -396,9 +397,6 @@ def test_abandonar_partida_jugador_creador(mocker):
 
     response = client.post("/match/exit", data={"id_jugador": 1, "match_id": 1})
 
-    assert response.status_code == 200  # Asegúrate de usar el código de estado correcto
-
-
-
+    assert response.status_code == 200  
 
 

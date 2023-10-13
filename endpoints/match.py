@@ -8,13 +8,14 @@ from utils.match_utils import *
 from models.lobby_models import Lobby, delete_lobby
 
 
+
 router = APIRouter()
 
 
 @router.post('/create')
 async def match_create(id_usuario_creador: int = Form(),
                        id_name: str = Form(),
-                       contraseña: str = Form(default=None),
+                       contrasena: str = Form(default=None),
                        num_max_jugadores: int = Form(),
                        num_min_jugadores: int = Form()
                        ):
@@ -23,10 +24,10 @@ async def match_create(id_usuario_creador: int = Form(),
         validar_partida(id_usuario_creador,
                         num_max_jugadores, num_min_jugadores)
         # crear instancia
-        partida = crear_partida(id_usuario_creador, id_name, contraseña,
+        partida = crear_partida(id_usuario_creador, id_name, contrasena,
                                 num_max_jugadores, num_min_jugadores)
         #crear instancia de partida
-        lobby = Lobby(id_usuario_creador, id_name, contraseña,
+        lobby = Lobby(id_usuario_creador, id_name, contrasena,
                                 num_max_jugadores, num_min_jugadores,partida["id_partida"])
         all_lobby.append(lobby)
         await broadcast("A")
@@ -134,7 +135,6 @@ async def get_game_state(match_id: int):
             detail=error_msg
         )
 
-
 # Player state
 
 
@@ -151,6 +151,7 @@ async def get_player_state(match_id: int, player_id: int):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=error_msg
         )
+        
 @router.post("/exit")
 async def abandonar_partida(  id_jugador: int = Form(),match_id: int = Form()  ):
     try: 
