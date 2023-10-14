@@ -1,4 +1,5 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+from utils.game_utils import get_global_juego
 from utils.match_utils import *
 from typing import List
 
@@ -15,7 +16,7 @@ async def websocket_endpoint_list(websocket: WebSocket):
           ws_players_list.append(websocket)
           await broadcast({"message":"Usuario viendo lista de partida"})
           #le envio el mensaje para que el cliente pida la lista de partias actualizadas
-          await websocket.send_text("A")
+          await websocket.send_json("A")
           
           while True:
                #espero hasta recibir un mensaje
@@ -73,4 +74,25 @@ async def websocket_endpoint_lobby(websocket: WebSocket, match_id: int):
      except WebSocketDisconnect:
           if websocket in lobby.ws_players:
                lobby.ws_players.remove(websocket)
-          await lobby.broadcast_lobby("se desconecto un usuario")
+
+#websocket para juego
+@router.websocket('/game/{match_id}')
+async def websocket_endpoint_game(websocket: WebSocket, match_id: int):
+     
+     game = get_global_juego(match_id)
+
+     await game.connect_game(websocket)
+
+     try:
+          while True:
+               msg = await websocket.receive() 
+               websocket._raise_on_disconnect(msg)
+               if(msg["text"] == "desconexion"): 
+                    await game.disconnect_game(websocket)
+                    break
+               await game.broadcast_global(msg)
+
+     except WebSocketDisconnect:
+          if websocket in game.ws_players_game:
+               game.ws_players_game.remove(websocket)
+

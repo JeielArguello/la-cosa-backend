@@ -2,7 +2,6 @@ from pony.orm import *
 from .database import *
 from .database_utils import *
 from typing import Dict
-from pony.orm import *
 
 
 # # CARTA
@@ -22,11 +21,21 @@ def read_carta(id: int) -> Carta:
 def crear_partida(id_usuario_creador, id_name, contraseña,
                   num_max_jugadores, num_min_jugadores):
     user = Jugador.get(id=id_usuario_creador)
-    partida = Partida(id_jugador_creador=id_usuario_creador, nombre=id_name,
+
+    if contraseña != "" or contraseña != " ":
+        partida = Partida(id_jugador_creador=id_usuario_creador, nombre=id_name,
                       iniciado=False, contrasena=contraseña,
                       maximo_jugadores=num_max_jugadores,
                       minimo_jugadores=num_min_jugadores,
                       jugadores=[])
+    else:
+        partida = Partida(id_jugador_creador=id_usuario_creador, nombre=id_name,
+                      iniciado=False,
+                      maximo_jugadores=num_max_jugadores,
+                      minimo_jugadores=num_min_jugadores,
+                      jugadores=[])
+    
+
     if(user is None):
         raise HTTPException(
             detail="No se pudo obtener el usuario de la base de datos.")
@@ -59,6 +68,13 @@ def get_estado_partida(match_id: int) -> Dict:
     return estado
 
 # Update
+@db_session
+def models_crud_eliminar_jugador_no_creador_de_pratida_sin_inicializar(id_jugador:int,match_id:int):
+    partida = Partida(match_id)
+    if(id_jugador != partida.id_jugador_creador):
+        Jugador(id_jugador).partida = None
+        list(partida.jugadores).remove(id_jugador)
+            
 
 
 @db_session
@@ -80,6 +96,15 @@ def delete_match(match_id: int):
     match = Partida.get(id=match_id)
     if match:
         match.delete()
+
+@db_session
+def delete_match(match_id: int):
+    match = Partida.get(id=match_id)
+    if match:
+        for jugador in match.jugadores: 
+            jugador.partida = None
+        match.delete()
+
 
 # # USUARIO
 # Create

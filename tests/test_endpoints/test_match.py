@@ -1,12 +1,15 @@
 import pytest
 from fastapi.testclient import TestClient
 from unittest.mock import Mock
+from endpoints.match import abandonar_partida
+from endpoints.websocket import broadcast
 from models.database import Jugador, Partida
 from pony.orm import *
 from models.database_utils import *
 from models.crud import *
 from models.game import Juego
-from models.lobby_models import Lobby
+from models.lobby_models import Lobby, delete_lobby
+
 
 from main import app
 
@@ -349,5 +352,51 @@ def test_list_fail(mocker):
 
     assert response.status_code == 400
     assert response.json() == {'detail': "Error: No se pudo obtener la partida"} 
+
+
+def test_abandonar_partida_jugador_no_creador(mocker):
+    # Crear un objeto Lobby para el mock
+    mock_lobby = Lobby(
+        id_usuario_creador=1,
+        id_name="Sala de Prueba",
+        contraseña = "laContrasenas",
+        num_max_jugadores=4,
+        num_min_jugadores=2,        
+        id_partida=1
+    )
+
+    mocker.patch("endpoints.match.get_lobby", return_value=mock_lobby)
+    mocker.patch("endpoints.match.models_crud_eliminar_jugador_no_creador_de_pratida_sin_inicializar", return_value=None)
+    mocker.patch("endpoints.match.Lobby.broadcast_lobby", return_value=None)
+
+    mock_lobby.add_player(2)
+
+    response = client.post("/match/exit", data={"id_jugador": 2, "match_id": 1})
+
+    assert response.status_code == 200  
+    assert 2 not in mock_lobby.list_players()  # Verifica que el jugador se haya eliminado del lobby
+
+
+def test_abandonar_partida_jugador_creador(mocker):
+    # Crear un objeto Lobby para el mock
+    mock_lobby = Lobby(
+        id_usuario_creador=1,
+        id_name="Sala de Prueba",
+        contraseña = "laContrasenas",
+        num_max_jugadores=4,
+        num_min_jugadores=2,        
+        id_partida=1
+    )
+
+    mocker.patch("endpoints.match.get_lobby", return_value=mock_lobby)
+    mocker.patch("endpoints.match.broadcast", return_value=None)
+    mocker.patch("endpoints.match.delete_match", return_value=None)
+    mocker.patch("endpoints.match.delete_lobby", return_value=None)
+
+    mock_lobby.add_player(2)
+
+    response = client.post("/match/exit", data={"id_jugador": 1, "match_id": 1})
+
+    assert response.status_code == 200  
 
 
