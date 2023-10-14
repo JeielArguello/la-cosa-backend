@@ -87,6 +87,7 @@ async def finish_match(match_id: int = Form()):
         result = finalizar_juego(juego)
         delete_global_juego(match_id)
         delete_match(match_id)
+        # await broadcast_game({resultados:result})
         return result
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
