@@ -75,8 +75,10 @@ ganan_humanos = {'message': 'Ganan los Humanos', 'winners': [
     "humanos"], 'losers': ["la_cosa+infectados"]}
 gana_la_cosa = {'message': 'Gana La Cosa', 'winners': [
     "la_cosa"], 'losers': ["infectados+humanos"]}
-gana_cosa_infectados = {'message': 'Ganan La Cosa y Los Infectados', 'winners': [
-    "la_cosa+infectados"], 'losers': ["humanos"]}
+gana_cosa_infectados = {
+    'message': 'Ganan La Cosa y Los Infectados',
+    'winners': ["la_cosa+infectados"],
+    'losers': ["humanos"]}
 no_ganadores = "No hay ganadores."
 
 
@@ -150,4 +152,4 @@ def test_finalizar_partida_fail(mocker):
     assert response.status_code != 422, "Los parametros de entrada del endpoint no pueden ser procesados"
     assert response.status_code == 400
     assert response.json() == {
-        'detail': "Error: "+no_ganadores}
+        'detail': "Error: " + no_ganadores}

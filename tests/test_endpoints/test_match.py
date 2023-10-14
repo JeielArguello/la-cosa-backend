@@ -31,7 +31,7 @@ def test_create_match_success(mocker):
                                                   "num_min_jugadores": 4})
 
     assert response.status_code != 422, "Los parametros de entrada del endpoint no pueden ser procesados"
-    assert response.status_code == 200,"el resultado deberia ser 200"
+    assert response.status_code == 200, "el resultado deberia ser 200"
     assert response.json() == {"id_partida": 1}
 
 
@@ -44,12 +44,17 @@ def mock_partida():
                          "num_min_jugadores": 4}
     return mock_partida_dict
 
+
 @pytest.fixture
 def mock_lobby():
-    mock_lobby = Lobby(id_usuario_creador=1, id_name="sala 1", contraseña="1234",
-                       num_max_jugadores=11, num_min_jugadores=4, id_partida=1)
+    mock_lobby = Lobby(
+        id_usuario_creador=1,
+        id_name="sala 1",
+        contraseña="1234",
+        num_max_jugadores=11,
+        num_min_jugadores=4,
+        id_partida=1)
     return mock_lobby
-
 
 
 def test_create_match_fail(mocker, mock_partida: dict[str, any]):
@@ -95,13 +100,12 @@ def test_create_match_fail_3(mocker, mock_partida: dict[str, any]):
         "detail": "Error: No se pudo inicializar la partida en base de datos."}
 
 
-
-def test_join_match_success(mocker,mock_lobby: Lobby):
+def test_join_match_success(mocker, mock_lobby: Lobby):
     mocker.patch("endpoints.match.validar_entrada_partida",
                  return_value=None, autospec=True,)
     mocker.patch("endpoints.match.update_add_player",
                  return_value=None, autospec=True,)
-    
+
     estado = {
         'iniciada': 1,
         'nombre_partida': "sala 1",
@@ -113,27 +117,42 @@ def test_join_match_success(mocker,mock_lobby: Lobby):
                  return_value=estado, autospec=True,)
     mocker.patch("endpoints.match.get_lobby",
                  return_value=mock_lobby, autospec=True,)
-    
+
     mocker.patch("endpoints.match.broadcast",
                  return_value=None, autospec=True,)
-    response = client.post("/match/join", data={"match_id": 2, "user_id": 1, "contrasena": "1234"})
+    response = client.post(
+        "/match/join",
+        data={
+            "match_id": 2,
+            "user_id": 1,
+            "contrasena": "1234"})
 
-    assert len(mock_lobby.list_players() ) == 2
+    assert len(mock_lobby.list_players()) == 2
     assert response.status_code != 422, "Los parametros de entrada del endpoint no pueden ser procesados"
     assert response.status_code == 200, "El status_code es distinto de 200"
-    assert response.json() == estado 
+    assert response.json() == estado
+
 
 def test_join_match_password_fail(mocker):
-    mocker.patch("endpoints.match.validar_entrada_partida",
-                 side_effect=ValueError("Contraseña incorrecta"), autospec=True,)
+    mocker.patch(
+        "endpoints.match.validar_entrada_partida",
+        side_effect=ValueError("Contraseña incorrecta"),
+        autospec=True,
+    )
     mocker.patch("endpoints.match.update_add_player",
                  return_value=None, autospec=True,)
-    
-    response = client.post("/match/join", data={"match_id": 2, "user_id": 1,"contrasena": "12345"})
+
+    response = client.post(
+        "/match/join",
+        data={
+            "match_id": 2,
+            "user_id": 1,
+            "contrasena": "12345"})
 
     assert response.status_code != 422, "Los parametros de entrada del endpoint no pueden ser procesados"
     assert response.status_code == 400, "El status_code es distinto de 400 en caso de error"
-    assert response.json() == {"detail":"Error: Contraseña incorrecta"} ,"El detalle de el error es incorrecto"
+    assert response.json() == {
+        "detail": "Error: Contraseña incorrecta"}, "El detalle de el error es incorrecto"
 
 
 # def test_iniciar_partida_success(mocker):
@@ -185,23 +204,22 @@ def test_get_state_fail(mocker):
     assert response.status_code == 400
     assert response.json() == {'detail': 'Error: La partida no existe'}
 
+
 def test_list_succes_empty(mocker):
-    
-    lista_partida =[]
+
+    lista_partida = []
 
     mocker.patch("endpoints.match.listar_partidas",
                  return_value=[], autospec=True,)
-    
+
     response = client.get("/match/list")
 
     assert response.status_code == 200
-    assert response.json() == lista_partida 
-
-
+    assert response.json() == lista_partida
 
 
 def test_list_succes_1(mocker):
-    
+
     lista_partida = [{
         'iniciada': 1,
         'nombre_partida': "sala 1",
@@ -211,22 +229,23 @@ def test_list_succes_1(mocker):
 
     mocker.patch("endpoints.match.listar_partidas",
                  return_value=lista_partida, autospec=True,)
-    
+
     response = client.get("/match/list")
 
     assert response.status_code == 200
-    assert response.json() == lista_partida 
+    assert response.json() == lista_partida
 
 
 def test_list_fail(mocker):
-    
-    mocker.patch("endpoints.match.listar_partidas",
-                 side_effect=HTTPException(status_code=400,detail="No se pudo obtener la partida"), autospec=True,)
-    
+
+    mocker.patch("endpoints.match.listar_partidas", side_effect=HTTPException(
+        status_code=400, detail="No se pudo obtener la partida"), autospec=True,)
+
     response = client.get("/match/list")
 
     assert response.status_code == 400
-    assert response.json() == {'detail': "Error: No se pudo obtener la partida"} 
+    assert response.json() == {
+        'detail': "Error: No se pudo obtener la partida"}
 
 
 def test_get_game_state_succes(mocker):
@@ -309,23 +328,22 @@ def test_get_player_state_fail_game_no_exist(mocker):
     assert response.json() == {
         'detail': 'Error: El jugador no se encuentra en la partida'}
 
+
 def test_list_succes_empty(mocker):
-    
-    lista_partida =[]
+
+    lista_partida = []
 
     mocker.patch("endpoints.match.listar_partidas",
                  return_value=[], autospec=True,)
-    
+
     response = client.get("/match/list")
 
     assert response.status_code == 200
-    assert response.json() == lista_partida 
-
-
+    assert response.json() == lista_partida
 
 
 def test_list_succes_1(mocker):
-    
+
     lista_partida = [{
         'iniciada': 1,
         'nombre_partida': "sala 1",
@@ -335,23 +353,23 @@ def test_list_succes_1(mocker):
 
     mocker.patch("endpoints.match.listar_partidas",
                  return_value=lista_partida, autospec=True,)
-    
+
     response = client.get("/match/list")
 
     assert response.status_code == 200
-    assert response.json() == lista_partida 
+    assert response.json() == lista_partida
 
 
 def test_list_fail(mocker):
-    
 
-    mocker.patch("endpoints.match.listar_partidas",
-                 side_effect=HTTPException(status_code=400,detail="No se pudo obtener la partida"), autospec=True,)
-    
+    mocker.patch("endpoints.match.listar_partidas", side_effect=HTTPException(
+        status_code=400, detail="No se pudo obtener la partida"), autospec=True,)
+
     response = client.get("/match/list")
 
     assert response.status_code == 400
-    assert response.json() == {'detail': "Error: No se pudo obtener la partida"} 
+    assert response.json() == {
+        'detail': "Error: No se pudo obtener la partida"}
 
 
 def test_abandonar_partida_jugador_no_creador(mocker):
@@ -359,22 +377,29 @@ def test_abandonar_partida_jugador_no_creador(mocker):
     mock_lobby = Lobby(
         id_usuario_creador=1,
         id_name="Sala de Prueba",
-        contraseña = "laContrasenas",
+        contraseña="laContrasenas",
         num_max_jugadores=4,
-        num_min_jugadores=2,        
+        num_min_jugadores=2,
         id_partida=1
     )
 
     mocker.patch("endpoints.match.get_lobby", return_value=mock_lobby)
-    mocker.patch("endpoints.match.models_crud_eliminar_jugador_no_creador_de_pratida_sin_inicializar", return_value=None)
+    mocker.patch(
+        "endpoints.match.models_crud_eliminar_jugador_no_creador_de_pratida_sin_inicializar",
+        return_value=None)
     mocker.patch("endpoints.match.Lobby.broadcast_lobby", return_value=None)
 
     mock_lobby.add_player(2)
 
-    response = client.post("/match/exit", data={"id_jugador": 2, "match_id": 1})
+    response = client.post(
+        "/match/exit",
+        data={
+            "id_jugador": 2,
+            "match_id": 1})
 
-    assert response.status_code == 200  
-    assert 2 not in mock_lobby.list_players()  # Verifica que el jugador se haya eliminado del lobby
+    assert response.status_code == 200
+    # Verifica que el jugador se haya eliminado del lobby
+    assert 2 not in mock_lobby.list_players()
 
 
 def test_abandonar_partida_jugador_creador(mocker):
@@ -382,9 +407,9 @@ def test_abandonar_partida_jugador_creador(mocker):
     mock_lobby = Lobby(
         id_usuario_creador=1,
         id_name="Sala de Prueba",
-        contraseña = "laContrasenas",
+        contraseña="laContrasenas",
         num_max_jugadores=4,
-        num_min_jugadores=2,        
+        num_min_jugadores=2,
         id_partida=1
     )
 
@@ -395,8 +420,10 @@ def test_abandonar_partida_jugador_creador(mocker):
 
     mock_lobby.add_player(2)
 
-    response = client.post("/match/exit", data={"id_jugador": 1, "match_id": 1})
+    response = client.post(
+        "/match/exit",
+        data={
+            "id_jugador": 1,
+            "match_id": 1})
 
-    assert response.status_code == 200  
-
-
+    assert response.status_code == 200

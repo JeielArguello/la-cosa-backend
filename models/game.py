@@ -75,16 +75,16 @@ class Juego:
                 self.mazo = mazo
         random.shuffle(self.mazo)
 
-    #Funciones para conexion del websocket
+    # Funciones para conexion del websocket
     async def connect_game(self, websocket: WebSocket):
         await websocket.accept()
         self.ws_players_game.append(websocket)
-        
+
     async def disconnect_game(self, websocket: WebSocket):
         self.ws_players_game.remove(websocket)
         await websocket.send_text("cerrando conexion")
         await websocket.close(reason="cliente pide desconexion")
-    
+
     async def broadcast_global(self, message: dict):
         for p in self.ws_players_game:
             await p.send_json(message)
@@ -111,4 +111,3 @@ def otorgar_posiciones(juego: Juego):
     for jugador_id in juego.jugadores_id:
         juego.posiciones.append(jugador_id)
         juego.posiciones.append(0)
-

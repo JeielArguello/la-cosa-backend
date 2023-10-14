@@ -40,8 +40,12 @@ async def jugar_carta(match_id: int = Form(), card_id: int = Form(),
     await juego.broadcast_global("C")
 
     # if descartar_carta(card_id, player_orig, juego):
-    return {"carta": card_id, "jugada contra": player_objective, "por": player_orig}
-    # return {"error al jugar la carta": card_id, "contra": player_objective, "por": player_orig}
+    return {
+        "carta": card_id,
+        "jugada contra": player_objective,
+        "por": player_orig}
+    # return {"error al jugar la carta": card_id, "contra": player_objective,
+    # "por": player_orig}
 
 ######
 # Descartar carta
@@ -66,7 +70,8 @@ async def finish_match(match_id: int = Form()):
         result = finalizar_juego(juego)
         delete_global_juego(match_id)
         delete_match(match_id)
-        # await broadcast_game({resultados:result})
+        await juego.broadcast_global({'resultados': result})
+        # await juego.broadcast_global("K||L")
         return result
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"

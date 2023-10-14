@@ -80,11 +80,18 @@ def finalizar_juego(juego: Juego):
             humanos.append(name)
 
     if check_la_cosa_eliminada(juego):
-        return {'message': 'Ganan los Humanos', 'winners': humanos, 'losers': la_cosa+infectados}
+        return {
+            'message': 'Ganan los Humanos',
+            'winners': humanos,
+            'losers': la_cosa + infectados}
     elif check_no_humanos_no_eliminados(juego):
-        return {'message': 'Gana La Cosa', 'winners': la_cosa, 'losers': infectados+humanos}
+        return {
+            'message': 'Gana La Cosa',
+            'winners': la_cosa,
+            'losers': infectados + humanos}
     elif check_no_humanos(juego):
-        return {'message': 'Ganan La Cosa y Los Infectados', 'winners': la_cosa+infectados, 'losers': humanos}
+        return {'message': 'Ganan La Cosa y Los Infectados',
+                'winners': la_cosa + infectados, 'losers': humanos}
     else:
         raise HTTPException(
             status_code=400, detail="No hay ganadores.")

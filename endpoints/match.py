@@ -8,7 +8,6 @@ from utils.match_utils import *
 from models.lobby_models import Lobby, delete_lobby
 
 
-
 router = APIRouter()
 
 
@@ -26,9 +25,14 @@ async def match_create(id_usuario_creador: int = Form(),
         # crear instancia
         partida = crear_partida(id_usuario_creador, id_name, contrasena,
                                 num_max_jugadores, num_min_jugadores)
-        #crear instancia de partida
-        lobby = Lobby(id_usuario_creador, id_name, contrasena,
-                                num_max_jugadores, num_min_jugadores,partida["id_partida"])
+        # crear instancia de partida
+        lobby = Lobby(
+            id_usuario_creador,
+            id_name,
+            contrasena,
+            num_max_jugadores,
+            num_min_jugadores,
+            partida["id_partida"])
         all_lobby.append(lobby)
         await broadcast("A")
         return partida
@@ -52,11 +56,11 @@ async def match_join(match_id: int = Form(),
                      contrasena: str = Form(default=None)):
     try:
         # validar datos
-        validar_entrada_partida(user_id, match_id,contrasena)
+        validar_entrada_partida(user_id, match_id, contrasena)
         # actualizar base de datos
         update_add_player(user_id, match_id)
         estado = get_estado_partida(match_id)
-        #actualizo el lobby
+        # actualizo el lobby
         lobby = get_lobby(match_id)
         lobby.add_player(user_id)
         await broadcast("A")
@@ -83,9 +87,9 @@ async def iniciar_partida(user_id: int = Form(), match_id: int = Form()):
     lobby = get_lobby(match_id)
     lobby.init_game()
     # ##########
-    #broadcast a los jugadores para que listen las partidas
+    # broadcast a los jugadores para que listen las partidas
     await broadcast("A")
-    #broadcast a los jugadores del lobby para que inicien el juego
+    # broadcast a los jugadores del lobby para que inicien el juego
     await lobby.broadcast_lobby("L")
     return {"message": "Se inició con éxito la partida."}
 
@@ -101,6 +105,7 @@ async def get_state(match_id: int):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=error_msg
         )
+
 
 @router.get('/list')
 async def match_list():
@@ -121,6 +126,7 @@ async def match_list():
             detail=error_msg
         )
 # Game state
+
 
 @router.get("/game/state/{match_id}")
 async def get_game_state(match_id: int):
@@ -151,19 +157,21 @@ async def get_player_state(match_id: int, player_id: int):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=error_msg
         )
-        
+
+
 @router.post("/exit")
-async def abandonar_partida(  id_jugador: int = Form(),match_id: int = Form()  ):
-    try: 
+async def abandonar_partida(id_jugador: int = Form(), match_id: int = Form()):
+    try:
         lobby = get_lobby(match_id)
-        if( id_jugador == lobby.id_usuario_creador ):
+        if(id_jugador == lobby.id_usuario_creador):
             delete_match(match_id)
             await broadcast("A")
             if (lobby.cantidad_jugadores > 1):
                 await lobby.broadcast_lobby("I")
             delete_lobby(match_id)
-        else: 
-            models_crud_eliminar_jugador_no_creador_de_pratida_sin_inicializar(id_jugador,match_id)
+        else:
+            models_crud_eliminar_jugador_no_creador_de_pratida_sin_inicializar(
+                id_jugador, match_id)
             lobby.remove_player(id_jugador)
             await lobby.broadcast_lobby("B")
     except HTTPException as e:

@@ -16,28 +16,31 @@ def get_exist_user(id_user: int):
 
 # PARTIDA
 
+
 @db_session
 def listar_partidas():
     list_rooms = []
-        
+
     partidas = get_matches()
     for partida in partidas:
         cant_jugadores = db_cantidad_jugadores(partida.id)
         if cant_jugadores is None:
-            raise HTTPException(status_code=400,detail="No se pudo obtener la partida")
+            raise HTTPException(
+                status_code=400,
+                detail="No se pudo obtener la partida")
 
-        if not partida.iniciado  and cant_jugadores<partida.maximo_jugadores :
+        if not partida.iniciado and cant_jugadores < partida.maximo_jugadores:
             list_rooms.append({'id_partida': partida.id,
-                                'name_partida': partida.nombre,
-                                'cantidad_jugadores': cant_jugadores,
-                                'cantidad_jugadores_maximos': partida.maximo_jugadores,
-                                'contrasena': (partida.contrasena is not None),
-                                'iniciado':partida.iniciado})
+                               'name_partida': partida.nombre,
+                               'cantidad_jugadores': cant_jugadores,
+                               'cantidad_jugadores_maximos': partida.maximo_jugadores,
+                               'contrasena': (partida.contrasena is not None),
+                               'iniciado': partida.iniciado})
     return list_rooms
 
 
 @db_session
-def validar_entrada_partida(id_player: int, id_match: int,contrasena : str):
+def validar_entrada_partida(id_player: int, id_match: int, contrasena: str):
     # existe el usuario
     if not get_exist_user(id_player):
         raise ValueError("Usuario no existe")
@@ -124,7 +127,6 @@ def database_utils_iniciar_partida(match_id: int, user_id: int):
             status_code=400, detail="No se puede inicializar la partida. ")
 
 
-
 @db_session
 def construir_mazo(num_jugadores: int):
     if num_jugadores > 3 and num_jugadores < 13:
@@ -146,6 +148,7 @@ def construir_mazo(num_jugadores: int):
 #        except:
 #            raise HTTPException(
 #                status_code=400, detail="No se le pudo inicializar la ")
+
 
 @db_session
 def descartar_carta(card_id: int, player_orig: int, match_id: int):
@@ -181,14 +184,15 @@ def finalizar_partida(partida: Partida):
     elif len(jugadores_vivos) > 1:
         return {"mensaje": "La partida aún no ha finalizado"}
 
+
 @db_session
 def get_matches():
-    matches= select(p for p in Partida)
+    matches = select(p for p in Partida)
     return matches
+
 
 @db_session
 def db_cantidad_jugadores(match_id):
-    partida = Partida.get(id = match_id)
+    partida = Partida.get(id=match_id)
     cantidad_jugadores = partida.jugadores.count()
     return cantidad_jugadores
-
