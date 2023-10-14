@@ -85,7 +85,7 @@ async def iniciar_partida(user_id: int = Form(), match_id: int = Form()):
     database_utils_iniciar_partida(match_id, user_id)
     # ##########
     lobby = get_lobby(match_id)
-    lobby.init_game()
+    await lobby.init_game()
     # ##########
     # broadcast a los jugadores para que listen las partidas
     await broadcast("A")

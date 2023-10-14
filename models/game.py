@@ -79,6 +79,8 @@ class Juego:
     async def connect_game(self, websocket: WebSocket):
         await websocket.accept()
         self.ws_players_game.append(websocket)
+        await self.broadcast_global("C")
+        await self.broadcast_global("D")
 
     async def disconnect_game(self, websocket: WebSocket):
         self.ws_players_game.remove(websocket)

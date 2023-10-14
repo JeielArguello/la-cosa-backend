@@ -37,7 +37,7 @@ class Lobby:
         list_player = self.users_id
         return list_player
 
-    def init_game(self):
+    async def init_game(self):
         juego = Juego(
             self.id_partida,
             self.cantidad_jugadores,

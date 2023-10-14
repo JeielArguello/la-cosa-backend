@@ -49,7 +49,7 @@ def get_status_player(juego: Juego, player_id: int):
         raise HTTPException(
             status_code=400,
             detail="El jugador no se encuentra en la partida")
-    mano = jugador.cartas
+    mano = jugador.get_cartas()
     muerto = jugador.muerto
     la_cosa = jugador.la_cosa
     humano = jugador.humano
@@ -68,30 +68,38 @@ def check_ganador(juego: Juego) -> bool:
 
 def finalizar_juego(juego: Juego):
     la_cosa = []
-    humanos = []
-    infectados = []
+    humanos_vivos = []
+    humanos_muertos = []
+    infectados_vivos = []
+    infectados_muertos = []
     for j in juego.jugadores_en_partida:
         name = get_name(j.id)
         if j.get_la_cosa():
             la_cosa.append(name)
-        if j.get_infectado():
-            infectados.append(name)
-        if j.get_humano():
-            humanos.append(name)
+        if j.get_infectado() and not j.get_muerto():
+            infectados_vivos.append(name)
+        if j.get_infectado() and j.get_muerto():
+            infectados_muertos.append(name)
+        if j.get_humano() and not j.get_muerto():
+            humanos_vivos.append(name)
+        if j.get_humano() and j.get_muerto():
+            humanos_muertos.append(name)
 
     if check_la_cosa_eliminada(juego):
         return {
             'message': 'Ganan los Humanos',
-            'winners': humanos,
-            'losers': la_cosa + infectados}
+            'winners': humanos_vivos,
+            'losers': la_cosa + infectados_vivos + infectados_muertos + humanos_muertos}
     elif check_no_humanos_no_eliminados(juego):
         return {
             'message': 'Gana La Cosa',
             'winners': la_cosa,
-            'losers': infectados + humanos}
+            'losers': infectados_vivos + infectados_muertos + humanos_vivos + humanos_muertos}
     elif check_no_humanos(juego):
-        return {'message': 'Ganan La Cosa y Los Infectados',
-                'winners': la_cosa + infectados, 'losers': humanos}
+        return {
+            'message': 'Ganan La Cosa y Los Infectados',
+            'winners': la_cosa + infectados_vivos,
+            'losers': humanos_vivos + humanos_muertos + infectados_muertos}
     else:
         raise HTTPException(
             status_code=400, detail="No hay ganadores.")

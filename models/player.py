@@ -54,7 +54,10 @@ class JugadorPartida:
         self.cartas.append(carta)
 
     def get_cartas(self):
-        return self.cartas
+        result = []
+        for c in self.cartas:
+            result.append({'id': c})
+        return result
 
     def descartar_carta(self, carta: int):
         return self.cartas.remove(carta)

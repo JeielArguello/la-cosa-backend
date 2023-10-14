@@ -281,11 +281,7 @@ def test_get_player_state_succes(mocker):
                        creador=1, jugadores_id=[1, 2])
 
     mock_status_player = {
-        'mano': [
-            1,
-            2,
-            3,
-            4],
+        'mano': [{'id': 1}, {'id': 2}, {'id': 3}, {'id': 4}],
         'muerto': False,
         'la_cosa': True,
         'humano': False,
