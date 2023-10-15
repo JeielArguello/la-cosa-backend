@@ -30,7 +30,6 @@ app.include_router(game_Router, prefix="/game")
 app.include_router(websocket_Router, prefix="/ws")
 
 
-
 @app.on_event("startup")
 def startup_db():
     create_db()
