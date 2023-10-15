@@ -7,7 +7,6 @@ from models.lobby_models import *
 from models.game import robar_carta
 ##########
 from utils.game_utils import *
-
 ##########
 router = APIRouter()
 
@@ -41,25 +40,23 @@ async def jugar_carta(match_id: int = Form(), card_id: int = Form(),
     await juego.broadcast_global("C")
 
     # if descartar_carta(card_id, player_orig, juego):
-    return {"carta": card_id, "jugada contra": player_objective, "por": player_orig}
-    # return {"error al jugar la carta": card_id, "contra": player_objective, "por": player_orig}
-
+    return {
+        "carta": card_id,
+        "jugada contra": player_objective,
+        "por": player_orig}
+    # return {"error al jugar la carta": card_id, "contra": player_objective,
+    # "por": player_orig}
 
 ######
 # Descartar carta
 ######
 
-@router.post("/discard")
-async def endpoint_descartar_carta(match_id : int = Form(), 
-                          card_id: int = Form(), player_id: int = Form()):
-    try:
-        juego = get_global_juego(match_id)
-        descartar_carta(card_id, player_id, juego)
-        await juego.broadcast_global("D")
-        return {"carta descartada": card_id}
-    except Exception as e:
-        return{"error al descartar carta": card_id}
 
+# @router.post('/discard')
+# async def descartar_carta(match_id: int = Form(), card_id: int = Form(), player_id: int = Form()):
+#     juego = get_global_juego(match_id)
+#     if descartar_carta(card_id, player_id, match_id):
+#         return {"carta": card_id, "Descartada por": player_id}
 
 ######
 # Finalizar Partida
@@ -70,13 +67,11 @@ async def endpoint_descartar_carta(match_id : int = Form(),
 async def finish_match(match_id: int = Form()):
     try:
         juego = get_global_juego(match_id)
-        result = finalizar_partida(juego)
-        if result != {
-            "mensaje": "La partida aún no ha finalizado",
-                "ganador": 0}:
-            await juego.broadcast_global("K")
-            delete_global_juego(match_id)
-            delete_match(match_id)
+        result = finalizar_juego(juego)
+        delete_global_juego(match_id)
+        delete_match(match_id)
+        await juego.broadcast_global({'resultados': result})
+        # await juego.broadcast_global("K||L")
         return result
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
@@ -84,5 +79,3 @@ async def finish_match(match_id: int = Form()):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=error_msg
         )
-
-

@@ -1,7 +1,8 @@
 from pony.orm import *
-from .database import *
-from .database_utils import *
+from .database import Carta, Partida, Jugador
+from .database_utils import get_exist_user, get_match
 from typing import Dict
+from fastapi import HTTPException
 
 
 # # CARTA
@@ -23,18 +24,22 @@ def crear_partida(id_usuario_creador, id_name, contraseña,
     user = Jugador.get(id=id_usuario_creador)
 
     if contraseña != "" or contraseña != " ":
-        partida = Partida(id_jugador_creador=id_usuario_creador, nombre=id_name,
-                      iniciado=False, contrasena=contraseña,
-                      maximo_jugadores=num_max_jugadores,
-                      minimo_jugadores=num_min_jugadores,
-                      jugadores=[])
+        partida = Partida(
+            id_jugador_creador=id_usuario_creador,
+            nombre=id_name,
+            iniciado=False,
+            contrasena=contraseña,
+            maximo_jugadores=num_max_jugadores,
+            minimo_jugadores=num_min_jugadores,
+            jugadores=[])
     else:
-        partida = Partida(id_jugador_creador=id_usuario_creador, nombre=id_name,
-                      iniciado=False,
-                      maximo_jugadores=num_max_jugadores,
-                      minimo_jugadores=num_min_jugadores,
-                      jugadores=[])
-    
+        partida = Partida(
+            id_jugador_creador=id_usuario_creador,
+            nombre=id_name,
+            iniciado=False,
+            maximo_jugadores=num_max_jugadores,
+            minimo_jugadores=num_min_jugadores,
+            jugadores=[])
 
     if(user is None):
         raise HTTPException(
@@ -68,13 +73,15 @@ def get_estado_partida(match_id: int) -> Dict:
     return estado
 
 # Update
+
+
 @db_session
-def models_crud_eliminar_jugador_no_creador_de_pratida_sin_inicializar(id_jugador:int,match_id:int):
+def models_crud_eliminar_jugador_no_creador_de_pratida_sin_inicializar(
+        id_jugador: int, match_id: int):
     partida = Partida(match_id)
     if(id_jugador != partida.id_jugador_creador):
         Jugador(id_jugador).partida = None
         list(partida.jugadores).remove(id_jugador)
-            
 
 
 @db_session
@@ -97,11 +104,12 @@ def delete_match(match_id: int):
     if match:
         match.delete()
 
+
 @db_session
 def delete_match(match_id: int):
     match = Partida.get(id=match_id)
     if match:
-        for jugador in match.jugadores: 
+        for jugador in match.jugadores:
             jugador.partida = None
         match.delete()
 
@@ -116,6 +124,13 @@ def db_create_user(nombre: str) -> Dict[str, int]:
     jugador.flush()
     result = {"user_name": jugador.nombre, "id": jugador.id}
     return result
+
 # Read
+
+
+@db_session
+def get_name(user_id: int) -> str:
+    user = get(u for u in Jugador if u.id == user_id)
+    return user.nombre
 # Update
 # Delete

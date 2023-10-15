@@ -14,11 +14,23 @@ class JugadorPartida:
         self.posicion = 0
         self.cartas = []
 
+    def get_muerto(self):
+        return self.muerto
+
+    def set_muerto(self):
+        self.muerto = True
+
     def set_la_cosa(self):
         self.la_cosa = True
 
     def get_la_cosa(self):
         return self.la_cosa
+
+    def get_infectado(self):
+        return self.infectado
+
+    def get_humano(self):
+        return self.humano
 
     def set_infectado(self):
         self.infectado = True
@@ -42,7 +54,10 @@ class JugadorPartida:
         self.cartas.append(carta)
 
     def get_cartas(self):
-        return self.cartas
+        result = []
+        for c in self.cartas:
+            result.append({'id': c})
+        return result
 
     def descartar_carta(self, carta: int):
         return self.cartas.remove(carta)
