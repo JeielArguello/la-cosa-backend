@@ -74,9 +74,9 @@ async def descartar_carta(match_id : int = Form(),
         descartar_carta(card_id, player_id, juego)
         juego.mazo_descarte.append(card_id)
         await juego.broadcast_global("D")
-        return {"carta descartada"}
+        return {"carta descartada": card_id}
     except Exception as e:
-        return{"error al descartar carta"}
+        return{"error al descartar carta": card_id}
 
 # @router.post('/discard')
 # async def descartar_carta(match_id: int = Form(), card_id: int = Form(), player_id: int = Form()):
