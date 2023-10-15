@@ -1,5 +1,6 @@
 from fastapi import HTTPException
 from models.game import Juego
+from utils.action_utils import *
 
 
 def play_lanzallamas(atacante_in: int, objetivo_in: int, juego: Juego):
@@ -26,36 +27,18 @@ def play_lanzallamas(atacante_in: int, objetivo_in: int, juego: Juego):
 
 
 def play_vigila_tus_espaldas(juego: Juego):
-    juego.sentido = juego.sentido*(-1)
+    juego.sentido = juego.sentido * (-1)
 
 
-def validar_posiciones_vecinas(
-        indice_objetivo: int,
-        indice_atacante: int,
-        len_posiciones: int):
-    primero = min(indice_objetivo, indice_atacante)
-    segundo = max(indice_objetivo, indice_atacante)
-    if (primero + 2 != segundo) and (primero !=
-                                     0 or segundo != len_posiciones - 2):
-        raise HTTPException(
-            status_code=400,
-            detail="Los jugadores no son vecinos")
-
-
-def get_posicion_intermedia(len_posiciones, indice_jugador1, indice_jugador2):
-    border_one = (indice_jugador1 == 0 and indice_jugador2 ==
-                  len_posiciones - 1)
-    border_two = (indice_jugador2 == 0 and indice_jugador1 ==
-                  len_posiciones - 1)
-    if (border_one or border_two):
-        posicion = len_posiciones - 1
-    else:
-        posicion = min(indice_jugador1, indice_jugador2) + 1
-    return posicion
-
-
-def validar_obstaculo(indice_posicion_intermedia: int, juego: Juego):
-    if juego.posiciones[indice_posicion_intermedia] != 0:
-        raise HTTPException(
-            status_code=400,
-            detail="Hay un Obstaculo entre los jugadores")
+def play_mas_vale_que_corras(atacante_in: int, objetivo_in: int, juego: Juego):
+    # valido que existan los jugadores en el juego
+    # Ya esta validado en validar_jugada, llamada en jugar_la_carta
+    # validar_jugadores_en_juego(atacante_in, objetivo_in, juego)
+    # validar si esta en cuarentena
+    validar_cuarentena(objetivo_in, juego)
+    # obtengo el indice de los jugadores
+    indice_objetivo = juego.posiciones.index(objetivo_in)
+    indice_atacante = juego.posiciones.index(atacante_in)
+    # hago el intercambio de posiciones
+    juego.posiciones[indice_objetivo] = atacante_in
+    juego.posiciones[indice_atacante] = objetivo_in

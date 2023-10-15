@@ -1,9 +1,10 @@
 
-from fastapi import HTTPException
-from logic.action_effects import play_lanzallamas, play_vigila_tus_espaldas
-from models.game import Juego
-from models.database_utils import get_jugadores_match
 from models.crud import get_name
+from models.database_utils import get_jugadores_match
+from models.game import Juego
+from logic.action_effects import play_lanzallamas, play_mas_vale_que_corras
+from logic.action_effects import play_lanzallamas, play_vigila_tus_espaldas
+from fastapi import HTTPException
 
 
 global_juegos: list[Juego] = []
@@ -146,6 +147,9 @@ def jugar_la_carta(
         return True
     elif card_id in [48, 49]:
         play_vigila_tus_espaldas(juego)
+        return True
+    elif card_id in [55, 56, 57, 58, 59]:
+        play_mas_vale_que_corras(player_orig, player_objective, juego)
         return True
     else:
         return False
