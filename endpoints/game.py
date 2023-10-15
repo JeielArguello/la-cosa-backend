@@ -72,7 +72,6 @@ async def descartar_carta(match_id : int = Form(),
     try:
         juego = get_global_juego(match_id)
         descartar_carta(card_id, player_id, juego)
-        juego.mazo_descarte.append(card_id)
         await juego.broadcast_global("D")
         return {"carta descartada": card_id}
     except Exception as e:
