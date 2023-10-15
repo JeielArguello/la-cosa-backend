@@ -36,7 +36,7 @@ class Juego:
     # def avanzar_turno(self):
     #     if self.sentido == 1:
     #         self.turno = (self.turno + 2) % len(self.posiciones)
-    #     elif self.sentido == 0:
+    #     elif self.sentido == -1:
     #         self.turno = (self.turno - 2) % len(self.posiciones)
     #     for j in self.jugadores_en_partida:
     #         if j.id == self.posiciones[self.turno]:

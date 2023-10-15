@@ -78,3 +78,12 @@ def test_lanzallamas_no_vecinos(mocker):
     except HTTPException as e:
         error_msg = {e.detail}
     assert error_msg == {"Los jugadores no son vecinos"}
+
+
+def test_vigila_tus_espaldas(mocker):
+    mock_juego = Juego(partida_id=1, cantidad_jugadores=2,
+                       creador=1, jugadores_id=[1, 2])
+    antes_cambio = mock_juego.sentido
+    play_vigila_tus_espaldas(mock_juego)
+    despues_cambio = mock_juego.sentido
+    assert antes_cambio == despues_cambio * (-1)

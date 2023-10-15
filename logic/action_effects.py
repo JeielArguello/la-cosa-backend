@@ -5,12 +5,6 @@ from models.game import Juego
 def play_lanzallamas(atacante_in: int, objetivo_in: int, juego: Juego):
     # get indices
     len_posiciones = len(juego.posiciones)
-    if atacante_in not in juego.posiciones:
-        raise HTTPException(
-            status_code=400, detail="Atacante no esta en el juego")
-    if objetivo_in not in juego.posiciones:
-        raise HTTPException(
-            status_code=400, detail="Objetivo no esta en el juego")
     indice_objetivo = juego.posiciones.index(objetivo_in)
     indice_atacante = juego.posiciones.index(atacante_in)
     indice_posicion_intermedia = get_posicion_intermedia(
@@ -22,19 +16,17 @@ def play_lanzallamas(atacante_in: int, objetivo_in: int, juego: Juego):
         len_posiciones)
     # check obstaculos
     validar_obstaculo(indice_posicion_intermedia, juego)
-    # check defensa
-    # if defensa:
-    #     pass
-    # get Jugador objetivo
     for jugador in juego.jugadores_en_partida:
         if jugador.id == objetivo_in:
             # objetivo = jugador
             jugador.set_muerto()
-
-    # eliminar jugador y posiciones
     # juego.jugadores_en_partida.remove(objetivo)
     del juego.posiciones[indice_objetivo]
     del juego.posiciones[indice_objetivo]
+
+
+def play_vigila_tus_espaldas(juego: Juego):
+    juego.sentido = juego.sentido*(-1)
 
 
 def validar_posiciones_vecinas(
