@@ -1,5 +1,7 @@
 from fastapi.testclient import TestClient
 from unittest.mock import Mock
+
+import pytest
 from models.game import Juego
 from logic.action_effects import *
 
@@ -10,6 +12,12 @@ client = TestClient(app)
 
 mocker = Mock()
 
+@pytest.fixture
+def mock_juego():
+    juego = Juego(partida_id=1, cantidad_jugadores=4,
+                 creador=1, jugadores_id=[1, 3, 2, 4])
+    juego.posiciones = [1, 0, 2, 0, 3, 0, 4, 0]
+    return juego
 
 def test_lanzallamas_simple(mocker):
     mock_atacante = 1
@@ -78,3 +86,12 @@ def test_lanzallamas_no_vecinos(mocker):
     except HTTPException as e:
         error_msg = {e.detail}
     assert error_msg == {"Los jugadores no son vecinos"}
+
+
+def test_mas_vale_que_corras_succes(mock_juego):
+    mock_atacante = 1
+    mock_objetivo = 2
+    play_mas_vale_que_corras(mock_atacante, mock_objetivo, mock_juego)
+    response = {'jugadores': len(mock_juego.jugadores_en_partida),
+                'posiciones': mock_juego.posiciones}
+    assert response == {'jugadores': 4, 'posiciones': [2, 0, 1, 0, 3, 0, 4, 0]}
