@@ -99,6 +99,38 @@ def test_vigila_tus_espaldas(mocker):
     assert antes_cambio == despues_cambio * (-1)
 
 
+def test_hacha(mocker):
+    mock_juego = Juego(partida_id=1, cantidad_jugadores=2,
+                       creador=1, jugadores_id=[1, 2])
+    mock_juego.posiciones[1] = "p"
+    play_hacha(1, 2, mock_juego)
+    assert mock_juego.posiciones == [1, 0, 2, 0]
+
+
+def test_hacha_no_vecinos(mocker):
+    mock_atacante = 1
+    mock_objetivo = 2
+    mock_juego = Juego(partida_id=1, cantidad_jugadores=4,
+                       creador=1, jugadores_id=[1, 3, 2, 4])
+    try:
+        play_hacha(mock_atacante, mock_objetivo, mock_juego)
+    except HTTPException as e:
+        error_msg = {e.detail}
+    assert error_msg == {"Los jugadores no son vecinos"}
+
+
+def test_hacha_no_puerta(mocker):
+    mock_atacante = 1
+    mock_objetivo = 2
+    mock_juego = Juego(partida_id=1, cantidad_jugadores=4,
+                       creador=1, jugadores_id=[1, 2, 3, 4])
+    try:
+        play_hacha(mock_atacante, mock_objetivo, mock_juego)
+    except HTTPException as e:
+        error_msg = {e.detail}
+    assert error_msg == {"No hay una puerta atrancada"}
+
+
 def test_mas_vale_que_corras_succes(mock_juego):
     mock_atacante = 1
     mock_objetivo = 2
