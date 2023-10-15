@@ -3,16 +3,16 @@ from fastapi import HTTPException
 from logic.action_effects import play_lanzallamas
 from models.game import Juego
 from models.database_utils import get_jugadores_match
+from models.crud import get_name
 
 
 global_juegos: list[Juego] = []
 
 
-
 def get_status_game(juego: Juego):
     posiciones = juego.posiciones
     sentido = juego.sentido
-    jugadores = get_jugadores_match(juego.partida_id)
+    jugadores = get_jugadores_match(juego.posiciones)
     response = {'posiciones': posiciones,
                 'jugadores': jugadores, 'sentido': sentido}
     return response
@@ -27,7 +27,6 @@ def get_global_juego(match_id: int) -> Juego:
         raise HTTPException(
             status_code=400, detail="No se pudo acceder al juego")
     return result
-
 
 
 def delete_global_juego(match_id):
@@ -50,7 +49,7 @@ def get_status_player(juego: Juego, player_id: int):
         raise HTTPException(
             status_code=400,
             detail="El jugador no se encuentra en la partida")
-    mano = jugador.cartas
+    mano = jugador.get_cartas()
     muerto = jugador.muerto
     la_cosa = jugador.la_cosa
     humano = jugador.humano
@@ -59,6 +58,81 @@ def get_status_player(juego: Juego, player_id: int):
                 'humano': humano, 'infectado': infectado}
     return response
 
+
+def check_ganador(juego: Juego) -> bool:
+    first = check_la_cosa_eliminada(juego)
+    second = check_no_humanos(juego)
+    result = first or second
+    return result
+
+
+def finalizar_juego(juego: Juego):
+    la_cosa = []
+    humanos_vivos = []
+    humanos_muertos = []
+    infectados_vivos = []
+    infectados_muertos = []
+    for j in juego.jugadores_en_partida:
+        name = get_name(j.id)
+        if j.get_la_cosa():
+            la_cosa.append(name)
+        if j.get_infectado() and not j.get_muerto():
+            infectados_vivos.append(name)
+        if j.get_infectado() and j.get_muerto():
+            infectados_muertos.append(name)
+        if j.get_humano() and not j.get_muerto():
+            humanos_vivos.append(name)
+        if j.get_humano() and j.get_muerto():
+            humanos_muertos.append(name)
+
+    if check_la_cosa_eliminada(juego):
+        return {
+            'message': 'Ganan los Humanos',
+            'winners': humanos_vivos,
+            'losers': la_cosa + infectados_vivos + infectados_muertos + humanos_muertos}
+    elif check_no_humanos_no_eliminados(juego):
+        return {
+            'message': 'Gana La Cosa',
+            'winners': la_cosa,
+            'losers': infectados_vivos + infectados_muertos + humanos_vivos + humanos_muertos}
+    elif check_no_humanos(juego):
+        return {
+            'message': 'Ganan La Cosa y Los Infectados',
+            'winners': la_cosa + infectados_vivos,
+            'losers': humanos_vivos + humanos_muertos + infectados_muertos}
+    else:
+        raise HTTPException(
+            status_code=400, detail="No hay ganadores.")
+
+
+def check_la_cosa_eliminada(juego: Juego) -> bool:
+    la_cosa_eliminada = True
+    for j in juego.jugadores_en_partida:
+        if j.get_la_cosa() and not j.get_muerto():
+            la_cosa_eliminada = False
+    print(f'la_cosa_eliminada:{la_cosa_eliminada}')
+    return la_cosa_eliminada
+
+
+def check_no_humanos(juego: Juego) -> bool:
+    no_humanos = True
+    for j in juego.jugadores_en_partida:
+        if j.get_humano() and not j.get_muerto():
+            no_humanos = False
+    print(f'no_humanos:{no_humanos}')
+    return no_humanos
+
+
+def check_no_humanos_no_eliminados(juego: Juego) -> bool:
+    no_humanos = True
+    no_muertos = True
+    for j in juego.jugadores_en_partida:
+        if j.get_humano() and not j.get_muerto():
+            no_humanos = False
+        if j.get_muerto():
+            no_muertos = False
+    print(f'no_humanos_no_eliminados:{no_humanos and no_muertos}')
+    return no_humanos and no_muertos
 
 
 def jugar_la_carta(
@@ -82,5 +156,3 @@ def finalizar_partida(juego: Juego):
         return {"mensaje": "partida sin jugadores", "ganador": 0}
     else:
         return {"mensaje": "La partida aún no ha finalizado", "ganador": 0}
-
-
