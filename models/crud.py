@@ -1,7 +1,8 @@
 from pony.orm import *
-from .database import *
-from .database_utils import *
+from .database import Carta, Partida, Jugador
+from .database_utils import get_exist_user, get_match
 from typing import Dict
+from fastapi import HTTPException
 
 
 # # CARTA

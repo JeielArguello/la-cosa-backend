@@ -12,7 +12,7 @@ global_juegos: list[Juego] = []
 def get_status_game(juego: Juego):
     posiciones = juego.posiciones
     sentido = juego.sentido
-    jugadores = get_jugadores_match(juego.partida_id)
+    jugadores = get_jugadores_match(juego.posiciones)
     response = {'posiciones': posiciones,
                 'jugadores': jugadores, 'sentido': sentido}
     return response

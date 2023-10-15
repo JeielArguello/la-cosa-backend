@@ -90,6 +90,7 @@ class Juego:
     async def broadcast_global(self, message: dict):
         for p in self.ws_players_game:
             await p.send_json(message)
+            await p.send_json("reset")
 
 
 def robar_carta(juego: Juego, jugador: JugadorPartida):

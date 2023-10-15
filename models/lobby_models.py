@@ -50,6 +50,7 @@ class Lobby:
     async def broadcast_lobby(self, message: dict):
         for p in self.ws_players:
             await p.send_json(message)
+            await p.send_json("reset")
 
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
