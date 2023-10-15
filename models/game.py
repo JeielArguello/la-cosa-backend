@@ -19,7 +19,7 @@ class Juego:
 
         self.jugadores_en_partida: List[JugadorPartida] = []
         self.sentido = 1
-        self.turno = -1
+        self.turno = 0
         self.mazo: List[int] = []
         self.mazo_descarte = []
         self.posiciones = []
@@ -33,15 +33,18 @@ class Juego:
         # # crear mazo
         self.mazo = construir_mazo(self.cantidad_jugadores)
 
-    # def manejar_turnos(juego: Juego):
-    #     if juego.sentido == 1:
-    #         juego.turno = (juego.turno + 1) % len(juego.jugadores_en_partida)
-    #     elif juego.sentido == 0:
-    #         juego.turno = (juego.turno - 1) % len(juego.jugadores_en_partida)
+    # def avanzar_turno(self):
+    #     if self.sentido == 1:
+    #         self.turno = (self.turno + 2) % len(self.posiciones)
+    #     elif self.sentido == 0:
+    #         self.turno = (self.turno - 2) % len(self.posiciones)
+    #     for j in self.jugadores_en_partida:
+    #         if j.id == self.posiciones[self.turno]:
+    #             j.cambiar_turno()
 
-    #     jugador = juego.jugadores_en_partida[juego.turno]
+    # def terminar_turno(self):
+    #     jugador = self.jugadores_en_partida[self.turno]
     #     jugador.cambiar_turno()
-    #     print("manejador turno")
 
     def repartir_cartas(self, players_num: int):
         # Convierte el conjunto a una lista para poder acceder por índice
@@ -72,20 +75,23 @@ class Juego:
                 self.mazo = mazo
         random.shuffle(self.mazo)
 
-    #Funciones para conexion del websocket
+    # Funciones para conexion del websocket
     async def connect_game(self, websocket: WebSocket):
         await websocket.accept()
         self.ws_players_game.append(websocket)
-        
+        await self.broadcast_global("C")
+        await self.broadcast_global("D")
+
     async def disconnect_game(self, websocket: WebSocket):
         self.ws_players_game.remove(websocket)
         await websocket.send_text("cerrando conexion")
         await websocket.close(reason="cliente pide desconexion")
-    
+
     async def broadcast_global(self, message: dict):
         for p in self.ws_players_game:
             await p.send_json("R")
             await p.send_json(message)
+            await p.send_json("reset")
 
 
 def robar_carta(juego: Juego, jugador: JugadorPartida):
@@ -109,4 +115,3 @@ def otorgar_posiciones(juego: Juego):
     for jugador_id in juego.jugadores_id:
         juego.posiciones.append(jugador_id)
         juego.posiciones.append(0)
-

@@ -10,6 +10,7 @@ client = TestClient(app)
 
 mocker = Mock()
 
+
 @pytest.fixture
 def lobby():
     lobby = Lobby(1, "test_lobby", None, 4, 2, 1)
@@ -21,6 +22,7 @@ def test_add_player(lobby):
     assert lobby.cantidad_jugadores == 2
     assert lobby.users_id == [1, 2]
 
+
 def test_remove_player(lobby):
     lobby.add_player(2)
     lobby.add_player(3)
@@ -29,10 +31,12 @@ def test_remove_player(lobby):
     assert lobby.cantidad_jugadores == 2
     assert lobby.users_id == [1, 3]
 
+
 def test_list_players(lobby):
     lobby.add_player(2)
     lobby.add_player(3)
     assert lobby.list_players() == [1, 2, 3]
+
 
 
 @pytest.mark.asyncio

@@ -20,8 +20,7 @@ def validar_partida(
             "Numero maximo de jugadores debe ser mayor al numero minimo.")
 
 
-
-def get_lobby(lobby_id : int):
+def get_lobby(lobby_id: int):
     for p in all_lobby:
         if p.id_partida == lobby_id:
             lobby = p
