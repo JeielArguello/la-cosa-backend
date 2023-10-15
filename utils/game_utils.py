@@ -2,8 +2,7 @@
 from models.crud import get_name
 from models.database_utils import get_jugadores_match
 from models.game import Juego
-from logic.action_effects import play_lanzallamas, play_mas_vale_que_corras
-from logic.action_effects import play_lanzallamas, play_vigila_tus_espaldas
+from logic.action_effects import play_lanzallamas, play_mas_vale_que_corras, play_hacha, play_vigila_tus_espaldas
 from fastapi import HTTPException
 
 
@@ -144,6 +143,9 @@ def jugar_la_carta(
     validar_jugada(juego, card_id, player_objective, player_orig)
     if card_id in [22, 23, 24, 25, 26]:
         play_lanzallamas(player_orig, player_objective, juego)
+        return True
+    elif card_id in [30, 31]:
+        play_hacha(player_orig, player_objective, juego)
         return True
     elif card_id in [48, 49]:
         play_vigila_tus_espaldas(juego)

@@ -36,6 +36,13 @@ def validar_obstaculo(indice_posicion_intermedia: int, juego: Juego):
             detail="Hay un Obstaculo entre los jugadores")
 
 
+def validar_puerta(indice_posicion_intermedia: int, juego: Juego):
+    if juego.posiciones[indice_posicion_intermedia] != "p":
+        raise HTTPException(
+            status_code=400,
+            detail="No hay una puerta atrancada")
+
+
 def validar_jugadores_en_juego(
         atacante_in: int,
         objetivo_in: int,

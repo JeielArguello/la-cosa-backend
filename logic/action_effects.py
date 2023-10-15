@@ -26,6 +26,21 @@ def play_lanzallamas(atacante_in: int, objetivo_in: int, juego: Juego):
     del juego.posiciones[indice_objetivo]
 
 
+def play_hacha(atacante_in: int, objetivo_in: int, juego: Juego):
+    # get indices
+    len_posiciones = len(juego.posiciones)
+    indice_objetivo = juego.posiciones.index(objetivo_in)
+    indice_atacante = juego.posiciones.index(atacante_in)
+    indice_posicion_intermedia = get_posicion_intermedia(
+        len_posiciones, indice_objetivo, indice_atacante)
+    validar_posiciones_vecinas(
+        indice_atacante,
+        indice_objetivo,
+        len_posiciones)
+    validar_puerta(indice_posicion_intermedia, juego)
+    juego.posiciones[indice_posicion_intermedia] = 0
+
+
 def play_vigila_tus_espaldas(juego: Juego):
     juego.sentido = juego.sentido * (-1)
 
