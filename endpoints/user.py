@@ -16,3 +16,4 @@ async def create_user(user_name: str = Form()):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Error al crear usuario."
         )
+
