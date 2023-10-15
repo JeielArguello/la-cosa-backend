@@ -153,3 +153,29 @@ def test_finalizar_partida_fail(mocker):
     assert response.status_code == 400
     assert response.json() == {
         'detail': "Error: " + no_ganadores}
+
+
+def test_endpoint_descartar_carta_success(mocker):
+    mocker.patch("endpoints.game.get_global_juego", return_value = juego, 
+                 autospec = True)
+    mocker.patch("endpoints.game.descartar_carta", return_value = True, 
+                 autoespec = True,)
+    response = client.post("/game/discard", data={"match_id": 1,
+                                                  "card_id": 2,
+                                                  "player_id":1})     
+    assert response.status_code == 200
+    assert response.json() == {"carta descartada": 2}
+    
+
+def test_endpoint_descartar_carta_fail(mocker):
+    mocker.patch("endpoints.game.get_global_juego", return_value = juego, 
+                 autospec = True)
+    mocker.patch("endpoints.game.descartar_carta", return_value = True, 
+                 autoespec = True,)
+    response = client.post("/game/discard", data={"match_id": "a",
+                                                  "card_id": 2,
+                                                  "player_id":1})     
+    assert response.status_code == 422
+    
+
+
