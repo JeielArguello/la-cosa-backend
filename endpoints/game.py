@@ -66,6 +66,17 @@ async def jugar_carta(match_id: int = Form(), card_id: int = Form(),
 # Descartar carta
 ######
 
+@router.post("/discard")
+async def descartar_carta(match_id : int = Form(), 
+                          card_id: int = Form(), player_id: int = Form()):
+    try:
+        juego = get_global_juego(match_id)
+        descartar_carta(card_id, player_id, juego)
+        juego.mazo_descarte.append(card_id)
+        await juego.broadcast_global("D")
+        return {"carta descartada"}
+    except Exception as e:
+        return{"error al descartar carta"}
 
 # @router.post('/discard')
 # async def descartar_carta(match_id: int = Form(), card_id: int = Form(), player_id: int = Form()):
