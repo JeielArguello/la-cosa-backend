@@ -30,23 +30,6 @@ async def pick_a_card_from_deck(match_id: int = Form(), player_id: int = Form())
 # Jugar carta
 ######
 
-'''
-@router.post('/play')
-async def jugar_carta(match_id: int = Form(), card_id: int = Form(), player_objective: int = Form(), player_origin: int = Form()):
-    juego = get_global_juego(match_id)
-    resultado = jugar_la_carta(juego, card_id, player_objective, player_origin)
-    # if descartar_carta(card_id, player_orig, match_id):
-    return {
-        "carta": card_id,
-        "jugada contra": player_objective,
-        "por": player_origin}
-    # return {"error al jugar la carta": card_id, "contra": player_objective,
-    # "por": player_orig}
-    return {"carta": card_id, "jugada contra": player_objective, "por": player_origin}
-    # return {"error al jugar la carta": card_id, "contra": player_objective, "por": player_orig}
-'''
-
-
 
 @router.post("/play", status_code=status.HTTP_200_OK)
 async def jugar_carta(match_id: int = Form(), card_id: int = Form(),
@@ -67,7 +50,7 @@ async def jugar_carta(match_id: int = Form(), card_id: int = Form(),
 ######
 
 @router.post("/discard")
-async def descartar_carta(match_id : int = Form(), 
+async def endpoint_descartar_carta(match_id : int = Form(), 
                           card_id: int = Form(), player_id: int = Form()):
     try:
         juego = get_global_juego(match_id)
@@ -77,11 +60,6 @@ async def descartar_carta(match_id : int = Form(),
     except Exception as e:
         return{"error al descartar carta": card_id}
 
-# @router.post('/discard')
-# async def descartar_carta(match_id: int = Form(), card_id: int = Form(), player_id: int = Form()):
-#     juego = get_global_juego(match_id)
-#     if descartar_carta(card_id, player_id, match_id):
-#         return {"carta": card_id, "Descartada por": player_id}
 
 ######
 # Finalizar Partida

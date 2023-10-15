@@ -3,7 +3,6 @@ from unittest.mock import AsyncMock, Mock, MagicMock
 from pony.orm import *
 from models.database_utils import *
 from models.crud import *
-
 from main import app
 client = TestClient(app)
 
@@ -51,7 +50,7 @@ def test_jugar_carta_success1(mocker):
                                                   "player_objective" : 3, 
                                                   "player_orig" : 2})
     assert response.status_code == 200
-    #assert response.json() == {"error al jugar la carta": 2, "contra": 3, "por": 2}
+    
 
 
 def test_jugar_carta_fail(mocker):
@@ -67,3 +66,28 @@ def test_jugar_carta_fail(mocker):
                                                   "player_orig" : 2})
     assert response.status_code == 422
     
+
+def test_endpoint_descartar_carta_success(mocker):
+    mocker.patch("endpoints.game.get_global_juego", return_value = juego, 
+                 autospec = True)
+    mocker.patch("endpoints.game.descartar_carta", return_value = True, 
+                 autoespec = True,)
+    response = client.post("/game/discard", data={"match_id": 1,
+                                                  "card_id": 2,
+                                                  "player_id":1})     
+    assert response.status_code == 200
+    assert response.json() == {"carta descartada": 2}
+    
+
+def test_endpoint_descartar_carta_fail(mocker):
+    mocker.patch("endpoints.game.get_global_juego", return_value = juego, 
+                 autospec = True)
+    mocker.patch("endpoints.game.descartar_carta", return_value = True, 
+                 autoespec = True,)
+    response = client.post("/game/discard", data={"match_id": "a",
+                                                  "card_id": 2,
+                                                  "player_id":1})     
+    assert response.status_code == 422
+    
+
+
