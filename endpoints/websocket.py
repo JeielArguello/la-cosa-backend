@@ -36,6 +36,7 @@ async def websocket_endpoint_list(websocket: WebSocket):
 
 async def broadcast( message: dict):
         for p in ws_players_list:
+            await p.send_json("R")
             await p.send_json(message)
 
       
