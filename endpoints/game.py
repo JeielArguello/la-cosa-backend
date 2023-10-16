@@ -47,16 +47,25 @@ async def jugar_carta(match_id: int = Form(), card_id: int = Form(),
     # return {"error al jugar la carta": card_id, "contra": player_objective,
     # "por": player_orig}
 
+
 ######
 # Descartar carta
 ######
 
 
-# @router.post('/discard')
-# async def descartar_carta(match_id: int = Form(), card_id: int = Form(), player_id: int = Form()):
-#     juego = get_global_juego(match_id)
-#     if descartar_carta(card_id, player_id, match_id):
-#         return {"carta": card_id, "Descartada por": player_id}
+@router.post("/discard")
+async def endpoint_descartar_carta(match_id : int = Form(), 
+                          card_id: int = Form(), player_id: int = Form()):
+    try:
+        juego = get_global_juego(match_id)
+        descartar_carta(card_id, player_id, juego)
+        await juego.broadcast_global("D")
+        await juego.terminar_turno()
+        await juego.avanzar_turno()
+        return {"carta descartada": card_id}
+    except Exception as e:
+        return{"error al descartar carta": card_id}
+
 
 ######
 # Finalizar Partida
