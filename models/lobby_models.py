@@ -49,7 +49,6 @@ class Lobby:
 
     async def broadcast_lobby(self, message: dict):
         for p in self.ws_players:
-            await p.send_json("R")
             await p.send_json(message)
             await p.send_json("reset")
 
