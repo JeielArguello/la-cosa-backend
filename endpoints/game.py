@@ -17,12 +17,17 @@ router = APIRouter()
 
 @router.post('/pick')
 async def pick_a_card_from_deck(match_id: int = Form(), player_id: int = Form()):
-    juego = get_global_juego(match_id)
-    for jugador_en_partida in juego.jugadores_en_partida:
-        if jugador_en_partida.id == player_id:
-            jugador = jugador_en_partida
-    carta = robar_carta(juego, jugador)
-    return {'card_id': carta}
+    try:
+        juego = get_global_juego(match_id)
+        jugador = get_jugador(player_id, juego)
+        carta = robar_carta(juego, jugador)
+        return {'card_id': carta}
+    except HTTPException as e:
+        error_msg = f"Error: {e.detail}"
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_msg
+        )
 
 
 ######
@@ -45,6 +50,12 @@ async def jugar_carta(match_id: int = Form(), card_id: int = Form(),
             "carta": card_id,
             "jugada contra": player_objective,
             "por": player_orig}
+    except HTTPException as e:
+        error_msg = f"Error: {e.detail}"
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_msg
+        )
     except Exception as e:
         return {"error al jugar la carta": card_id,
                 "contra": player_objective,
@@ -66,6 +77,12 @@ async def endpoint_descartar_carta(match_id: int = Form(),
         juego.terminar_turno()
         juego.avanzar_turno()
         return {"carta descartada": card_id}
+    except HTTPException as e:
+        error_msg = f"Error: {e.detail}"
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_msg
+        )
     except Exception as e:
         return{"error al descartar carta": card_id}
 
