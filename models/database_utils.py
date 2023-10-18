@@ -161,14 +161,14 @@ def construir_mazo(num_jugadores: int):
 #                status_code=400, detail="No se le pudo inicializar la ")
 
 
-@db_session
-def descartar_carta(card_id: int, player_orig: int, match_id: int):
-    juego = select(j for j in Partida if j.id == match_id).first()
-    if juego:
-        juego.mazo_descarte.append(card_id)
-        juego.jugadores_en_partida[player_orig].cartas.pop(card_id)
-        return True
-    return False
+# @db_session
+# def descartar_carta(card_id: int, player_orig: int, match_id: int):
+#     juego = select(j for j in Partida if j.id == match_id).first()
+#     if juego:
+#         juego.mazo_descarte.append(card_id)
+#         juego.jugadores_en_partida[player_orig].cartas.pop(card_id)
+#         return True
+#     return False
 
 
 @db_session

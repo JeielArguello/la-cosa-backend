@@ -33,19 +33,22 @@ async def pick_a_card_from_deck(match_id: int = Form(), player_id: int = Form())
 @router.post("/play", status_code=status.HTTP_200_OK)
 async def jugar_carta(match_id: int = Form(), card_id: int = Form(),
                       player_objective: int = Form(), player_orig: int = Form()):
-    juego = get_global_juego(match_id)
-    resultado = jugar_la_carta(juego, card_id,
-                               player_objective, player_orig)
-
-    await juego.broadcast_global("C")
-
-    # if descartar_carta(card_id, player_orig, juego):
-    return {
-        "carta": card_id,
-        "jugada contra": player_objective,
-        "por": player_orig}
-    # return {"error al jugar la carta": card_id, "contra": player_objective,
-    # "por": player_orig}
+    try:
+        juego = get_global_juego(match_id)
+        jugar_la_carta(juego, card_id, player_objective, player_orig)
+        await juego.broadcast_global("C")
+        descartar_carta(card_id, player_orig, juego)
+        check_ganador(juego)
+        if check_ganador:
+            await juego.broadcast_global("K")
+        return {
+            "carta": card_id,
+            "jugada contra": player_objective,
+            "por": player_orig}
+    except Exception as e:
+        return {"error al jugar la carta": card_id,
+                "contra": player_objective,
+                "por": player_orig}
 
 
 ######
@@ -54,14 +57,14 @@ async def jugar_carta(match_id: int = Form(), card_id: int = Form(),
 
 
 @router.post("/discard")
-async def endpoint_descartar_carta(match_id : int = Form(), 
-                          card_id: int = Form(), player_id: int = Form()):
+async def endpoint_descartar_carta(match_id: int = Form(),
+                                   card_id: int = Form(), player_id: int = Form()):
     try:
         juego = get_global_juego(match_id)
         descartar_carta(card_id, player_id, juego)
         await juego.broadcast_global("D")
-        await juego.terminar_turno()
-        await juego.avanzar_turno()
+        juego.terminar_turno()
+        juego.avanzar_turno()
         return {"carta descartada": card_id}
     except Exception as e:
         return{"error al descartar carta": card_id}
