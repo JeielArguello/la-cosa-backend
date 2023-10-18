@@ -185,16 +185,23 @@ def finalizar_partida(juego: Juego):
 def descartar_carta(card_id: int, player_id: int, juego: Juego):
     validar_carta(card_id, player_id, juego)
     juego.mazo_descarte.append(card_id)
-    for j in juego.jugadores_en_partida:
-        if j.id == player_id:
-            jugador = j
+    jugador = get_jugador(player_id, juego)
     jugador.descartar_carta(card_id)
 
 
 def validar_carta(card_id: int, player_id: int, juego: Juego):
-    for j in juego.jugadores_en_partida:
-        if player_id == j.id:
-            jugador = j
+    jugador = get_jugador(player_id, juego)
     if not (card_id in jugador.cartas):
         raise HTTPException(
             status_code=400, detail="El jugador no posee esta carta")
+
+
+def get_jugador(player_id: int, juego: Juego):
+    jugador = None
+    for j in juego.jugadores_en_partida:
+        if j.id == player_id:
+            jugador = j
+    if jugador is None:
+        raise HTTPException(
+            status_code=400, detail="No se pudo acceder al jugador")
+    return jugador
