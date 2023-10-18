@@ -2,8 +2,10 @@
 from models.crud import get_name, read_carta
 from models.database_utils import get_jugadores_match
 from models.game import Juego
-from logic.action_effects import play_lanzallamas, play_mas_vale_que_corras, play_hacha, play_vigila_tus_espaldas
+from logic.action_effects import play_lanzallamas, play_mas_vale_que_corras, play_hacha, play_sospecha, play_vigila_tus_espaldas
 from fastapi import HTTPException
+
+from utils.action_utils import get_jugador
 
 
 global_juegos: list[Juego] = []
@@ -139,7 +141,7 @@ def check_no_humanos_no_eliminados(juego: Juego) -> bool:
     return no_humanos and no_muertos
 
 
-def jugar_la_carta(
+async def jugar_la_carta(
         juego: Juego,
         card_id: int,
         player_objective: int,
@@ -149,6 +151,11 @@ def jugar_la_carta(
         play_lanzallamas(player_orig, player_objective, juego)
     elif card_id in [30, 31]:
         play_hacha(player_orig, player_objective, juego)
+    elif card_id in [32, 33, 34, 35, 36, 37, 38, 39]:
+        msg = play_sospecha(player_orig, player_objective, juego)
+        await juego.broadcast_global({"carta_id":card_id,
+                                      "mensaje":msg["mensaje"],
+                                      "cartaMostrar":msg["cartaMostrar"]})
     elif card_id in [48, 49]:
         play_vigila_tus_espaldas(juego)
     elif card_id in [55, 56, 57, 58, 59]:
@@ -199,13 +206,3 @@ def validar_carta(card_id: int, player_id: int, juego: Juego):
         raise HTTPException(
             status_code=400, detail="El jugador no posee esta carta")
 
-
-def get_jugador(player_id: int, juego: Juego):
-    jugador = None
-    for j in juego.jugadores_en_partida:
-        if j.id == player_id:
-            jugador = j
-    if jugador is None:
-        raise HTTPException(
-            status_code=400, detail="No se pudo acceder al jugador")
-    return jugador

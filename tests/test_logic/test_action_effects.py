@@ -138,3 +138,22 @@ def test_mas_vale_que_corras_succes(mock_juego):
     response = {'jugadores': len(mock_juego.jugadores_en_partida),
                 'posiciones': mock_juego.posiciones}
     assert response == {'jugadores': 4, 'posiciones': [2, 0, 1, 0, 3, 0, 4, 0]}
+
+def test_sospecha_success(mock_juego):
+    mock_atacante = 1
+    mock_objetivo = 2
+    mock_jugador_objetivo = get_jugador(mock_objetivo, mock_juego)
+    mock_jugador_objetivo.cartas = [1, 2, 3, 4]
+    msg = play_sospecha(mock_atacante, mock_objetivo, mock_juego)
+    assert msg["mensaje"] == "jugador: "+str(mock_atacante)+" jugo carta: "+str(msg["cartaMostrar"]) +" contra jugador: "+str(mock_objetivo)
+    assert msg["cartaMostrar"] in [1, 2, 3, 4]
+
+def test_sospecha_fail(mock_juego,mocker):
+    mock_atacante = 1
+    mock_objetivo = 2
+    mocker.patch("logic.action_effects.random.choice", return_value=4)
+    try:
+        play_sospecha(mock_atacante, mock_objetivo, mock_juego)
+    except HTTPException as e:
+        error_msg = {e.detail}
+    assert error_msg == {"No se pudo obtener una carta del jugador objetivo"}

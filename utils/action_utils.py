@@ -57,3 +57,9 @@ def validar_jugadores_en_juego(
 
 def validar_cuarentena(objetivo_in: int, juego: Juego):
     pass
+
+def get_jugador(player_id: int, juego: Juego):
+    for j in juego.jugadores_en_partida:
+        if j.id == player_id:
+            jugador = j
+    return jugador

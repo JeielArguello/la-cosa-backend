@@ -156,10 +156,12 @@ def test_finalizar_partida_fail(mocker):
 
 
 def test_endpoint_descartar_carta_success(mocker):
-    mocker.patch("endpoints.game.get_global_juego", return_value = juego, 
+    mock_juego = Juego(partida_id=1, cantidad_jugadores=2,creador=1, jugadores_id=[1, 2])
+    mocker.patch("endpoints.game.get_global_juego", return_value = mock_juego, 
                  autospec = True)
     mocker.patch("endpoints.game.descartar_carta", return_value = True, 
                  autoespec = True,)
+    
     response = client.post("/game/discard", data={"match_id": 1,
                                                   "card_id": 2,
                                                   "player_id":1})     

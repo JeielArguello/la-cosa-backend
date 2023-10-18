@@ -1,3 +1,4 @@
+import random
 from fastapi import HTTPException
 from models.game import Juego
 from utils.action_utils import *
@@ -41,14 +42,22 @@ def play_hacha(atacante_in: int, objetivo_in: int, juego: Juego):
     juego.posiciones[indice_posicion_intermedia] = 0
 
 
+def play_sospecha(atacante_in: int, objetivo_in: int, juego: Juego):
+    jugador_objetivo = get_jugador(objetivo_in, juego)
+    carta_id = random.choice(jugador_objetivo.cartas)
+    if carta_id not in jugador_objetivo.cartas:
+        raise HTTPException(
+            status_code=400,
+            detail="No se pudo obtener una carta del jugador objetivo")
+    msg = {"mensaje":"jugador: "+str(atacante_in)+" jugo carta: "+str(carta_id) +" contra jugador: "+str(objetivo_in),
+           "cartaMostrar": carta_id}
+    return msg
+
 def play_vigila_tus_espaldas(juego: Juego):
     juego.sentido = juego.sentido * (-1)
 
 
 def play_mas_vale_que_corras(atacante_in: int, objetivo_in: int, juego: Juego):
-    # valido que existan los jugadores en el juego
-    # Ya esta validado en validar_jugada, llamada en jugar_la_carta
-    # validar_jugadores_en_juego(atacante_in, objetivo_in, juego)
     # validar si esta en cuarentena
     validar_cuarentena(objetivo_in, juego)
     # obtengo el indice de los jugadores
