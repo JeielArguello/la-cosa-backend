@@ -184,3 +184,11 @@ def finalizar_partida(juego: Juego):
         return {"mensaje": "partida sin jugadores", "ganador": 0}
     else:
         return {"mensaje": "La partida aún no ha finalizado", "ganador": 0}
+
+
+def descartar_carta(card_id: int, player_id: int, juego: Juego):
+    juego.mazo_descarte.append(card_id)
+    for j in juego.jugadores_en_partida:
+        if j.id == player_id:
+            jugador = j
+    jugador.descartar_carta(card_id)
