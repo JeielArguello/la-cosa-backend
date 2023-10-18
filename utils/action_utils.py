@@ -35,13 +35,25 @@ def validar_obstaculo(indice_posicion_intermedia: int, juego: Juego):
             status_code=400,
             detail="Hay un Obstaculo entre los jugadores")
 
-def validar_jugadores_en_juego(atacante_in: int, objetivo_in: int, juego: Juego):
+
+def validar_puerta(indice_posicion_intermedia: int, juego: Juego):
+    if juego.posiciones[indice_posicion_intermedia] != "p":
+        raise HTTPException(
+            status_code=400,
+            detail="No hay una puerta atrancada")
+
+
+def validar_jugadores_en_juego(
+        atacante_in: int,
+        objetivo_in: int,
+        juego: Juego):
     if atacante_in not in juego.posiciones:
         raise HTTPException(
             status_code=400, detail="Atacante no esta en el juego")
     if objetivo_in not in juego.posiciones:
         raise HTTPException(
             status_code=400, detail="Objetivo no esta en el juego")
+
 
 def validar_cuarentena(objetivo_in: int, juego: Juego):
     pass

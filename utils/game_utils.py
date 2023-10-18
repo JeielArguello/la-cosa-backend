@@ -1,9 +1,9 @@
 
-from fastapi import HTTPException
-from logic.action_effects import play_lanzallamas, play_mas_vale_que_corras
-from models.game import Juego
-from models.database_utils import get_jugadores_match
 from models.crud import get_name
+from models.database_utils import get_jugadores_match
+from models.game import Juego
+from logic.action_effects import play_lanzallamas, play_mas_vale_que_corras, play_hacha, play_vigila_tus_espaldas
+from fastapi import HTTPException
 
 
 global_juegos: list[Juego] = []
@@ -140,14 +140,39 @@ def jugar_la_carta(
         card_id: int,
         player_objective: int,
         player_orig: int):
+    validar_jugada(juego, card_id, player_objective, player_orig)
     if card_id in [22, 23, 24, 25, 26]:
         play_lanzallamas(player_orig, player_objective, juego)
         return True
-    if card_id in [55, 56, 57, 58, 59]:
+    elif card_id in [30, 31]:
+        play_hacha(player_orig, player_objective, juego)
+        return True
+    elif card_id in [48, 49]:
+        play_vigila_tus_espaldas(juego)
+        return True
+    elif card_id in [55, 56, 57, 58, 59]:
         play_mas_vale_que_corras(player_orig, player_objective, juego)
         return True
     else:
         return False
+
+
+def validar_jugada(juego: Juego,
+                   card_id: int,
+                   player_objective: int,
+                   player_orig: int):
+    if player_orig not in juego.posiciones:
+        raise HTTPException(
+            status_code=400, detail="Atacante no esta en el juego")
+    if player_objective not in juego.posiciones:
+        raise HTTPException(
+            status_code=400, detail="Objetivo no esta en el juego")
+    for j in juego.jugadores_en_partida:
+        if player_orig == j.id:
+            jugador = j
+    if not (card_id in jugador.cartas):
+        raise HTTPException(
+            status_code=400, detail="El jugador no posee esta carta")
 
 
 def finalizar_partida(juego: Juego):

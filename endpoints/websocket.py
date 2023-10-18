@@ -6,6 +6,8 @@ from typing import List
 router = APIRouter()
 
 # websocket general para listar partidas
+
+
 @router.websocket('/match/list')
 async def websocket_endpoint_list(websocket: WebSocket):
 
@@ -76,6 +78,8 @@ async def websocket_endpoint_lobby(websocket: WebSocket, match_id: int):
             lobby.ws_players.remove(websocket)
 
 # websocket para juego
+
+
 @router.websocket('/game/{match_id}')
 async def websocket_endpoint_game(websocket: WebSocket, match_id: int):
 
