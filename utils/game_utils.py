@@ -1,5 +1,5 @@
 
-from models.crud import get_name
+from models.crud import get_name, read_carta
 from models.database_utils import get_jugadores_match
 from models.game import Juego
 from logic.action_effects import play_lanzallamas, play_mas_vale_que_corras, play_hacha, play_vigila_tus_espaldas
@@ -13,8 +13,12 @@ def get_status_game(juego: Juego):
     posiciones = juego.posiciones
     sentido = juego.sentido
     jugadores = get_jugadores_match(juego.posiciones)
+    carta = read_carta(juego.mazo[-1])
+    print(juego.mazo)
     response = {'posiciones': posiciones,
-                'jugadores': jugadores, 'sentido': sentido}
+                'jugadores': jugadores,
+                'sentido': sentido,
+                'tipo_dorso': carta.tipo_dorso}
     return response
 
 
