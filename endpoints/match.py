@@ -149,7 +149,6 @@ async def get_player_state(match_id: int, player_id: int):
     try:
         juego = get_global_juego(match_id)
         result = get_status_player(juego, player_id)
-        print(juego.mazo)
         return result
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
@@ -174,6 +173,7 @@ async def abandonar_partida(id_jugador: int = Form(), match_id: int = Form()):
                 id_jugador, match_id)
             lobby.remove_player(id_jugador)
             await lobby.broadcast_lobby("B")
+            await broadcast("A")
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
         raise HTTPException(

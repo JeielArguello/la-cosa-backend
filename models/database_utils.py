@@ -85,14 +85,11 @@ def get_match(match_id: int):
 @db_session
 def get_jugadores_match(posiciones: list):
     jugadores = []
-    print(posiciones)
     for j in posiciones:
-        print(j)
         if j != 0:
             id = j
             nombre = get_name(id)
             jugador = {'id': id, 'nombre': nombre}
-            print(jugador)
             jugadores.append(jugador)
     return jugadores
 

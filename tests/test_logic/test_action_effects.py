@@ -7,6 +7,7 @@ from logic.action_effects import *
 
 
 from main import app
+from models.player import JugadorPartida
 
 client = TestClient(app)
 
@@ -14,27 +15,83 @@ mocker = Mock()
 
 
 @pytest.fixture
-def mock_juego():
+def mock_juego(mocker):
+    mocker.patch("models.player.get_name", return_value="pepe")
     juego = Juego(partida_id=1, cantidad_jugadores=4,
                   creador=1, jugadores_id=[1, 3, 2, 4])
+    juego.name = "test"
     juego.posiciones = [1, 0, 2, 0, 3, 0, 4, 0]
     return juego
 
 
-def test_lanzallamas_simple(mocker):
-    mock_atacante = 1
-    mock_objetivo = 2
-    mock_juego = Juego(partida_id=1, cantidad_jugadores=2,
-                       creador=1, jugadores_id=[1, 2])
-    play_lanzallamas(mock_atacante, mock_objetivo, mock_juego)
+@pytest.fixture
+def mock_atacante(mocker):
+    mocker.patch("models.player.get_name", return_value="pepe")
+    jugador = JugadorPartida(id=1)
+    return jugador
+
+@pytest.fixture
+def mock_objetivo(mocker):
+    mocker.patch("models.player.get_name", return_value="pedro")
+    jugador = JugadorPartida(id=2)
+    return jugador
+
+
+def test_lanzallamas_simple(mocker,mock_juego,mock_atacante,mock_objetivo):
+    mock_juego.cantidad_jugadores=2,
+    mock_juego.jugadores_id=[1, 2]
+    mock_juego.posiciones = [1, 0, 2, 0]
+    mock_juego.jugadores_en_partida = [mock_atacante,mock_objetivo]
+    play_lanzallamas(mock_atacante.id, mock_objetivo.id, mock_juego)
     response = {'jugadores': len(mock_juego.jugadores_en_partida),
                 'posiciones': mock_juego.posiciones}
     assert response == {'jugadores': 2, 'posiciones': [1, 0]}
 
 
-def test_lanzallamas(mocker):
-    mock_juego = Juego(partida_id=1, cantidad_jugadores=10,
-                       creador=1, jugadores_id=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+def test_lanzallamas(mocker,mock_juego,mock_atacante,mock_objetivo):
+    mock_j1 = mock_atacante
+    mock_j2 = mock_objetivo
+    mock_j3 = mock_atacante
+    mock_j3.id = 3
+    mock_j4 = mock_atacante
+    mock_j4.id = 4
+    mock_j5 = mock_atacante
+    mock_j5.id = 5
+    mock_j6 = mock_atacante
+    mock_j6.id = 6
+    mock_j7 = mock_atacante
+    mock_j7.id = 7
+    mock_j8 = mock_atacante
+    mock_j8.id = 8
+    mock_j9 = mock_atacante
+    mock_j9.id = 9
+    mock_j10 = mock_atacante
+    mock_j10.id = 10
+
+    mock_juego.cantidad_jugadores=10,
+    mock_juego.jugadores_id=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    mock_juego.jugadores_en_partida = [mock_j1, mock_j2, mock_j3, mock_j4,mock_j5,mock_j6,mock_j7,mock_j8,mock_j9,mock_j10]
+    mock_juego.posiciones = [
+            1,
+            0,
+            2,
+            0,
+            3,
+            0,
+            4,
+            0,
+            5,
+            0,
+            6,
+            0,
+            7,
+            0,
+            8,
+            0,
+            9,
+            0,
+            10,
+            0]
     play_lanzallamas(4, 5, mock_juego)
     response1 = {'jugadores': len(mock_juego.jugadores_en_partida),
                  'posiciones': mock_juego.posiciones}
@@ -78,52 +135,50 @@ def test_lanzallamas(mocker):
                          'posiciones': [2, 0, 3, 0, 4, 0, 6, 0, 7, 0, 9, 0]}
 
 
-def test_lanzallamas_no_vecinos(mocker):
-    mock_atacante = 1
-    mock_objetivo = 2
-    mock_juego = Juego(partida_id=1, cantidad_jugadores=4,
-                       creador=1, jugadores_id=[1, 3, 2, 4])
+def test_lanzallamas_no_vecinos(mocker,mock_juego,mock_atacante,mock_objetivo):
+    mock_juego.posiciones = [1, 0, 3, 0, 2, 0, 4, 0]
     try:
-        play_lanzallamas(mock_atacante, mock_objetivo, mock_juego)
+        play_lanzallamas(mock_atacante.id, mock_objetivo.id, mock_juego)
     except HTTPException as e:
         error_msg = {e.detail}
     assert error_msg == {"Los jugadores no son vecinos"}
 
 
-def test_vigila_tus_espaldas(mocker):
-    mock_juego = Juego(partida_id=1, cantidad_jugadores=2,
-                       creador=1, jugadores_id=[1, 2])
+def test_vigila_tus_espaldas(mocker,mock_juego):
+    mock_juego.cantidad_jugadores=2
+    mock_juego.jugadores_id=[1, 2]
     antes_cambio = mock_juego.sentido
     play_vigila_tus_espaldas(mock_juego)
     despues_cambio = mock_juego.sentido
     assert antes_cambio == despues_cambio * (-1)
 
 
-def test_hacha(mocker):
-    mock_juego = Juego(partida_id=1, cantidad_jugadores=2,
-                       creador=1, jugadores_id=[1, 2])
+def test_hacha(mocker,mock_juego):
+    mock_juego.cantidad_jugadores=2
+    mock_juego.jugadores_id=[1, 2]
+    mock_juego.posiciones = [1, 0, 2, 0]
     mock_juego.posiciones[1] = "p"
     play_hacha(1, 2, mock_juego)
     assert mock_juego.posiciones == [1, 0, 2, 0]
 
 
-def test_hacha_no_vecinos(mocker):
-    mock_atacante = 1
-    mock_objetivo = 2
-    mock_juego = Juego(partida_id=1, cantidad_jugadores=4,
-                       creador=1, jugadores_id=[1, 3, 2, 4])
+def test_hacha_no_vecinos(mocker,mock_juego,mock_atacante,mock_objetivo):
+    
+    mock_juego.cantidad_jugadores=4,
+    mock_juego.jugadores_id=[1, 3, 2, 4]
+    mock_juego.posiciones = [1, 0, 3, 0, 2, 0, 4, 0]
     try:
-        play_hacha(mock_atacante, mock_objetivo, mock_juego)
+        play_hacha(mock_atacante.id, mock_objetivo.id, mock_juego)
     except HTTPException as e:
         error_msg = {e.detail}
     assert error_msg == {"Los jugadores no son vecinos"}
 
 
-def test_hacha_no_puerta(mocker):
+def test_hacha_no_puerta(mocker,mock_juego):
     mock_atacante = 1
     mock_objetivo = 2
-    mock_juego = Juego(partida_id=1, cantidad_jugadores=4,
-                       creador=1, jugadores_id=[1, 2, 3, 4])
+    mock_juego.cantidad_jugadores=4,
+    mock_juego.jugadores_id=[1, 2, 3, 4]
     try:
         play_hacha(mock_atacante, mock_objetivo, mock_juego)
     except HTTPException as e:
@@ -131,27 +186,25 @@ def test_hacha_no_puerta(mocker):
     assert error_msg == {"No hay una puerta atrancada"}
 
 
-def test_mas_vale_que_corras_succes(mock_juego):
-    mock_atacante = 1
-    mock_objetivo = 2
-    play_mas_vale_que_corras(mock_atacante, mock_objetivo, mock_juego)
+def test_mas_vale_que_corras_succes(mock_juego,mock_atacante,mock_objetivo):
+    play_mas_vale_que_corras(mock_atacante.id, mock_objetivo.id, mock_juego)
     response = {'jugadores': len(mock_juego.jugadores_en_partida),
                 'posiciones': mock_juego.posiciones}
     assert response == {'jugadores': 4, 'posiciones': [2, 0, 1, 0, 3, 0, 4, 0]}
 
-def test_sospecha_success(mock_juego):
-    mock_atacante = 1
-    mock_objetivo = 2
-    mock_jugador_objetivo = get_jugador(mock_objetivo, mock_juego)
-    mock_jugador_objetivo.cartas = [1, 2, 3, 4]
-    msg = play_sospecha(mock_atacante, mock_objetivo, mock_juego)
-    assert msg["mensaje"] == "jugador: "+str(mock_atacante)+" jugo carta: "+str(msg["cartaMostrar"]) +" contra jugador: "+str(mock_objetivo)
+def test_sospecha_success(mocker,mock_juego,mock_atacante,mock_objetivo):
+    mock_juego.jugadores_en_partida = [mock_atacante,mock_objetivo]
+    mock_objetivo.cartas = [1, 2, 3, 4]
+    mocker.patch("logic.action_effects.get_name_carta", return_value="sospecha")
+    msg = play_sospecha(mock_atacante.id, mock_objetivo.id, mock_juego)
+    assert msg["mensaje"] =="pepe jugo carta sospecha contra pedro"
     assert msg["cartaMostrar"] in [1, 2, 3, 4]
 
 def test_sospecha_fail(mock_juego,mocker):
     mock_atacante = 1
     mock_objetivo = 2
     mocker.patch("logic.action_effects.random.choice", return_value=4)
+    mocker.patch("logic.action_effects.get_name_carta", return_value="sospecha")
     try:
         play_sospecha(mock_atacante, mock_objetivo, mock_juego)
     except HTTPException as e:

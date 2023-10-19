@@ -17,7 +17,6 @@ def get_status_game(juego: Juego):
     sentido = juego.sentido
     jugadores = get_jugadores_match(juego.posiciones)
     carta = read_carta(juego.mazo[-1])
-    print(juego.mazo)
     response = {'posiciones': posiciones,
                 'jugadores': jugadores,
                 'sentido': sentido,
@@ -154,9 +153,10 @@ async def jugar_la_carta(
         play_hacha(player_orig, player_objective, juego)
     elif card_id in [32, 33, 34, 35, 36, 37, 38, 39]:
         msg = play_sospecha(player_orig, player_objective, juego)
-        await juego.broadcast_global({"carta_id": card_id,
-                                      "mensaje": msg["mensaje"],
-                                      "cartaMostrar": msg["cartaMostrar"]})
+        await juego.mensaje_personal(player_orig,{"carta_id":card_id,
+                                      "mensaje":msg["mensaje"],
+                                      "cartaMostrar":msg["cartaMostrar"]})
+
     elif card_id in [48, 49]:
         play_vigila_tus_espaldas(juego)
     elif card_id in [55, 56, 57, 58, 59]:

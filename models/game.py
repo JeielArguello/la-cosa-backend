@@ -81,6 +81,14 @@ class Juego:
     # Funciones para conexion del websocket
     async def connect_game(self, websocket: WebSocket):
         await websocket.accept()
+        msg = await websocket.receive_json()
+        if  "player_id" in msg:
+            for p in self.jugadores_en_partida:
+                if p.id == msg["player_id"]:
+                    jugador = p  
+            jugador.ws_player = websocket
+        else: 
+            print("error al conectar jugador")
         self.ws_players_game.append(websocket)
         await self.broadcast_global("C")
         await self.broadcast_global("D")
@@ -94,6 +102,13 @@ class Juego:
         for p in self.ws_players_game:
             await p.send_json(message)
             await p.send_json("reset")
+
+    async def mensaje_personal(self, player_id: int, message: str):
+        for p in self.jugadores_en_partida:
+                if p.id == player_id:
+                    jugador = p 
+        await jugador.ws_player.send_json(message)
+
 
 
 def robar_carta(juego: Juego, jugador: JugadorPartida):

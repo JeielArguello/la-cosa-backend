@@ -1,11 +1,12 @@
+from fastapi import WebSocket
 from pony.orm import *
+from models.crud import get_name
 from models.database import *
 
 
 class JugadorPartida:
     def __init__(self, id: int):
         self.id = id
-        # self.name: str
         self.muerto = False
         self.la_cosa = False
         self.infectado = False
@@ -13,6 +14,8 @@ class JugadorPartida:
         self.turno_actual = False
         self.posicion = 0
         self.cartas = []
+        self.ws_player: WebSocket = None
+        self.name = get_name(id)
 
     def get_muerto(self):
         return self.muerto

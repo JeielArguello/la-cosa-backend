@@ -1,5 +1,6 @@
 import random
 from fastapi import HTTPException
+from models.crud import get_name_carta
 from models.game import Juego
 from utils.action_utils import *
 
@@ -44,12 +45,14 @@ def play_hacha(atacante_in: int, objetivo_in: int, juego: Juego):
 
 def play_sospecha(atacante_in: int, objetivo_in: int, juego: Juego):
     jugador_objetivo = get_jugador(objetivo_in, juego)
+    jugador_atacante = get_jugador(atacante_in, juego)
     carta_id = random.choice(jugador_objetivo.cartas)
+    nombre_carta = get_name_carta(carta_id)
     if carta_id not in jugador_objetivo.cartas:
         raise HTTPException(
             status_code=400,
             detail="No se pudo obtener una carta del jugador objetivo")
-    msg = {"mensaje":"jugador: "+str(atacante_in)+" jugo carta: "+str(carta_id) +" contra jugador: "+str(objetivo_in),
+    msg = {"mensaje":jugador_atacante.name+" jugo carta "+nombre_carta +" contra "+jugador_objetivo.name,
            "cartaMostrar": carta_id}
     return msg
 

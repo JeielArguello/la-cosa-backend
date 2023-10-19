@@ -23,6 +23,7 @@ async def pick_a_card_from_deck(match_id: int = Form(), player_id: int = Form())
         check_turno(jugador)
         check_cantidad_cartas(jugador)
         carta = robar_carta(juego, jugador)
+        await juego.mensaje_personal(player_id, "D")
         return {'card_id': carta}
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
@@ -50,8 +51,12 @@ async def jugar_carta(match_id: int = Form(), card_id: int = Form(),
         ganador = check_ganador(juego)
         if ganador:
             await juego.broadcast_global("K")
+
+        await juego.mensaje_personal(player_orig,"D")
+
         juego.terminar_turno()
         juego.avanzar_turno()
+
         return {
             "carta": card_id,
             "jugada contra": player_objective,
@@ -62,10 +67,6 @@ async def jugar_carta(match_id: int = Form(), card_id: int = Form(),
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=error_msg
         )
-    except Exception as e:
-        return {"error al jugar la carta": card_id,
-                "contra": player_objective,
-                "por": player_orig}
 
 
 ######
@@ -81,7 +82,7 @@ async def endpoint_descartar_carta(match_id: int = Form(),
         jugador = get_jugador(player_id, juego)
         check_turno(jugador)
         descartar_carta(card_id, player_id, juego)
-        await juego.broadcast_global("D")
+        await juego.mensaje_personal(player_id,"D")
         juego.terminar_turno()
         juego.avanzar_turno()
         return {"carta descartada": card_id}
@@ -91,8 +92,6 @@ async def endpoint_descartar_carta(match_id: int = Form(),
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=error_msg
         )
-    except Exception as e:
-        return{"error al descartar carta": card_id}
 
 
 ######
