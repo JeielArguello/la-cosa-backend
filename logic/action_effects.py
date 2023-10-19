@@ -26,6 +26,8 @@ def play_lanzallamas(atacante_in: int, objetivo_in: int, juego: Juego):
     # juego.jugadores_en_partida.remove(objetivo)
     del juego.posiciones[indice_objetivo]
     del juego.posiciones[indice_objetivo]
+    if indice_atacante==max(indice_atacante,indice_objetivo):
+        juego.turno = (juego.turno - 2) % len(juego.posiciones)
 
 
 def play_hacha(atacante_in: int, objetivo_in: int, juego: Juego):

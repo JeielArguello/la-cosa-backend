@@ -108,6 +108,7 @@ class Juego:
                 if p.id == player_id:
                     jugador = p 
         await jugador.ws_player.send_json(message)
+        await jugador.ws_player.send_json("reset")
 
 
 
