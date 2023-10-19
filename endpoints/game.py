@@ -67,10 +67,6 @@ async def jugar_carta(match_id: int = Form(), card_id: int = Form(),
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=error_msg
         )
-    except Exception as e:
-        return {"error al jugar la carta": card_id,
-                "contra": player_objective,
-                "por": player_orig}
 
 
 ######

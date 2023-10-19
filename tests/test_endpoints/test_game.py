@@ -36,14 +36,18 @@ juego.creador = 3
 juego.jugadores_id = [1, 2, 3, 4, 5, 6]
 
 
-def test_jugar_carta_success(mocker):
-    mocker.patch("endpoints.game.get_global_juego", return_value=juego,
+def test_jugar_carta_success(mocker,mock_juego):
+    mocker.patch("endpoints.game.get_global_juego", return_value=mock_juego,
+                 autospec=True,)
+    mocker.patch("endpoints.game.get_jugador", return_value=mock_j1,
+                 autospec=True,)
+    mocker.patch("endpoints.game.check_turno", return_value=True,
                  autospec=True,)
     mocker.patch("endpoints.game.jugar_la_carta", return_value=True,
                  autospec=True,)
     mocker.patch("endpoints.game.descartar_carta", return_value=True,
                  autospec=True,)
-    mocker.patch("endpoints.game.Juego.broadcast_global", return_value=None,
+    mocker.patch("endpoints.game.Juego.mensaje_personal", return_value=None,
                  autospec=True,)
 
     response = client.post("/game/play", data={"match_id": 1,
@@ -54,12 +58,18 @@ def test_jugar_carta_success(mocker):
     assert response.json() == {"carta": 2, "jugada contra": 3, "por": 2}
 
 
-def test_jugar_carta_success1(mocker):
-    mocker.patch("endpoints.game.get_global_juego", return_value=juego,
+def test_jugar_carta_success1(mocker,mock_juego):
+    mocker.patch("endpoints.game.get_global_juego", return_value=mock_juego,
+                 autospec=True,)
+    mocker.patch("endpoints.game.get_jugador", return_value=mock_j1,
+                 autospec=True,)
+    mocker.patch("endpoints.game.check_turno", return_value=True,
                  autospec=True,)
     mocker.patch("endpoints.game.jugar_la_carta", return_value=True,
                  autospec=True,)
-    mocker.patch("endpoints.game.descartar_carta", return_value=False,
+    mocker.patch("endpoints.game.descartar_carta", return_value=True,
+                 autospec=True,)
+    mocker.patch("endpoints.game.Juego.mensaje_personal", return_value=None,
                  autospec=True,)
     response = client.post("/game/play", data={"match_id": 1,
                                                "card_id": 2,
