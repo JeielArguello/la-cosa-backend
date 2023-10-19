@@ -80,7 +80,7 @@ class Juego:
     async def connect_game(self, websocket: WebSocket):
         await websocket.accept()
         msg = await websocket.receive()
-        if msg["player_id"] == "player_id":
+        if  "player_id" in msg:
             for p in self.jugadores_en_partida:
                 if p.id == msg["player_id"]:
                     jugador = p  
