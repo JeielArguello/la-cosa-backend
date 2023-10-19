@@ -21,6 +21,7 @@ async def pick_a_card_from_deck(match_id: int = Form(), player_id: int = Form())
         juego = get_global_juego(match_id)
         jugador = get_jugador(player_id, juego)
         carta = robar_carta(juego, jugador)
+        await juego.mensaje_personal(player_id, "D")
         return {'card_id': carta}
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
@@ -42,11 +43,11 @@ async def jugar_carta(match_id: int = Form(), card_id: int = Form(),
         juego = get_global_juego(match_id)
         await jugar_la_carta(juego, card_id, player_objective, player_orig)
         await juego.broadcast_global("C")
-        
         descartar_carta(card_id, player_orig, juego)
         check_ganador(juego)
         if check_ganador:
             await juego.broadcast_global("K")
+        await juego.mensaje_personal(player_orig,"D")
         return {
             "carta": card_id,
             "jugada contra": player_objective,
@@ -74,7 +75,7 @@ async def endpoint_descartar_carta(match_id: int = Form(),
     try:
         juego = get_global_juego(match_id)
         descartar_carta(card_id, player_id, juego)
-        await juego.broadcast_global("D")
+        await juego.mensaje_personal(player_id,"D")
         juego.terminar_turno()
         juego.avanzar_turno()
         return {"carta descartada": card_id}
