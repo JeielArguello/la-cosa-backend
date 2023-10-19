@@ -73,9 +73,9 @@ async def play_whisky(atacante_in: int, juego: Juego):
     if jugador:
         cartas = jugador.get_cartas()
         msg = {
-            "jugador_id": atacante_in,
-            "cartas_ids": cartas
+            "mensaje": jugador.name+ "jugo carta whisky contra si mismo",
+            "cartasMostrar": cartas
         }
         await juego.broadcast_global(msg)
     else:
-        return {"error": "no se pudieron mostrar cartas"}   
+        return {"error": "no se pudieron mostrar cartas"}      
