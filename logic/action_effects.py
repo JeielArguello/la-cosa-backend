@@ -52,7 +52,7 @@ def play_sospecha(atacante_in: int, objetivo_in: int, juego: Juego):
         raise HTTPException(
             status_code=400,
             detail="No se pudo obtener una carta del jugador objetivo")
-    msg = {"mensaje":"jugador: "+jugador_atacante.name+" jugo carta: "+nombre_carta +" contra jugador: "+jugador_objetivo.name,
+    msg = {"mensaje":jugador_atacante.name+" jugo carta "+nombre_carta +" contra "+jugador_objetivo.name,
            "cartaMostrar": carta_id}
     return msg
 
