@@ -212,3 +212,9 @@ def check_turno(jugador: JugadorPartida):
     if not jugador.get_turno():
         raise HTTPException(
             status_code=400, detail="No es el turno del jugador.")
+
+
+def check_cantidad_cartas(jugador: JugadorPartida):
+    if len(jugador.cartas) == 5:
+        raise HTTPException(
+            status_code=400, detail="No puedes tener mas de 5 cartas en la mano.")

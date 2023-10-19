@@ -21,6 +21,7 @@ async def pick_a_card_from_deck(match_id: int = Form(), player_id: int = Form())
         juego = get_global_juego(match_id)
         jugador = get_jugador(player_id, juego)
         check_turno(jugador)
+        check_cantidad_cartas(jugador)
         carta = robar_carta(juego, jugador)
         return {'card_id': carta}
     except HTTPException as e:
