@@ -32,6 +32,8 @@ class Juego:
         otorgar_posiciones(self)
         # # crear mazo
         self.mazo = construir_mazo(self.cantidad_jugadores)
+        # iniciar turnos
+        self.jugadores_en_partida[0].cambiar_turno()
 
     def avanzar_turno(self):
         if self.sentido == 1:

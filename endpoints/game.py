@@ -20,6 +20,7 @@ async def pick_a_card_from_deck(match_id: int = Form(), player_id: int = Form())
     try:
         juego = get_global_juego(match_id)
         jugador = get_jugador(player_id, juego)
+        check_turno(jugador)
         carta = robar_carta(juego, jugador)
         return {'card_id': carta}
     except HTTPException as e:
@@ -40,12 +41,16 @@ async def jugar_carta(match_id: int = Form(), card_id: int = Form(),
                       player_objective: int = Form(), player_orig: int = Form()):
     try:
         juego = get_global_juego(match_id)
+        jugador = get_jugador(player_orig, juego)
+        check_turno(jugador)
         await jugar_la_carta(juego, card_id, player_objective, player_orig)
         await juego.broadcast_global("C")
         descartar_carta(card_id, player_orig, juego)
-        ganador=check_ganador(juego)
+        ganador = check_ganador(juego)
         if ganador:
             await juego.broadcast_global("K")
+        juego.terminar_turno()
+        juego.avanzar_turno()
         return {
             "carta": card_id,
             "jugada contra": player_objective,
@@ -72,6 +77,8 @@ async def endpoint_descartar_carta(match_id: int = Form(),
                                    card_id: int = Form(), player_id: int = Form()):
     try:
         juego = get_global_juego(match_id)
+        jugador = get_jugador(player_id, juego)
+        check_turno(jugador)
         descartar_carta(card_id, player_id, juego)
         await juego.broadcast_global("D")
         juego.terminar_turno()
