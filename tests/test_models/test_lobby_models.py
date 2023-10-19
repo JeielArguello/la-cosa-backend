@@ -4,6 +4,7 @@ from fastapi.testclient import TestClient
 import pytest
 from models.lobby_models import Lobby
 from main import app
+from models.player import JugadorPartida
 from utils.game_utils import global_juegos
 
 client = TestClient(app)
@@ -15,6 +16,24 @@ mocker = Mock()
 def lobby():
     lobby = Lobby(1, "test_lobby", None, 4, 2, 1)
     return lobby
+
+@pytest.fixture
+def mock_j1(mocker):
+    mocker.patch("models.player.get_name", return_value="pepe")
+    jugador = JugadorPartida(id=1)
+    return jugador
+
+@pytest.fixture
+def mock_j2(mocker):
+    mocker.patch("models.player.get_name", return_value="pedro")
+    jugador = JugadorPartida(id=2)
+    return jugador
+
+@pytest.fixture
+def mock_j3(mocker):
+    mocker.patch("models.player.get_name", return_value="jose")
+    jugador = JugadorPartida(id=1)
+    return jugador
 
 
 def test_add_player(lobby):
@@ -47,6 +66,7 @@ async def test_init_game(mocker, lobby):
         'models.lobby_models.Juego.repartir_cartas',
         return_value=None,
         autospec=True)
+    mocker.patch("models.player.get_name", return_value="pepe")
     await lobby.init_game()
     assert len(global_juegos) == 1
     assert lobby.iniciada

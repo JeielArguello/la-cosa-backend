@@ -85,8 +85,6 @@ async def endpoint_descartar_carta(match_id: int = Form(),
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=error_msg
         )
-    except Exception as e:
-        return{"error al descartar carta": card_id}
 
 
 ######

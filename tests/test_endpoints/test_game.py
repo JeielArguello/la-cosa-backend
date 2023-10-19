@@ -1,20 +1,33 @@
 from fastapi.testclient import TestClient
 from unittest.mock import AsyncMock, Mock, MagicMock
 from pony.orm import *
+import pytest
 from models.database_utils import *
 from models.crud import *
 from models.game import Juego
 
 from main import app
+from models.player import JugadorPartida
 client = TestClient(app)
 
-mocked_juego = MagicMock()
-mocked_juego.partida_id = 1
-mocked_juego.cantidad_jugadores = 4
-mocked_juego.creador = 1
-mocked_juego.jugadores_id = [1, 2, 3, 4]
-
 mocker = Mock()
+
+
+@pytest.fixture
+def mock_juego(mocker):
+    mocker.patch("models.player.get_name", return_value="pepe")
+    juego = Juego(partida_id=1, cantidad_jugadores=4,
+                  creador=1, jugadores_id=[1, 3, 2, 4])
+    juego.name = "test"
+    juego.posiciones = [1, 0, 2, 0, 3, 0, 4, 0]
+    return juego
+
+
+@pytest.fixture
+def mock_j1(mocker):
+    mocker.patch("models.player.get_name", return_value="pepe")
+    jugador = JugadorPartida(id=1)
+    return jugador
 
 juego = AsyncMock()
 juego.partida_id = 1
@@ -82,9 +95,9 @@ gana_cosa_infectados = {
 no_ganadores = "No hay ganadores."
 
 
-def test_finalizar_partida_succes_humanos(mocker):
-    mock_juego = Juego(partida_id=1, cantidad_jugadores=2,
-                       creador=1, jugadores_id=[1, 2])
+def test_finalizar_partida_succes_humanos(mocker,mock_juego):
+    mock_juego.cantidad_jugadores=2
+    mock_juego.jugadores_id=[1, 2]
     mocker.patch('endpoints.game.get_global_juego',
                  return_value=mock_juego, autospec=True)
     mocker.patch('endpoints.game.finalizar_juego',
@@ -100,9 +113,9 @@ def test_finalizar_partida_succes_humanos(mocker):
     assert response.json() == ganan_humanos
 
 
-def test_finalizar_partida_succes_lacosa(mocker):
-    mock_juego = Juego(partida_id=1, cantidad_jugadores=2,
-                       creador=1, jugadores_id=[1, 2])
+def test_finalizar_partida_succes_lacosa(mocker,mock_juego):
+    mock_juego.cantidad_jugadores=2
+    mock_juego.jugadores_id=[1, 2]
     mocker.patch('endpoints.game.get_global_juego',
                  return_value=mock_juego, autospec=True)
     mocker.patch('endpoints.game.finalizar_juego',
@@ -118,9 +131,9 @@ def test_finalizar_partida_succes_lacosa(mocker):
     assert response.json() == gana_la_cosa
 
 
-def test_finalizar_partida_succes_lacosa_infectados(mocker):
-    mock_juego = Juego(partida_id=1, cantidad_jugadores=2,
-                       creador=1, jugadores_id=[1, 2])
+def test_finalizar_partida_succes_lacosa_infectados(mocker,mock_juego):
+    mock_juego.cantidad_jugadores=2
+    mock_juego.jugadores_id=[1, 2]
     mocker.patch('endpoints.game.get_global_juego',
                  return_value=mock_juego, autospec=True)
     mocker.patch('endpoints.game.finalizar_juego',
@@ -136,9 +149,9 @@ def test_finalizar_partida_succes_lacosa_infectados(mocker):
     assert response.json() == gana_cosa_infectados
 
 
-def test_finalizar_partida_fail(mocker):
-    mock_juego = Juego(partida_id=1, cantidad_jugadores=2,
-                       creador=1, jugadores_id=[1, 2])
+def test_finalizar_partida_fail(mocker,mock_juego):
+    mock_juego.cantidad_jugadores=2
+    mock_juego.jugadores_id=[1, 2]
     mocker.patch('endpoints.game.get_global_juego',
                  return_value=mock_juego, autospec=True)
     mocker.patch(
@@ -155,11 +168,15 @@ def test_finalizar_partida_fail(mocker):
         'detail': "Error: " + no_ganadores}
 
 
-def test_endpoint_descartar_carta_success(mocker):
-    mock_juego = Juego(partida_id=1, cantidad_jugadores=2,creador=1, jugadores_id=[1, 2])
+def test_endpoint_descartar_carta_success(mocker,mock_juego,mock_j1):
+    mock_juego.cantidad_jugadores=2
+    mock_juego.jugadores_id=[1, 2]
+    mock_j1.mano = [1, 2, 3, 4]
     mocker.patch("endpoints.game.get_global_juego", return_value = mock_juego, 
                  autospec = True)
     mocker.patch("endpoints.game.descartar_carta", return_value = True, 
+                 autoespec = True,)
+    mocker.patch("endpoints.game.Juego.mensaje_personal", return_value = True, 
                  autoespec = True,)
     
     response = client.post("/game/discard", data={"match_id": 1,
