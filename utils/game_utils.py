@@ -152,7 +152,7 @@ async def jugar_la_carta(
         play_hacha(player_orig, player_objective, juego)
     elif card_id in [32, 33, 34, 35, 36, 37, 38, 39]:
         msg = play_sospecha(player_orig, player_objective, juego)
-        await juego.broadcast_global({"carta_id":card_id,
+        await juego.mensaje_personal({"carta_id":card_id,
                                       "mensaje":msg["mensaje"],
                                       "cartaMostrar":msg["cartaMostrar"]})
     elif card_id in [48, 49]:

@@ -1,3 +1,4 @@
+from fastapi import WebSocket
 from pony.orm import *
 from models.database import *
 
@@ -13,6 +14,7 @@ class JugadorPartida:
         self.turno_actual = False
         self.posicion = 0
         self.cartas = []
+        self.ws_player: WebSocket = None
 
     def get_muerto(self):
         return self.muerto
