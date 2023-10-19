@@ -47,12 +47,11 @@ def play_sospecha(atacante_in: int, objetivo_in: int, juego: Juego):
     jugador_objetivo = get_jugador(objetivo_in, juego)
     jugador_atacante = get_jugador(atacante_in, juego)
     carta_id = random.choice(jugador_objetivo.cartas)
-    nombre_carta = get_name_carta(carta_id)
     if carta_id not in jugador_objetivo.cartas:
         raise HTTPException(
             status_code=400,
             detail="No se pudo obtener una carta del jugador objetivo")
-    msg = {"mensaje":jugador_atacante.name+" jugo carta "+nombre_carta +" contra "+jugador_objetivo.name,
+    msg = {"mensaje":jugador_atacante.name+" jugo carta sospecha contra "+jugador_objetivo.name,
            "cartaMostrar": carta_id}
     return msg
 
