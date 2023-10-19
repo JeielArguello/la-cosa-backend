@@ -138,5 +138,12 @@ def db_create_user(nombre: str) -> Dict[str, int]:
 def get_name(user_id: int) -> str:
     user = get(u for u in Jugador if u.id == user_id)
     return user.nombre
+
+@db_session
+def get_name_carta(card_id: int) -> str:
+    card = get(u for u in Carta if u.id == card_id)
+    return card.nombre
+
+
 # Update
 # Delete

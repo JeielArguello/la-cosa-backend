@@ -79,7 +79,7 @@ class Juego:
     # Funciones para conexion del websocket
     async def connect_game(self, websocket: WebSocket):
         await websocket.accept()
-        msg = await websocket.receive()
+        msg = await websocket.receive_json()
         if  "player_id" in msg:
             for p in self.jugadores_en_partida:
                 if p.id == msg["player_id"]:
