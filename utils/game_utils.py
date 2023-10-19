@@ -16,7 +16,6 @@ def get_status_game(juego: Juego):
     sentido = juego.sentido
     jugadores = get_jugadores_match(juego.posiciones)
     carta = read_carta(juego.mazo[-1])
-    print(juego.mazo)
     response = {'posiciones': posiciones,
                 'jugadores': jugadores,
                 'sentido': sentido,
