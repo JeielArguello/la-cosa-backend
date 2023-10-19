@@ -43,8 +43,8 @@ async def jugar_carta(match_id: int = Form(), card_id: int = Form(),
         await jugar_la_carta(juego, card_id, player_objective, player_orig)
         await juego.broadcast_global("C")
         descartar_carta(card_id, player_orig, juego)
-        check_ganador(juego)
-        if check_ganador:
+        ganador=check_ganador(juego)
+        if ganador:
             await juego.broadcast_global("K")
         return {
             "carta": card_id,
