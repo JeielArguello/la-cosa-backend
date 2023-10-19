@@ -71,3 +71,16 @@ def play_mas_vale_que_corras(atacante_in: int, objetivo_in: int, juego: Juego):
     # hago el intercambio de posiciones
     juego.posiciones[indice_objetivo] = atacante_in
     juego.posiciones[indice_atacante] = objetivo_in
+
+
+async def play_whisky(atacante_in: int, juego: Juego):
+    jugador = get_jugador(atacante_in, juego)
+    if jugador:
+        cartas = jugador.get_cartas()
+        msg = {
+            "mensaje": jugador.name+ "jugo carta whisky contra si mismo",
+            "cartasMostrar": cartas
+        }
+        await juego.broadcast_global(msg)
+    else:
+        return {"error": "no se pudieron mostrar cartas"}      
