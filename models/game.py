@@ -84,7 +84,7 @@ class Juego:
             for p in self.jugadores_en_partida:
                 if p.id == msg["player_id"]:
                     jugador = p  
-            jugador.ws = websocket
+            jugador.ws_player = websocket
         else: 
             print("error al conectar jugador")
         self.ws_players_game.append(websocket)
@@ -105,7 +105,7 @@ class Juego:
         for p in self.jugadores_en_partida:
                 if p.id == player_id:
                     jugador = p 
-        await jugador.ws.send_json(message)
+        await jugador.ws_player.send_json(message)
 
 
 
