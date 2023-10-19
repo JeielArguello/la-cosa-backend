@@ -2,6 +2,7 @@
 from models.crud import get_name, read_carta
 from models.database_utils import get_jugadores_match
 from models.game import Juego
+from models.player import JugadorPartida
 from logic.action_effects import play_lanzallamas, play_mas_vale_que_corras, play_hacha, play_sospecha, play_vigila_tus_espaldas
 from fastapi import HTTPException
 
@@ -153,9 +154,9 @@ async def jugar_la_carta(
         play_hacha(player_orig, player_objective, juego)
     elif card_id in [32, 33, 34, 35, 36, 37, 38, 39]:
         msg = play_sospecha(player_orig, player_objective, juego)
-        await juego.broadcast_global({"carta_id":card_id,
-                                      "mensaje":msg["mensaje"],
-                                      "cartaMostrar":msg["cartaMostrar"]})
+        await juego.broadcast_global({"carta_id": card_id,
+                                      "mensaje": msg["mensaje"],
+                                      "cartaMostrar": msg["cartaMostrar"]})
     elif card_id in [48, 49]:
         play_vigila_tus_espaldas(juego)
     elif card_id in [55, 56, 57, 58, 59]:
@@ -206,3 +207,14 @@ def validar_carta(card_id: int, player_id: int, juego: Juego):
         raise HTTPException(
             status_code=400, detail="El jugador no posee esta carta")
 
+
+def check_turno(jugador: JugadorPartida):
+    if not jugador.get_turno():
+        raise HTTPException(
+            status_code=400, detail="No es el turno del jugador.")
+
+
+def check_cantidad_cartas(jugador: JugadorPartida):
+    if len(jugador.cartas) == 5:
+        raise HTTPException(
+            status_code=400, detail="No puedes tener mas de 5 cartas en la mano.")
