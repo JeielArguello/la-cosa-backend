@@ -49,12 +49,11 @@ def play_sospecha(atacante_in: int, objetivo_in: int, juego: Juego):
     jugador_objetivo = get_jugador(objetivo_in, juego)
     jugador_atacante = get_jugador(atacante_in, juego)
     carta_id = random.choice(jugador_objetivo.cartas)
-    nombre_carta = get_name_carta(carta_id)
     if carta_id not in jugador_objetivo.cartas:
         raise HTTPException(
             status_code=400,
             detail="No se pudo obtener una carta del jugador objetivo")
-    msg = {"mensaje":jugador_atacante.name+" jugo carta "+nombre_carta +" contra "+jugador_objetivo.name,
+    msg = {"mensaje":jugador_atacante.name+" jugo carta sospecha contra "+jugador_objetivo.name,
            "cartaMostrar": carta_id}
     return msg
 
@@ -72,18 +71,20 @@ def play_mas_vale_que_corras(atacante_in: int, objetivo_in: int, juego: Juego):
     juego.posiciones[indice_objetivo] = atacante_in
     juego.posiciones[indice_atacante] = objetivo_in
 
+    juego.turno = objetivo_in
 
-async def play_whisky(atacante_in: int, juego: Juego):
+
+def play_whisky(atacante_in: int, juego: Juego):
     jugador = get_jugador(atacante_in, juego)
     if jugador:
         cartas = jugador.get_cartas()
         msg = {
             "mensaje": jugador.name+ "jugo carta whisky contra si mismo",
-            "cartasMostrar": cartas
+            "cartaMostrar": cartas
         }
-        await juego.broadcast_global(msg)
+        return (msg)
     else:
-        return {"error": "no se pudieron mostrar cartas"}      
+        return {"error": "no se pudieron mostrar cartas"}     
     
 def play_cambio_de_lugar(juego:Juego,player_orig:int,player_objective:int):
         
@@ -108,7 +109,7 @@ def play_cambio_de_lugar(juego:Juego,player_orig:int,player_objective:int):
     
     pOrg.posicion = posPobj
     pObj.posicion = posPorg    
-
+    juego.turno = posPobj
 
 def play_analisis(juego:Juego,player_orig:int,player_objective:int):
     
@@ -131,3 +132,4 @@ def play_analisis(juego:Juego,player_orig:int,player_objective:int):
           }
     
     return msg
+

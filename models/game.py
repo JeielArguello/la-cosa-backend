@@ -18,7 +18,7 @@ class Juego:
         self.jugadores_id = jugadores_id
 
         self.jugadores_en_partida: List[JugadorPartida] = []
-        self.sentido = 1
+        self.sentido = -1
         self.turno = 0
         self.mazo: List[int] = []
         self.mazo_descarte = []
@@ -87,6 +87,8 @@ class Juego:
                 if p.id == msg["player_id"]:
                     jugador = p  
             jugador.ws_player = websocket
+            if jugador.get_turno():
+                await self.mensaje_personal(jugador.id,"E")
         else: 
             print("error al conectar jugador")
         self.ws_players_game.append(websocket)
