@@ -71,23 +71,20 @@ def play_mas_vale_que_corras(atacante_in: int, objetivo_in: int, juego: Juego):
     juego.posiciones[indice_objetivo] = atacante_in
     juego.posiciones[indice_atacante] = objetivo_in
 
-    if juego.sentido == 1:
-            juego.turno = (juego.turno + 2) % len(juego.posiciones)
-    elif juego.sentido == -1:
-        juego.turno = (juego.turno - 2) % len(juego.posiciones)
+    juego.turno = objetivo_in
 
 
-async def play_whisky(atacante_in: int, juego: Juego):
+def play_whisky(atacante_in: int, juego: Juego):
     jugador = get_jugador(atacante_in, juego)
     if jugador:
         cartas = jugador.get_cartas()
         msg = {
             "mensaje": jugador.name+ "jugo carta whisky contra si mismo",
-            "cartasMostrar": cartas
+            "cartaMostrar": cartas
         }
-        await juego.broadcast_global(msg)
+        return (msg)
     else:
-        return {"error": "no se pudieron mostrar cartas"}      
+        return {"error": "no se pudieron mostrar cartas"}     
     
 def play_cambio_de_lugar(juego:Juego,player_orig:int,player_objective:int):
         
@@ -113,7 +110,4 @@ def play_cambio_de_lugar(juego:Juego,player_orig:int,player_objective:int):
     pOrg.posicion = posPobj
     pObj.posicion = posPorg    
 
-    if juego.sentido == 1:
-            juego.turno = (juego.turno + 2) % len(juego.posiciones)
-    elif juego.sentido == -1:
-        juego.turno = (juego.turno - 2) % len(juego.posiciones)
+    juego.turno = posPobj
