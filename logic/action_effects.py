@@ -26,6 +26,8 @@ def play_lanzallamas(atacante_in: int, objetivo_in: int, juego: Juego):
     # juego.jugadores_en_partida.remove(objetivo)
     del juego.posiciones[indice_objetivo]
     del juego.posiciones[indice_objetivo]
+    if indice_atacante==max(indice_atacante,indice_objetivo):
+        juego.turno = (juego.turno - 2) % len(juego.posiciones)
 
 
 def play_hacha(atacante_in: int, objetivo_in: int, juego: Juego):
@@ -68,3 +70,40 @@ def play_mas_vale_que_corras(atacante_in: int, objetivo_in: int, juego: Juego):
     # hago el intercambio de posiciones
     juego.posiciones[indice_objetivo] = atacante_in
     juego.posiciones[indice_atacante] = objetivo_in
+
+
+async def play_whisky(atacante_in: int, juego: Juego):
+    jugador = get_jugador(atacante_in, juego)
+    if jugador:
+        cartas = jugador.get_cartas()
+        msg = {
+            "mensaje": jugador.name+ "jugo carta whisky contra si mismo",
+            "cartasMostrar": cartas
+        }
+        await juego.broadcast_global(msg)
+    else:
+        return {"error": "no se pudieron mostrar cartas"}      
+    
+def play_cambio_de_lugar(juego:Juego,player_orig:int,player_objective:int):
+        
+    posiciones = juego.posiciones
+    posPorg    = posiciones.index( player_orig )
+    posPobj    = posiciones.index( player_objective )
+
+    if(  validar_posiciones_vecinas(posPobj,posPorg,len(posiciones)) ):
+        raise HTTPException(
+            status_code=400,
+            detail="Los jugadores deben ser adyacentes.")
+
+    posiciones[ posPorg ] = player_objective
+    posiciones[ posPobj ] = player_orig
+
+    jugadoresEnPartida = juego.jugadores_en_partida    
+    indexPOrg = next( (i for i, jugador     in enumerate(jugadoresEnPartida) if jugador.id == player_orig), None )
+    indexPobj = next( (i for i, jugador in enumerate(jugadoresEnPartida) if jugador.id == player_objective), None )
+    
+    pOrg = jugadoresEnPartida[ indexPOrg ]
+    pObj = jugadoresEnPartida[ indexPobj ]
+    
+    pOrg.posicion = posPobj
+    pObj.posicion = posPorg    

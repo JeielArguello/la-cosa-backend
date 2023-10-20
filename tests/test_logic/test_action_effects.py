@@ -31,6 +31,19 @@ def mock_atacante(mocker):
     return jugador
 
 @pytest.fixture
+def mock_jugador_extra1(mocker):
+    mocker.patch("models.player.get_name", return_value="pepe")
+    jugador = JugadorPartida(id=3)
+    return jugador
+@pytest.fixture
+def mock_jugador_extra2(mocker):
+    mocker.patch("models.player.get_name", return_value="pepe")
+    jugador = JugadorPartida(id=4)
+    return jugador
+
+
+
+@pytest.fixture
 def mock_objetivo(mocker):
     mocker.patch("models.player.get_name", return_value="pedro")
     jugador = JugadorPartida(id=2)
@@ -210,3 +223,48 @@ def test_sospecha_fail(mock_juego,mocker):
     except HTTPException as e:
         error_msg = {e.detail}
     assert error_msg == {"No se pudo obtener una carta del jugador objetivo"}
+
+
+def test_cambio_de_lugar_2Jugadores_cambio_entre_id1_id2(mocker,mock_juego,mock_atacante,mock_objetivo):
+        
+    j1 = mock_atacante
+    j2 = mock_objetivo
+    
+
+    
+    mock_juego.posiciones = [1,0,2,0]        
+    mock_juego.jugadores_en_partida = [j1,j2]
+    mock_juego.jugadores_id = [1,2]
+        
+    j1.posicion = 0
+    j2.posicion = 2
+
+    play_cambio_de_lugar(mock_juego,j1.id,j2.id)
+
+    assert( j1.posicion == 2 )
+    assert( j2.posicion == 0 )
+    assert(mock_juego.posiciones == [2,0,1,0])
+
+def test_cambio_de_lugar_4Jugadores_cambio_entre_id1_id2(mocker,
+                                                       mock_juego,mock_atacante,mock_objetivo
+                                                       ,mock_jugador_extra1,mock_jugador_extra2):
+        
+    j1 = mock_atacante
+    j2 = mock_objetivo
+    j3 = mock_jugador_extra1
+    j4 = mock_jugador_extra2
+
+    
+    mock_juego.jugadores_en_partida = [j1,j2,j3,j4]
+        
+    j1.posicion = 0
+    j2.posicion = 2
+    j3.posicion = 4
+    j4.posicion = 6
+
+    play_cambio_de_lugar(mock_juego,j1.id,j4.id)
+
+    assert( j1.posicion == 6 )
+    assert( j4.posicion == 0 )
+    assert(mock_juego.posiciones == [4,0,2,0,3,0,1,0])
+

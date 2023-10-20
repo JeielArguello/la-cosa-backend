@@ -111,7 +111,6 @@ async def finish_match(match_id: int = Form()):
         delete_global_juego(match_id)
         delete_match(match_id)
         await juego.broadcast_global({'resultados': result})
-        # await juego.broadcast_global("K||L")
         return result
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
