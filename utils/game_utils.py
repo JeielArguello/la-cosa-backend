@@ -3,7 +3,7 @@ from models.crud import get_name, read_carta
 from models.database_utils import get_jugadores_match
 from models.game import Juego
 from models.player import JugadorPartida
-from logic.action_effects import play_lanzallamas, play_mas_vale_que_corras, play_hacha, play_sospecha, play_vigila_tus_espaldas
+from logic.action_effects import play_cambio_de_lugar, play_lanzallamas, play_mas_vale_que_corras, play_hacha, play_sospecha, play_vigila_tus_espaldas
 from fastapi import HTTPException
 
 from utils.action_utils import get_jugador
@@ -155,7 +155,6 @@ async def jugar_la_carta(
         await juego.broadcast_global("C")   
     elif card_id in [50,51,52,53,54]:
         play_cambio_de_lugar(juego,player_orig,player_objective)
-        #se deberia avisar al jugador origien y objetivo que se, intercambiaron sus lugares.  PARA VOS RIQUI
     elif card_id in [32, 33, 34, 35, 36, 37, 38, 39]:
         msg = play_sospecha(player_orig, player_objective, juego)
         await juego.mensaje_personal(player_orig,{"carta_id":card_id,

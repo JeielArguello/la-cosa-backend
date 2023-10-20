@@ -71,6 +71,11 @@ def play_mas_vale_que_corras(atacante_in: int, objetivo_in: int, juego: Juego):
     juego.posiciones[indice_objetivo] = atacante_in
     juego.posiciones[indice_atacante] = objetivo_in
 
+    if juego.sentido == 1:
+            juego.turno = (juego.turno + 2) % len(juego.posiciones)
+    elif juego.sentido == -1:
+        juego.turno = (juego.turno - 2) % len(juego.posiciones)
+
 
 async def play_whisky(atacante_in: int, juego: Juego):
     jugador = get_jugador(atacante_in, juego)
@@ -107,3 +112,8 @@ def play_cambio_de_lugar(juego:Juego,player_orig:int,player_objective:int):
     
     pOrg.posicion = posPobj
     pObj.posicion = posPorg    
+
+    if juego.sentido == 1:
+            juego.turno = (juego.turno + 2) % len(juego.posiciones)
+    elif juego.sentido == -1:
+        juego.turno = (juego.turno - 2) % len(juego.posiciones)

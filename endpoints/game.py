@@ -57,7 +57,7 @@ async def jugar_carta(match_id: int = Form(), card_id: int = Form(),
         #await juego.mensaje_personal(player_orig, "G")
         juego.terminar_turno()
         juego.avanzar_turno()
-        await juego.mensaje_personal(juego.turno,"E")
+        await juego.mensaje_personal(juego.posiciones[juego.turno],"E")
         return {
             "carta": card_id,
             "jugada contra": player_objective,
@@ -87,7 +87,7 @@ async def endpoint_descartar_carta(match_id: int = Form(),
         #await juego.mensaje_personal(player_id, "G")
         juego.terminar_turno()
         juego.avanzar_turno()
-        await juego.mensaje_personal(juego.turno,"E")
+        await juego.mensaje_personal(juego.posiciones[juego.turno],"E")
         print(juego.turno)
         return {"carta descartada": card_id}
     except HTTPException as e:

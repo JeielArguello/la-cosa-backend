@@ -18,7 +18,7 @@ class Juego:
         self.jugadores_id = jugadores_id
 
         self.jugadores_en_partida: List[JugadorPartida] = []
-        self.sentido = 1
+        self.sentido = -1
         self.turno = 0
         self.mazo: List[int] = []
         self.mazo_descarte = []
