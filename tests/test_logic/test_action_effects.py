@@ -281,7 +281,17 @@ def test_play_analisis(mocker,mock_juego,mock_atacante,mock_objetivo):
     assert( msg["cartaMostrar"] == [{'id': 10}, {'id': 2}, {'id': 3}, {'id': 4}] )
 
 
+def test_play_whisky_succes(mocker,mock_juego,mock_atacante):
+    mock_juego.jugadores_en_partida = [mock_atacante]
+    mock_atacante.cartas = [10, 2, 3, 4]
+    msg = play_whisky(mock_atacante.id, mock_juego) 
+    assert( msg["mensaje"] == "pepejugo carta whisky contra si mismo")
+    assert( msg["cartaMostrar"] == [{'id': 10}, {'id': 2}, {'id': 3}, {'id': 4}])
 
+def test_play_whisky_fail(mocker,mock_juego):
+    mocker.patch("logic.action_effects.get_jugador", return_value = None)
+    msg = play_whisky(4000, mock_juego) 
+    assert msg == {"error": "no se pudieron mostrar cartas"}
 
 
 
