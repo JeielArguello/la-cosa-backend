@@ -3,7 +3,9 @@ from models.crud import get_name, read_carta
 from models.database_utils import get_jugadores_match
 from models.game import Juego
 from models.player import JugadorPartida
-from logic.action_effects import play_cambio_de_lugar, play_lanzallamas, play_mas_vale_que_corras, play_hacha, play_sospecha, play_vigila_tus_espaldas, play_whisky
+from logic.action_effects import * 
+
+
 from fastapi import HTTPException
 
 from utils.action_utils import get_jugador
@@ -150,6 +152,13 @@ async def jugar_la_carta(
     if card_id in [22, 23, 24, 25, 26]:
         play_lanzallamas(player_orig, player_objective, juego)
         await juego.mensaje_personal(player_objective,"D")
+    elif card_id in [28,29]:
+        msg = play_analisis(juego,player_orig,player_objective) 
+        await juego.mensaje_personal(player_orig,{"carta_id":card_id,
+                                    "mensaje":msg["mensaje"],
+                                    "cartaMostrar":msg["cartaMostrar"]})
+        
+
     elif card_id in [30, 31]:
         play_hacha(player_orig, player_objective, juego)
         await juego.broadcast_global("C")   

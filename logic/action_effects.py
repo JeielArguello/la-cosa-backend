@@ -109,5 +109,27 @@ def play_cambio_de_lugar(juego:Juego,player_orig:int,player_objective:int):
     
     pOrg.posicion = posPobj
     pObj.posicion = posPorg    
-
     juego.turno = posPobj
+
+def play_analisis(juego:Juego,player_orig:int,player_objective:int):
+    
+    posiciones = juego.posiciones
+    posPorg    = posiciones.index( player_orig )
+    posPobj    = posiciones.index( player_objective )
+
+    if(  validar_posiciones_vecinas(posPobj,posPorg,len(posiciones)) ):
+        raise HTTPException(
+            status_code=400,
+            detail="Los jugadores deben ser adyacentes.")
+    
+    playerOrig = get_jugador(player_orig,juego)
+    playerObj  = get_jugador(player_objective,juego)
+    
+    manoPlayerObj = playerObj.get_cartas()
+    
+    msg = {"mensaje": playerOrig.name + " Jugó carta, analisis; contra " + playerObj.name + ".",
+            "cartaMostrar": manoPlayerObj
+          }
+    
+    return msg
+

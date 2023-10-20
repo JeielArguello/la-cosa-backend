@@ -246,8 +246,7 @@ def test_cambio_de_lugar_2Jugadores_cambio_entre_id1_id2(mocker,mock_juego,mock_
     assert(mock_juego.posiciones == [2,0,1,0])
 
 def test_cambio_de_lugar_4Jugadores_cambio_entre_id1_id2(mocker,
-                                                       mock_juego,mock_atacante,mock_objetivo
-                                                       ,mock_jugador_extra1,mock_jugador_extra2):
+                                                            mock_juego,mock_atacante,mock_objetivo,mock_jugador_extra1,mock_jugador_extra2):
         
     j1 = mock_atacante
     j2 = mock_objetivo
@@ -267,4 +266,28 @@ def test_cambio_de_lugar_4Jugadores_cambio_entre_id1_id2(mocker,
     assert( j1.posicion == 6 )
     assert( j4.posicion == 0 )
     assert(mock_juego.posiciones == [4,0,2,0,3,0,1,0])
+
+
+def test_play_analisis(mocker,mock_juego,mock_atacante,mock_objetivo):
+    
+    mock_juego.jugadores_en_partida = [mock_atacante,mock_objetivo]
+    mock_juego.posiciones = [1,0,2,0]
+    
+    mock_objetivo.cartas = [10, 2, 3, 4]
+    
+    msg = play_analisis(mock_juego,mock_atacante.id,mock_objetivo.id) 
+    
+    assert( msg["mensaje"] =="pepe Jugó carta, analisis; contra pedro." )
+    assert( msg["cartaMostrar"] == [{'id': 10}, {'id': 2}, {'id': 3}, {'id': 4}] )
+
+
+
+
+
+
+
+
+
+
+
 
