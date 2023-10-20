@@ -87,6 +87,8 @@ class Juego:
                 if p.id == msg["player_id"]:
                     jugador = p  
             jugador.ws_player = websocket
+            if jugador.get_turno():
+                await self.mensaje_personal(jugador.id,"E")
         else: 
             print("error al conectar jugador")
         self.ws_players_game.append(websocket)
