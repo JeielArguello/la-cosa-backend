@@ -153,8 +153,6 @@ async def jugar_la_carta(
     elif card_id in [30, 31]:
         play_hacha(player_orig, player_objective, juego)
         await juego.broadcast_global("C")   
-    elif card_id in [50,51,52,53,54]:
-        play_cambio_de_lugar(juego,player_orig,player_objective)
     elif card_id in [32, 33, 34, 35, 36, 37, 38, 39]:
         msg = play_sospecha(player_orig, player_objective, juego)
         await juego.mensaje_personal(player_orig,{"carta_id":card_id,
@@ -162,12 +160,14 @@ async def jugar_la_carta(
                                       "cartaMostrar":msg["cartaMostrar"]})
     elif card_id in [40, 41, 42]:
         msg = play_whisky(player_orig, juego)
-        await juego.broadcast_global(player_orig, {"carta_id": card_id,
+        await juego.broadcast_global({"carta_id": card_id,
                                                     "mensaje": msg["mensaje"],
                                                     "cartaMostrar":msg["cartaMostrar"]})
     elif card_id in [48, 49]:
         play_vigila_tus_espaldas(juego)
         await juego.broadcast_global("C")
+    elif card_id in [50,51,52,53,54]:
+        play_cambio_de_lugar(juego,player_orig,player_objective)
     elif card_id in [55, 56, 57, 58, 59]:
         play_mas_vale_que_corras(player_orig, player_objective, juego)
         await juego.broadcast_global("C")
