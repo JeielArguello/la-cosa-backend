@@ -43,6 +43,10 @@ def play_hacha(atacante_in: int, objetivo_in: int, juego: Juego):
         len_posiciones)
     validar_puerta(indice_posicion_intermedia, juego)
     juego.posiciones[indice_posicion_intermedia] = 0
+    jugador_orig = get_jugador(atacante_in, juego)
+    jugador_objetivo = get_jugador(objetivo_in, juego)
+    msg = {"mensaje": jugador_orig.name + " jugo carta hacha contra " + jugador_objetivo.name}
+    return msg
 
 
 def play_sospecha(atacante_in: int, objetivo_in: int, juego: Juego):
@@ -71,7 +75,11 @@ def play_mas_vale_que_corras(atacante_in: int, objetivo_in: int, juego: Juego):
     juego.posiciones[indice_objetivo] = atacante_in
     juego.posiciones[indice_atacante] = objetivo_in
 
-    juego.turno = objetivo_in
+    juego.turno = indice_objetivo
+    jugador_orig = get_jugador(atacante_in, juego)
+    jugador_objetivo = get_jugador(objetivo_in, juego)
+    msg = {"mensaje": jugador_orig.name + " jugo carta mas vale que corras contra " + jugador_objetivo.name}
+    return msg
 
 
 def play_whisky(atacante_in: int, juego: Juego):
@@ -79,7 +87,7 @@ def play_whisky(atacante_in: int, juego: Juego):
     if jugador:
         cartas = jugador.get_cartas()
         msg = {
-            "mensaje": jugador.name+ "jugo carta whisky contra si mismo",
+            "mensaje": jugador.name+ " jugo carta whisky contra si mismo",
             "cartaMostrar": cartas
         }
         return (msg)
@@ -110,6 +118,10 @@ def play_cambio_de_lugar(juego:Juego,player_orig:int,player_objective:int):
     pOrg.posicion = posPobj
     pObj.posicion = posPorg    
     juego.turno = posPobj
+    jugador_orig = get_jugador(player_orig, juego)
+    jugador_objetivo = get_jugador(player_objective, juego)
+    msg = {"mensaje": jugador_orig.name + " jugo carta mas vale que corras contra " + jugador_objetivo.name}
+    return msg
 
 def play_analisis(juego:Juego,player_orig:int,player_objective:int):
     
