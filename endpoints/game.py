@@ -116,7 +116,7 @@ async def swap_request(match_id: int = Form(), card_id: int = Form(),
         juego.crear_intercambio(player_orig,card_id,player_objective)
         await juego.mensaje_personal(player_objective,"H")
         
-        return {"se creo la solicitud de intercambio"}
+        return {"message": "se creo la solicitud de intercambio"}
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
         raise HTTPException(
@@ -144,7 +144,7 @@ async def swap_response(match_id: int = Form(), card_id: int = Form(),
 
         await juego.mensaje_personal(proximo_jugador.id,"E")
         
-        return {"se completo el intercambio"}
+        return {"message": "se completo el intercambio"}
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
         raise HTTPException(

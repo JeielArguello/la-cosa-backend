@@ -208,3 +208,96 @@ def test_endpoint_descartar_carta_fail(mocker):
     
 
 
+def test_swap_request_success(mocker, mock_juego):
+    mocker.patch("endpoints.game.get_global_juego", return_value=mock_juego,
+                 autospec=True,)
+    mocker.patch("endpoints.game.get_jugador", return_value=mock_j1,
+                 autospec=True,)
+    mocker.patch("endpoints.game.check_turno", return_value=True,
+                 autospec=True,)
+    mocker.patch("endpoints.game.check_carta_habilitada", return_value=None,
+                 autospec=True,)
+    mocker.patch("endpoints.game.Juego.terminar_turno", return_value=None,
+                 autospec=True,)
+    mocker.patch("endpoints.game.Juego.avanzar_turno", return_value=None,
+                 autospec=True,)
+    mocker.patch("endpoints.game.Juego.get_jugador_en_turno", return_value=mock_j1,
+                 autospec=True,)
+    mocker.patch("endpoints.game.check_objetve_is_next", return_value=None,
+                 autospec=True,)
+    mocker.patch("endpoints.game.check_obstaculo", return_value=None,
+                 autospec=True,)
+    mocker.patch("endpoints.game.Juego.crear_intercambio", return_value=None,
+                 autospec=True,)
+    mocker.patch("endpoints.game.Juego.mensaje_personal", return_value=None,
+                 autospec=True,)
+
+    response = client.post("/game/swap-request", data={"match_id": 1,
+                                                       "card_id": 2,
+                                                       "player_objective": 3,
+                                                       "player_orig": 2})
+    assert response.status_code == 200
+    assert response.json() == {"message": "se creo la solicitud de intercambio"}
+
+
+def test_swap_request_fail(mocker, mock_juego):
+    mocker.patch("endpoints.game.get_global_juego", return_value=mock_juego,
+                 autospec=True,)
+    mocker.patch("endpoints.game.get_jugador", return_value=mock_j1,
+                 autospec=True,)
+    mocker.patch("endpoints.game.check_turno", side_effect=HTTPException(status_code=400, detail="No es el turno del jugador"),
+                 autospec=True,)
+    response = client.post("/game/swap-request", data={"match_id": 1,
+                                                       "card_id": 2,
+                                                       "player_objective": 3,
+                                                       "player_orig": 2})
+    assert response.status_code == 400
+    assert response.json() == {"detail": "Error: No es el turno del jugador"}
+
+
+def test_swap_response_success(mocker, mock_juego):
+    mocker.patch("endpoints.game.get_global_juego", return_value=mock_juego,
+                 autospec=True,)
+    mocker.patch("endpoints.game.get_jugador", return_value=mock_j1,
+                 autospec=True,)
+    mocker.patch("endpoints.game.check_carta_habilitada", return_value=None,
+                 autospec=True,)
+    mocker.patch("endpoints.game.check_ganador", return_value=None,
+                 autospec=True,)
+    mocker.patch("endpoints.game.Juego.responder_intercambio", return_value=None,
+                 autospec=True,)
+    mocker.patch("endpoints.game.Juego.mensaje_personal", return_value=None,
+                 autospec=True,)
+    mocker.patch("endpoints.game.Juego.broadcast_global", return_value=None,
+                 autospec=True,)
+
+    response = client.post("/game/swap-response", data={"match_id": 1,
+                                                        "card_id": 2,
+                                                        "player_objective": 3,
+                                                        "player_orig": 2})
+    assert response.status_code == 200
+    assert response.json() == {"message": "se completo el intercambio"}
+
+
+def test_swap_response_fail(mocker, mock_juego):
+    mocker.patch("endpoints.game.get_global_juego", return_value=mock_juego,
+                 autospec=True,)
+    mocker.patch("endpoints.game.get_jugador", return_value=mock_j1,
+                 autospec=True,)
+    mocker.patch("endpoints.game.check_carta_habilitada", side_effect=HTTPException(status_code=400, detail="No puedes descartar la unica carta de infectado que tienes."),
+                 autospec=True,)
+    mocker.patch("endpoints.game.check_ganador", return_value=None,
+                 autospec=True,)
+    mocker.patch("endpoints.game.Juego.responder_intercambio", return_value=None,
+                 autospec=True,)
+    mocker.patch("endpoints.game.Juego.mensaje_personal", return_value=None,
+                 autospec=True,)
+    mocker.patch("endpoints.game.Juego.broadcast_global", return_value=None,
+                 autospec=True,)
+
+    response = client.post("/game/swap-response", data={"match_id": 1,
+                                                        "card_id": 2,
+                                                        "player_objective": 3,
+                                                        "player_orig": 2})
+    assert response.status_code == 400
+    assert response.json() == {"detail": "Error: No puedes descartar la unica carta de infectado que tienes."}
