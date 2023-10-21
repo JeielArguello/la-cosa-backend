@@ -237,3 +237,38 @@ def check_cantidad_cartas(jugador: JugadorPartida):
     if len(jugador.cartas) == 5:
         raise HTTPException(
             status_code=400, detail="No puedes tener mas de 5 cartas en la mano.")
+
+        
+def check_objetve_is_next(proximo_jugador: JugadorPartida, player_objective: int):
+    if proximo_jugador.id != player_objective:
+        raise HTTPException(
+            status_code=400, detail="El jugador objetivo no es el proximo en jugar.")
+    
+def check_obstaculo(atacante_id,objetivo_id, juego: Juego):
+    len_posiciones = len(juego.posiciones)
+    indice_objetivo = juego.posiciones.index(objetivo_id)
+    indice_atacante = juego.posiciones.index(atacante_id)
+    indice_posicion_intermedia = get_posicion_intermedia(
+        len_posiciones, indice_objetivo, indice_atacante)
+    
+    validar_obstaculo(indice_posicion_intermedia, juego)
+
+def check_carta_habilitada(card_id: int, jugador_orig: JugadorPartida, jugador_objetivo: JugadorPartida):
+    if card_id == 1 :
+        raise HTTPException(
+            status_code=400, detail="No puedes descartar la carta la cosa.")
+    mano = jugador_orig.get_cartas()
+    for c in mano:
+        if c["id"] in [2, 3, 4, 5, 6, 7, 8, 9, 10,11,12,13,14,15,16,17,18,19,20,21] :
+            cantidad_cartas_infectados =+1
+    if jugador_orig.get_infectado() and cantidad_cartas_infectados<2 and card_id in [2, 3, 4, 5, 6, 7, 8, 9, 10,11,12,13,14,15,16,17,18,19,20,21]:
+        raise HTTPException(
+            status_code=400, detail="No puedes descartar la unica carta de infectado que tienes.")
+        
+    if not jugador_orig.get_la_cosa() and card_id in [2, 3, 4, 5, 6, 7, 8, 9, 10,11,12,13,14,15,16,17,18,19,20,21]:
+        raise HTTPException(
+            status_code=400, detail="No puedes intercambiar una carta de infectado si no eres la cosa ni infectado.")
+    
+    if jugador_orig.get_infectado() and not jugador_objetivo.get_la_cosa() and card_id in [2, 3, 4, 5, 6, 7, 8, 9, 10,11,12,13,14,15,16,17,18,19,20,21]:
+        raise HTTPException(
+            status_code=400, detail="No puedes intercambiar una carta de infectado si no eres la cosa.")

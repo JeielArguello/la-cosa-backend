@@ -54,10 +54,7 @@ async def jugar_carta(match_id: int = Form(), card_id: int = Form(),
         if ganador:
             await juego.broadcast_global("K")
         await juego.mensaje_personal(player_orig,"D")
-        #await juego.mensaje_personal(player_orig, "G")
-        juego.terminar_turno()
-        juego.avanzar_turno()
-        await juego.mensaje_personal(juego.posiciones[juego.turno],"E")
+        await juego.mensaje_personal(player_orig, "G")
         return {
             "carta": card_id,
             "jugada contra": player_objective,
@@ -80,15 +77,11 @@ async def endpoint_descartar_carta(match_id: int = Form(),
                                    card_id: int = Form(), player_id: int = Form()):
     try:
         juego = get_global_juego(match_id)
-        jugador = get_jugador(player_id, juego)
+        jugador = juego.get_jugador(player_id)
         check_turno(jugador)
         descartar_carta(card_id, player_id, juego)
         await juego.mensaje_personal(player_id,"D")
-        #await juego.mensaje_personal(player_id, "G")
-        juego.terminar_turno()
-        juego.avanzar_turno()
-        await juego.mensaje_personal(juego.posiciones[juego.turno],"E")
-        print(juego.turno)
+        await juego.mensaje_personal(player_id, "G")
         return {"carta descartada": card_id}
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
@@ -97,6 +90,67 @@ async def endpoint_descartar_carta(match_id: int = Form(),
             detail=error_msg
         )
 
+
+######
+# Intercambiar carta
+######
+
+
+@router.post("/swap-request")
+async def swap_request(match_id: int = Form(), card_id: int = Form(),
+                      player_objective: int = Form(), player_orig: int = Form()):
+    try:
+        juego = get_global_juego(match_id)
+        jugador_orig = juego.get_jugador(player_orig)
+        check_turno(jugador_orig)
+        jugador_objetivo = juego.get_jugador(player_objective)
+        
+        check_carta_habilitada(card_id,jugador_orig,jugador_objetivo)
+
+        juego.terminar_turno()
+        juego.avanzar_turno()
+        proximo_jugador = juego.get_jugador_en_turno()
+        check_objetve_is_next(proximo_jugador, player_objective)
+        check_obstaculo(player_orig,player_objective,juego)
+
+        juego.crear_intercambio(player_orig,card_id,player_objective)
+        await juego.mensaje_personal(player_objective,"H")
+        
+        return {"se creo la solicitud de intercambio"}
+    except HTTPException as e:
+        error_msg = f"Error: {e.detail}"
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_msg
+        )
+
+@router.post("/swap-response")
+async def swap_response(match_id: int = Form(), card_id: int = Form(),
+                      player_objective: int = Form(), player_orig: int = Form()):
+    try:
+        juego = get_global_juego(match_id)
+        jugador_orig = juego.get_jugador(player_orig)
+        jugador_objetivo = juego.get_jugador(player_objective)
+        
+        check_carta_habilitada(card_id,jugador_orig,jugador_objetivo)
+        
+        proximo_jugador = juego.get_jugador_en_turno()
+        juego.responder_intercambio(player_orig, card_id)
+        await juego.mensaje_personal(player_orig,"D")
+        await juego.mensaje_personal(player_objective,"D")
+        ganador = check_ganador(juego)
+        if ganador:
+            await juego.broadcast_global("K")
+
+        await juego.mensaje_personal(proximo_jugador.id,"E")
+        
+        return {"se completo el intercambio"}
+    except HTTPException as e:
+        error_msg = f"Error: {e.detail}"
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_msg
+        )
 
 ######
 # Finalizar Partida

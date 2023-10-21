@@ -37,6 +37,7 @@ class JugadorPartida:
 
     def set_infectado(self):
         self.infectado = True
+        self.humano = False
 
     def get_infectado(self):
         return self.infectado
