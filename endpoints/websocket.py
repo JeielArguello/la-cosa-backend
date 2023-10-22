@@ -19,7 +19,7 @@ async def websocket_endpoint_list(websocket: WebSocket):
         await broadcast({"message": "Usuario viendo lista de partida"})
         # le envio el mensaje para que el cliente pida la lista de partias
         # actualizadas
-        await websocket.send_json("A")
+        await broadcast("A")
 
         while True:
             # espero hasta recibir un mensaje
