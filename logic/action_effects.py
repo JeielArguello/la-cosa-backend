@@ -4,12 +4,13 @@ from models.crud import get_name_carta
 from models.game import Juego
 from utils.action_utils import *
 
-
 def play_lanzallamas(atacante_in: int, objetivo_in: int, juego: Juego):
     # get indices
     len_posiciones = len(juego.posiciones)
     indice_objetivo = juego.posiciones.index(objetivo_in)
     indice_atacante = juego.posiciones.index(atacante_in)
+    jugador_objetivo = get_jugador(objetivo_in, juego)
+    jugador_atacante = get_jugador(atacante_in, juego)
     indice_posicion_intermedia = get_posicion_intermedia(
         len_posiciones, indice_objetivo, indice_atacante)
     # check vecinos
@@ -28,6 +29,10 @@ def play_lanzallamas(atacante_in: int, objetivo_in: int, juego: Juego):
     del juego.posiciones[indice_objetivo]
     if indice_atacante==max(indice_atacante,indice_objetivo):
         juego.turno = (juego.turno - 2) % len(juego.posiciones)
+    msg = {"mensaje": jugador_atacante.name+"jugó carta lanzallamas contra"+
+           jugador_objetivo.name
+        }
+    return msg
 
 
 def play_hacha(atacante_in: int, objetivo_in: int, juego: Juego):
@@ -82,12 +87,13 @@ def play_mas_vale_que_corras(atacante_in: int, objetivo_in: int, juego: Juego):
     return msg
 
 
-def play_whisky(atacante_in: int, juego: Juego):
+def play_whisky(atacante_in: int, juego: Juego, card_id: int):
     jugador = get_jugador(atacante_in, juego)
     if jugador:
         cartas = jugador.get_cartas()
+        cartas.remove({"card_id":card_id})
         msg = {
-            "mensaje": jugador.name+ " jugo carta whisky contra si mismo",
+            "mensaje": jugador.name+ " jugó carta whisky contra si mismo",
             "cartaMostrar": cartas
         }
         return (msg)

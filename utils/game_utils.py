@@ -151,6 +151,8 @@ async def jugar_la_carta(
     validar_jugada(juego, card_id, player_objective, player_orig)
     if card_id in [22, 23, 24, 25, 26]:
         play_lanzallamas(player_orig, player_objective, juego)
+        await juego.broadcast_global({"carta_id": card_id,
+                                     "mensaje":msg["mensaje"]})
         await juego.mensaje_personal(player_objective,"D")
     elif card_id in [27,28,29]:
         msg = play_analisis(juego,player_orig,player_objective) 
@@ -172,7 +174,7 @@ async def jugar_la_carta(
                                       "mensaje":msg["mensaje"],
                                       "cartaMostrar":msg["cartaMostrar"]})
     elif card_id in [40, 41, 42]:
-        msg = play_whisky(player_orig, juego)
+        msg = play_whisky(player_orig, juego, card_id)
         await juego.broadcast_global({"carta_id": card_id,
                                                     "mensaje": msg["mensaje"],
                                                     "cartaMostrar":msg["cartaMostrar"]})
