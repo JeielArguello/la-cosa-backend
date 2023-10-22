@@ -62,6 +62,7 @@ def test_lanzallamas_simple(mocker,mock_juego,mock_atacante,mock_objetivo):
 
 
 def test_lanzallamas(mocker,mock_juego,mock_atacante,mock_objetivo):
+    
     mock_j1 = mock_atacante
     mock_j2 = mock_objetivo
     mock_j3 = mock_atacante
@@ -105,6 +106,8 @@ def test_lanzallamas(mocker,mock_juego,mock_atacante,mock_objetivo):
             0,
             10,
             0]
+    mocker.patch("logic.action_effects.get_jugador", return_value = mock_j5)
+    mocker.patch("logic.action_effects.get_jugador", return_value = mock_j4)
     play_lanzallamas(4, 5, mock_juego)
     response1 = {'jugadores': len(mock_juego.jugadores_en_partida),
                  'posiciones': mock_juego.posiciones}
