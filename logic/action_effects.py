@@ -58,7 +58,7 @@ def play_sospecha(atacante_in: int, objetivo_in: int, juego: Juego):
             status_code=400,
             detail="No se pudo obtener una carta del jugador objetivo")
     msg = {"mensaje":jugador_atacante.name+" jugo carta sospecha contra "+jugador_objetivo.name,
-           "cartaMostrar": carta_id}
+           "cartaMostrar": [{"id": carta_id}]}
     return msg
 
 def play_vigila_tus_espaldas(juego: Juego):
