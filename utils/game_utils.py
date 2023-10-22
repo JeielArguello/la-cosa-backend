@@ -177,7 +177,8 @@ async def jugar_la_carta(
         msg = play_whisky(player_orig, juego, card_id)
         await juego.broadcast_global({"carta_id": card_id,
                                                     "mensaje": msg["mensaje"],
-                                                    "cartaMostrar":msg["cartaMostrar"]})
+                                                    "cartaMostrar":msg["cartaMostrar"],
+                                                    "jugador_obj": get_name(player_objective)})
     elif card_id in [48, 49]:
         play_vigila_tus_espaldas(juego)
         name_player = get_name(player_orig)
