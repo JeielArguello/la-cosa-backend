@@ -150,7 +150,7 @@ async def jugar_la_carta(
         player_orig: int):
     validar_jugada(juego, card_id, player_objective, player_orig)
     if card_id in [22, 23, 24, 25, 26]:
-        play_lanzallamas(player_orig, player_objective, juego)
+        msg = play_lanzallamas(player_orig, player_objective, juego)
         await juego.broadcast_global({"carta_id": card_id,
                                      "mensaje":msg["mensaje"]})
         await juego.mensaje_personal(player_objective,"D")
