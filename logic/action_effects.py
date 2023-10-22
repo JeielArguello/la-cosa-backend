@@ -93,12 +93,12 @@ def play_whisky(atacante_in: int, juego: Juego, card_id: int):
         cartas = jugador.get_cartas()
         cartas.remove({"id":card_id})
         msg = {
-            "mensaje": jugador.name+ " jugó carta whisky contra si mismo",
+            "mensaje": jugador.name+ " jugó carta whisky mostrando sus cartas.",
             "cartaMostrar": cartas
         }
         return (msg)
     else:
-        return {"error": "no se pudieron mostrar cartas"}     
+        return {"error": "no se pudieron mostrar cartas."}     
     
 def play_cambio_de_lugar(juego:Juego,player_orig:int,player_objective:int):
         
@@ -145,7 +145,7 @@ def play_analisis(juego:Juego,player_orig:int,player_objective:int):
     
     manoPlayerObj = playerObj.get_cartas()
     
-    msg = {"mensaje": playerOrig.name + " jugó carta, analisis; contra " + playerObj.name + ".",
+    msg = {"mensaje": playerOrig.name + " jugó carta analisis contra " + playerObj.name + ".",
             "cartaMostrar": manoPlayerObj
           }
     
