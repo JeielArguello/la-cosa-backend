@@ -93,7 +93,7 @@ def play_whisky(atacante_in: int, juego: Juego, card_id: int):
         cartas = jugador.get_cartas()
         cartas.remove({"id":card_id})
         msg = {
-            "mensaje": jugador.name+ " jugó carta whisky mostrando sus cartas.",
+            "mensaje": jugador.name+ " jugó carta whisky.",
             "cartaMostrar": cartas
         }
         return (msg)

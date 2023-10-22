@@ -210,7 +210,7 @@ def test_sospecha_success(mocker,mock_juego,mock_atacante,mock_objetivo):
     mock_objetivo.cartas = [1, 2, 3, 4]
     mocker.patch("logic.action_effects.get_name_carta", return_value="sospecha")
     msg = play_sospecha(mock_atacante.id, mock_objetivo.id, mock_juego)
-    assert msg["mensaje"] =="pepe jugo carta sospecha contra pedro"
+    assert msg["mensaje"] =="pepe jugó carta sospecha contra pedro"
     assert msg["cartaMostrar"] in [1, 2, 3, 4]
 
 def test_sospecha_fail(mock_juego,mocker):
@@ -285,7 +285,7 @@ def test_play_whisky_succes(mocker,mock_juego,mock_atacante):
     mock_juego.jugadores_en_partida = [mock_atacante]
     mock_atacante.cartas = [10, 2, 3, 4]
     msg = play_whisky(mock_atacante.id, mock_juego) 
-    assert( msg["mensaje"] == "pepe jugo carta whisky contra si mismo")
+    assert( msg["mensaje"] == "pepe jugó carta whisky contra si mismo")
     assert( msg["cartaMostrar"] == [{'id': 10}, {'id': 2}, {'id': 3}, {'id': 4}])
 
 def test_play_whisky_fail(mocker,mock_juego):
