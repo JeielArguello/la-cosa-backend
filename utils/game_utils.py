@@ -154,11 +154,11 @@ async def jugar_la_carta(
         await juego.mensaje_personal(player_objective,"D")
     elif card_id in [27,28,29]:
         msg = play_analisis(juego,player_orig,player_objective) 
+        await juego.broadcast_global({"carta_id": card_id,
+                                                    "mensaje": msg["mensaje"]})
         await juego.mensaje_personal(player_orig,{"carta_id":card_id,
                                     "mensaje":msg["mensaje"],
                                     "cartaMostrar":msg["cartaMostrar"]})
-        await juego.broadcast_global({"carta_id": card_id,
-                                                    "mensaje": msg["mensaje"]})
     elif card_id in [30, 31]:
         msg = play_hacha(player_orig, player_objective, juego)
         await juego.broadcast_global({"carta_id": card_id,
@@ -166,11 +166,11 @@ async def jugar_la_carta(
         await juego.broadcast_global("C")   
     elif card_id in [32, 33, 34, 35, 36, 37, 38, 39]:
         msg = play_sospecha(player_orig, player_objective, juego)
+        await juego.broadcast_global({"carta_id": card_id,
+                                                    "mensaje": msg["mensaje"]})
         await juego.mensaje_personal(player_orig,{"carta_id":card_id,
                                       "mensaje":msg["mensaje"],
                                       "cartaMostrar":msg["cartaMostrar"]})
-        await juego.broadcast_global({"carta_id": card_id,
-                                                    "mensaje": msg["mensaje"]})
     elif card_id in [40, 41, 42]:
         msg = play_whisky(player_orig, juego)
         await juego.broadcast_global({"carta_id": card_id,
