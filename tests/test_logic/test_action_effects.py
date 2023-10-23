@@ -62,6 +62,7 @@ def test_lanzallamas_simple(mocker,mock_juego,mock_atacante,mock_objetivo):
 
 
 def test_lanzallamas(mocker,mock_juego,mock_atacante,mock_objetivo):
+    
     mock_j1 = mock_atacante
     mock_j2 = mock_objetivo
     mock_j3 = mock_atacante
@@ -105,6 +106,8 @@ def test_lanzallamas(mocker,mock_juego,mock_atacante,mock_objetivo):
             0,
             10,
             0]
+    mocker.patch("logic.action_effects.get_jugador", return_value = mock_j5)
+    mocker.patch("logic.action_effects.get_jugador", return_value = mock_j4)
     play_lanzallamas(4, 5, mock_juego)
     response1 = {'jugadores': len(mock_juego.jugadores_en_partida),
                  'posiciones': mock_juego.posiciones}
@@ -210,8 +213,8 @@ def test_sospecha_success(mocker,mock_juego,mock_atacante,mock_objetivo):
     mock_objetivo.cartas = [1, 2, 3, 4]
     mocker.patch("logic.action_effects.get_name_carta", return_value="sospecha")
     msg = play_sospecha(mock_atacante.id, mock_objetivo.id, mock_juego)
-    assert msg["mensaje"] =="pepe jugo carta sospecha contra pedro"
-    assert msg["cartaMostrar"] in [1, 2, 3, 4]
+    assert msg["mensaje"] =="pepe jugó carta sospecha contra pedro"
+    assert msg["cartaMostrar"][0] in [{"id":1}, {"id":2}, {"id":3}, {"id":4}]
 
 def test_sospecha_fail(mock_juego,mocker):
     mock_atacante = 1
@@ -277,21 +280,23 @@ def test_play_analisis(mocker,mock_juego,mock_atacante,mock_objetivo):
     
     msg = play_analisis(mock_juego,mock_atacante.id,mock_objetivo.id) 
     
-    assert( msg["mensaje"] =="pepe Jugó carta, analisis; contra pedro." )
+    assert( msg["mensaje"] =="pepe jugó carta analisis contra pedro." )
     assert( msg["cartaMostrar"] == [{'id': 10}, {'id': 2}, {'id': 3}, {'id': 4}] )
 
 
 def test_play_whisky_succes(mocker,mock_juego,mock_atacante):
     mock_juego.jugadores_en_partida = [mock_atacante]
-    mock_atacante.cartas = [10, 2, 3, 4]
-    msg = play_whisky(mock_atacante.id, mock_juego) 
-    assert( msg["mensaje"] == "pepe jugo carta whisky contra si mismo")
+    mock_atacante.cartas = [1, 10, 2, 3, 4]
+    mock_card_id = 1
+    msg = play_whisky(mock_atacante.id, mock_juego, mock_card_id) 
+    assert( msg["mensaje"] == "pepe jugó carta whisky.")
     assert( msg["cartaMostrar"] == [{'id': 10}, {'id': 2}, {'id': 3}, {'id': 4}])
 
 def test_play_whisky_fail(mocker,mock_juego):
+    mock_card_id = 1
     mocker.patch("logic.action_effects.get_jugador", return_value = None)
-    msg = play_whisky(4000, mock_juego) 
-    assert msg == {"error": "no se pudieron mostrar cartas"}
+    msg = play_whisky(4000, mock_juego, mock_card_id) 
+    assert msg == {"error": "no se pudieron mostrar cartas."}
 
 
 
