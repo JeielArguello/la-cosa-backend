@@ -241,8 +241,12 @@ def check_cantidad_cartas(jugador: JugadorPartida):
             status_code=400, detail="No puedes tener mas de 5 cartas en la mano.")
 
         
-def check_objetve_is_next(proximo_jugador: JugadorPartida, player_objective: int):
-    if proximo_jugador.id != player_objective:
+def check_objetive_is_next(proximo_jugador: JugadorPartida, juego: Juego):
+    if juego.sentido == 1:
+        turnoaux = (juego.turno + 2) % len(juego.posiciones)
+    elif juego.sentido == -1:
+        turnoaux = (juego.turno - 2) % len(juego.posiciones)
+    if proximo_jugador.id!= juego.posiciones[turnoaux]:
         raise HTTPException(
             status_code=400, detail="El jugador objetivo no es el proximo en jugar.")
     

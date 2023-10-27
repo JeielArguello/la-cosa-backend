@@ -90,6 +90,15 @@ class Juego:
             if j.id == self.posiciones[self.turno]:
                 return j
     
+    def get_jugador_siguiente_turno(self):
+        if self.sentido == 1:
+            turnoaux = (self.turno + 2) % len(self.posiciones)
+        elif self.sentido == -1:
+            turnoaux = (self.turno - 2) % len(self.posiciones)
+        for j in self.jugadores_en_partida:
+            if j.id == self.posiciones[turnoaux]:
+                return j
+            
     def crear_intercambio(self, player_orig: int, card_id: int, player_objective: int):
         if self.solicitud_intercambio is not None:
             raise HTTPException(

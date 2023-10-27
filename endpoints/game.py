@@ -99,24 +99,19 @@ async def endpoint_descartar_carta(match_id: int = Form(),
 
 
 @router.post("/swap-request")
-async def swap_request(match_id: int = Form(), card_id: int = Form(),
-                      player_objective: int = Form(), player_orig: int = Form()):
+async def swap_request(match_id: int = Form(), card_id: int = Form(), player_orig: int = Form()):
     try:
         juego = get_global_juego(match_id)
         jugador_orig = juego.get_jugador(player_orig)
         check_turno(jugador_orig)
-        jugador_objetivo = juego.get_jugador(player_objective)
-        
+        jugador_objetivo = juego.get_jugador_siguiente_turno()
         check_carta_habilitada(card_id,jugador_orig,jugador_objetivo)
 
-        juego.terminar_turno()
-        juego.avanzar_turno()
-        proximo_jugador = juego.get_jugador_en_turno()
-        check_objetve_is_next(proximo_jugador, player_objective)
-        check_obstaculo(player_orig,player_objective,juego)
+        check_objetive_is_next(jugador_objetivo,juego)
+        check_obstaculo(player_orig,jugador_objetivo.id,juego)
 
-        juego.crear_intercambio(player_orig,card_id,player_objective)
-        await juego.mensaje_personal(player_objective,"H")
+        juego.crear_intercambio(player_orig,card_id,jugador_objetivo.id)
+        await juego.mensaje_personal(jugador_objetivo.id,"H")
         
         return {"message": "se creo la solicitud de intercambio"}
     except HTTPException as e:
@@ -127,25 +122,25 @@ async def swap_request(match_id: int = Form(), card_id: int = Form(),
         )
 
 @router.post("/swap-response")
-async def swap_response(match_id: int = Form(), card_id: int = Form(),
-                      player_objective: int = Form(), player_orig: int = Form()):
+async def swap_response(match_id: int = Form(), card_id: int = Form(), player_orig: int = Form()):
     try:
         juego = get_global_juego(match_id)
         jugador_orig = juego.get_jugador(player_orig)
-        jugador_objetivo = juego.get_jugador(player_objective)
+        jugador_objetivo = juego.get_jugador_en_turno()
+        
+        juego.terminar_turno()
+        juego.avanzar_turno()
         
         check_carta_habilitada(card_id,jugador_orig,jugador_objetivo)
-        
-        proximo_jugador = juego.get_jugador_en_turno()
         juego.responder_intercambio(player_orig, card_id)
         await juego.mensaje_personal(player_orig,"D")
-        await juego.mensaje_personal(player_objective,"D")
+        await juego.mensaje_personal(jugador_objetivo.id,"D")
         ganador = check_ganador(juego)
         if ganador:
             await juego.broadcast_global("K")
 
-        await juego.mensaje_personal(proximo_jugador.id,"E")
-        
+        await juego.mensaje_personal(jugador_orig.id,"E")
+        await juego.broadcast_global("C")
         return {"message": "se completo el intercambio"}
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
