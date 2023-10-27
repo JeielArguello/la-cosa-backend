@@ -82,6 +82,7 @@ async def endpoint_descartar_carta(match_id: int = Form(),
         descartar_carta(card_id, player_id, juego)
         await juego.mensaje_personal(player_id,"D")
         await juego.mensaje_personal(player_id, "G")
+        await juego.broadcast_global("C")
         return {"carta descartada": card_id}
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"

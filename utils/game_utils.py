@@ -19,10 +19,12 @@ def get_status_game(juego: Juego):
     sentido = juego.sentido
     jugadores = get_jugadores_match(juego.posiciones)
     carta = read_carta(juego.mazo[-1])
+    id_player_turno = juego.get_jugador_en_turno().id
     response = {'posiciones': posiciones,
                 'jugadores': jugadores,
                 'sentido': sentido,
-                'tipo_dorso': carta.tipo_dorso}
+                'tipo_dorso': carta.tipo_dorso,
+                'id_player_turno': id_player_turno}
     return response
 
 
