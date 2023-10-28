@@ -64,14 +64,21 @@ def play_vigila_tus_espaldas(juego: Juego):
 def play_mas_vale_que_corras(atacante_in: int, objetivo_in: int, juego: Juego):
     # validar si esta en cuarentena
     validar_cuarentena(objetivo_in, juego)
+    # obtengo jugadores
+    jugador_atacante = get_jugador(atacante_in, juego)
+    jugador_objetivo = get_jugador(objetivo_in, juego)
     # obtengo el indice de los jugadores
     indice_objetivo = juego.posiciones.index(objetivo_in)
     indice_atacante = juego.posiciones.index(atacante_in)
     # hago el intercambio de posiciones
     juego.posiciones[indice_objetivo] = atacante_in
     juego.posiciones[indice_atacante] = objetivo_in
+    jugador_atacante.posicion = indice_objetivo
+    jugador_objetivo.posicion = indice_atacante
+    
+    juego.turno = indice_objetivo
+    
 
-    juego.turno = objetivo_in
 
 
 def play_whisky(atacante_in: int, juego: Juego):
@@ -109,7 +116,9 @@ def play_cambio_de_lugar(juego:Juego,player_orig:int,player_objective:int):
     
     pOrg.posicion = posPobj
     pObj.posicion = posPorg    
+
     juego.turno = posPobj
+
 
 def play_analisis(juego:Juego,player_orig:int,player_objective:int):
     

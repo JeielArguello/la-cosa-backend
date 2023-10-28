@@ -87,7 +87,7 @@ class Juego:
 
     def get_jugador_en_turno(self):
         for j in self.jugadores_en_partida:
-            if j.id == self.posiciones[self.turno]:
+            if j.get_turno():
                 return j
     
     def get_jugador_siguiente_turno(self):
@@ -177,4 +177,7 @@ def crear_jugadores_partida(juego: Juego):
 def otorgar_posiciones(juego: Juego):
     for jugador_id in juego.jugadores_id:
         juego.posiciones.append(jugador_id)
+        jugador = juego.get_jugador(jugador_id)
+        jugador.posicion = juego.posiciones.index(jugador_id)
+        print(jugador.name + " tiene posicion " + str(jugador.posicion))
         juego.posiciones.append(0)
