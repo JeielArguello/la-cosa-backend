@@ -73,13 +73,18 @@ def play_vigila_tus_espaldas(juego: Juego):
 def play_mas_vale_que_corras(atacante_in: int, objetivo_in: int, juego: Juego):
     # validar si esta en cuarentena
     validar_cuarentena(objetivo_in, juego)
+    # obtengo jugadores
+    jugador_atacante = get_jugador(atacante_in, juego)
+    jugador_objetivo = get_jugador(objetivo_in, juego)
     # obtengo el indice de los jugadores
     indice_objetivo = juego.posiciones.index(objetivo_in)
     indice_atacante = juego.posiciones.index(atacante_in)
     # hago el intercambio de posiciones
     juego.posiciones[indice_objetivo] = atacante_in
     juego.posiciones[indice_atacante] = objetivo_in
-
+    jugador_atacante.posicion = indice_objetivo
+    jugador_objetivo.posicion = indice_atacante
+   
     juego.turno = indice_objetivo
     jugador_orig = get_jugador(atacante_in, juego)
     jugador_objetivo = get_jugador(objetivo_in, juego)
@@ -123,11 +128,13 @@ def play_cambio_de_lugar(juego:Juego,player_orig:int,player_objective:int):
     
     pOrg.posicion = posPobj
     pObj.posicion = posPorg    
+
     juego.turno = posPobj
     jugador_orig = get_jugador(player_orig, juego)
     jugador_objetivo = get_jugador(player_objective, juego)
     msg = {"mensaje": jugador_orig.name + " jugó carta cambio de lugar contra " + jugador_objetivo.name}
     return msg
+
 
 def play_analisis(juego:Juego,player_orig:int,player_objective:int):
     
