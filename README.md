@@ -34,3 +34,9 @@ http://127.0.0.1:8000/redoc
 ```
 $ deactivate
 ```
+
+# Correr test
+```
+$ export PYTHONPATH=$PYTHONPATH:home/<usuario>/<directorio_del_proyecto>/Back
+$ pytest -vv
+```
