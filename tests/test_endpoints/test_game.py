@@ -223,7 +223,7 @@ def test_swap_request_success(mocker, mock_juego):
                  autospec=True,)
     mocker.patch("endpoints.game.Juego.get_jugador_en_turno", return_value=mock_j1,
                  autospec=True,)
-    mocker.patch("endpoints.game.check_objetve_is_next", return_value=None,
+    mocker.patch("endpoints.game.check_objetive_is_next", return_value=None,
                  autospec=True,)
     mocker.patch("endpoints.game.check_obstaculo", return_value=None,
                  autospec=True,)
