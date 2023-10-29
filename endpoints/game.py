@@ -80,9 +80,8 @@ async def jugar_ataque(match_id: int = Form(), card_id: int = Form(),
             carta_name = get_name_carta(card_id)
             juego.crear_ataque(player_orig, card_id, player_objective)
             await juego.mensaje_personal(player_objective, "J")
-            await juego.mensaje_personal(player_objective,
-                                         f"El jugador {jugador.name} jugó {carta_name} contra ti.\
-                                            Quieres defenderte?")
+            await juego.mensaje_personal_dict(player_objective, {"mensaje_ataque":
+                                                                 "El jugador {jugador.name} jugó {carta_name} contra ti. Quieres defenderte?"})
             return {"message": "Se creó la solicitud de ataque."}
         else:
             await jugar_la_carta(juego, card_id, player_objective, player_orig)

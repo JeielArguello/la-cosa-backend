@@ -187,6 +187,11 @@ class Juego:
         await jugador.ws_player.send_json(message)
         await jugador.ws_player.send_json("reset")
 
+    async def mensaje_personal_dict(self, player_id: int, message: dict):
+        jugador = self.get_jugador(player_id)
+        await jugador.ws_player.send_json(message)
+        await jugador.ws_player.send_json("reset")
+
 
 def robar_carta(juego: Juego, jugador: JugadorPartida):
     if len(juego.mazo) == 0:
