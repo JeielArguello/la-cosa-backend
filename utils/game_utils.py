@@ -207,6 +207,10 @@ async def jugar_la_carta(
         await juego.broadcast_global({"carta_id": card_id,
                                         "mensaje": msg["mensaje"]})
         await juego.broadcast_global("C")
+    elif card_id in [61,62]:
+        msg = await play_seduccion(juego, player_orig, player_objective, card_id)
+        await juego.broadcast_global({"carta_id":card_id,
+                                     "mensaje":msg["mensaje"]})
     else:
         pass
 

@@ -104,10 +104,14 @@ async def swap_request(match_id: int = Form(), card_id: int = Form(), player_ori
         juego = get_global_juego(match_id)
         jugador_orig = juego.get_jugador(player_orig)
         check_turno(jugador_orig)
-        jugador_objetivo = juego.get_jugador_siguiente_turno()
+        jugador_objetivo_index = next( (i for i, jugador in enumerate(juego.jugadores_en_partida) if jugador.afectado_seduccion), None)
+        if not jugador_objetivo_index is None:
+            jugador_objetivo = juego.jugadores_en_partida[jugador_objetivo_index]
+        if  jugador_objetivo_index is None:
+            jugador_objetivo = juego.get_jugador_siguiente_turno()
+            check_objetive_is_next(jugador_objetivo,juego)
+        #jugador_objetivo.afectado_seduccion = False
         check_carta_habilitada(card_id,jugador_orig,jugador_objetivo)
-
-        check_objetive_is_next(jugador_objetivo,juego)
         check_obstaculo(player_orig,jugador_objetivo.id,juego)
 
         juego.crear_intercambio(player_orig,card_id,jugador_objetivo.id)
@@ -128,9 +132,12 @@ async def swap_response(match_id: int = Form(), card_id: int = Form(), player_or
         jugador_orig = juego.get_jugador(player_orig)
         jugador_objetivo = juego.get_jugador_en_turno()
         
-        juego.terminar_turno()
-        juego.avanzar_turno()
         
+        if not jugador_orig.afectado_seduccion:
+            juego.terminar_turno()
+            juego.avanzar_turno()
+        else:
+            jugador_orig.afectado_seduccion = False
         check_carta_habilitada(card_id,jugador_orig,jugador_objetivo)
         juego.responder_intercambio(player_orig, card_id)
         await juego.mensaje_personal(player_orig,"D")
