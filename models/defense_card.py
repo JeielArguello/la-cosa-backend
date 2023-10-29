@@ -12,7 +12,6 @@ class Defensa:
         self.defensor = player_objetive
         self.carta_atacante = card_id
         self.carta_defensor = None
-        # self.juego = super().__self_class__
 
     def check_defensor(self, player_id: int):
         if self.defensor.id != player_id:
@@ -21,7 +20,7 @@ class Defensa:
                 detail="No eres el receptor del ataque")
 
     def completar_ataque(self, card_id: int):
-        self.carta_defensor = card_id
+        # self.carta_defensor = card_id
         if card_id == 0:
             self.atacante.descartar_carta(self.carta_atacante)
         else:

@@ -341,3 +341,30 @@ def check_posibilidad_defensa(card_id: int, juego: Juego):
             raise HTTPException(
                 status_code=400,
                 detail="Esta carta no puede defenderte.")
+
+
+def check_puedo_defender(juego: Juego, card_id: int, player_objective: int, player_orig: int):
+    jugador = get_jugador(player_objective, juego)
+    mano = set(jugador.cartas)
+    # Seduccion && Aterrador
+    # Anula intercambio y Mirar carta a intercambiar
+    if card_id in [60, 61, 62, 63, 64, 65, 66] and (set(mano) & set([67, 68, 69, 70])):
+        return True
+    # Cambio de lugar || Más vale que corras && Aquí estoy bien
+    # Anula cambio de lugar y mas vale que corras
+    elif card_id in [50, 51, 52, 53, 54, 55, 56, 57, 58, 59] and (set(mano) & set([71, 72, 73])):
+        return True
+    # Seduccion && No, gracias
+    # Anula intercambio
+    elif card_id in [60, 61, 62, 63, 64, 65, 66] and (set(mano) & set([74, 75, 76, 77])):
+        return True
+    # Seduccion && Fallaste
+    # Pasar al Siguiente el intercambio
+    elif card_id in [60, 61, 62, 63, 64, 65, 66] and (set(mano) & set([78, 79, 80])):
+        return True
+    # Lanzallamas && Nada de barbacoas
+    # Anula lanzallamas
+    elif card_id in [22, 23, 24, 25, 26] and (set(mano) & set([81, 82, 83])):
+        return True
+    else:
+        return False
