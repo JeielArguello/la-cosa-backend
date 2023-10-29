@@ -7,7 +7,8 @@ from models.player import JugadorPartida
 
 
 class Defensa:
-    def __init__(self, player_orig: JugadorPartida, card_id: int, player_objetive: JugadorPartida) -> None:
+    def __init__(self, player_orig: JugadorPartida, card_id: int,
+                 player_objetive: JugadorPartida) -> None:
         self.atacante = player_orig
         self.defensor = player_objetive
         self.carta_atacante = card_id

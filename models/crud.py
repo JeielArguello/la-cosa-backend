@@ -78,15 +78,17 @@ def get_estado_partida(match_id: int) -> Dict:
 @db_session
 def models_crud_eliminar_jugador_no_creador_de_pratida_sin_inicializar(
         id_jugador: int, match_id: int):
-    partida:Partida = Partida.get(id=match_id)
-    if(partida is None ):
-        raise HTTPException(status_code=400,detail="No se obtuvo la pertida.")
+    partida: Partida = Partida.get(id=match_id)
+    if(partida is None):
+        raise HTTPException(status_code=400, detail="No se obtuvo la pertida.")
     if(id_jugador != partida.id_jugador_creador):
         jugador = Jugador.get(id=id_jugador)
-        if( jugador is None ):
-            raise HTTPException(status_code=400,detail="No se obtuvo el jugador.")
-        
-        partida.jugadores -= Jugador[ id_jugador ]
+        if(jugador is None):
+            raise HTTPException(
+                status_code=400,
+                detail="No se obtuvo el jugador.")
+
+        partida.jugadores -= Jugador[id_jugador]
         jugador.partida = None
 
 
@@ -138,6 +140,7 @@ def db_create_user(nombre: str) -> Dict[str, int]:
 def get_name(user_id: int) -> str:
     user = get(u for u in Jugador if u.id == user_id)
     return user.nombre
+
 
 @db_session
 def get_name_carta(card_id: int) -> str:

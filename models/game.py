@@ -103,7 +103,11 @@ class Juego:
                 return j
 
     # Funciones para intercambio
-    def crear_intercambio(self, player_orig: int, card_id: int, player_objective: int):
+    def crear_intercambio(
+            self,
+            player_orig: int,
+            card_id: int,
+            player_objective: int):
         if self.solicitud_intercambio is not None:
             raise HTTPException(
                 status_code=400,
@@ -125,7 +129,11 @@ class Juego:
         del intercambio
 
     # Funciones para defensa
-    def crear_ataque(self, player_orig: int, card_id: int, player_objective: int):
+    def crear_ataque(
+            self,
+            player_orig: int,
+            card_id: int,
+            player_objective: int):
         if self.solicitud_ataque is not None:
             raise HTTPException(
                 status_code=400,

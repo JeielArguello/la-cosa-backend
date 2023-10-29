@@ -124,8 +124,14 @@ async def jugar_defensa(match_id: int = Form(), card_id: int = Form(),
         else:
             carta_ataque_nombre = get_name_carta(carta_ataque)
             carta_defensa_nombre = get_name_carta(carta_defensa)
-            msg = {"mensaje": jugador_ataque.name+" jugó "+carta_ataque_nombre +
-                   " contra " + jugador_defensa.name+", pero se defendió con "+carta_defensa_nombre}
+            msg = {
+                "mensaje": jugador_ataque.name +
+                " jugó " +
+                carta_ataque_nombre +
+                " contra " +
+                jugador_defensa.name +
+                ", pero se defendió con " +
+                carta_defensa_nombre}
             await juego.broadcast_global({"carta_id": card_id,
                                           "mensaje": msg["mensaje"]})
             juego.responder_ataque(player_orig, card_id)

@@ -263,7 +263,8 @@ def check_turno(jugador: JugadorPartida):
 def check_cantidad_cartas(jugador: JugadorPartida):
     if len(jugador.cartas) == 5:
         raise HTTPException(
-            status_code=400, detail="No puedes tener mas de 5 cartas en la mano.")
+            status_code=400,
+            detail="No puedes tener mas de 5 cartas en la mano.")
 
 
 def check_objetive_is_next(proximo_jugador: JugadorPartida, juego: Juego):
@@ -273,7 +274,8 @@ def check_objetive_is_next(proximo_jugador: JugadorPartida, juego: Juego):
         turnoaux = (juego.turno - 2) % len(juego.posiciones)
     if proximo_jugador.id != juego.posiciones[turnoaux]:
         raise HTTPException(
-            status_code=400, detail="El jugador objetivo no es el proximo en jugar.")
+            status_code=400,
+            detail="El jugador objetivo no es el proximo en jugar.")
 
 
 def check_obstaculo(atacante_id, objetivo_id, juego: Juego):
@@ -286,7 +288,10 @@ def check_obstaculo(atacante_id, objetivo_id, juego: Juego):
     validar_obstaculo(indice_posicion_intermedia, juego)
 
 
-def check_carta_habilitada(card_id: int, jugador_orig: JugadorPartida, jugador_objetivo: JugadorPartida):
+def check_carta_habilitada(
+        card_id: int,
+        jugador_orig: JugadorPartida,
+        jugador_objetivo: JugadorPartida):
     if card_id == 1:
         raise HTTPException(
             status_code=400, detail="No puedes descartar la carta la cosa.")
@@ -294,44 +299,37 @@ def check_carta_habilitada(card_id: int, jugador_orig: JugadorPartida, jugador_o
     for c in mano:
         if c["id"] in [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]:
             cantidad_cartas_infectados = +1
-    if jugador_orig.get_infectado() and cantidad_cartas_infectados < 2 and card_id in [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]:
+    if jugador_orig.get_infectado() and cantidad_cartas_infectados < 2 and card_id in [
+            2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]:
         raise HTTPException(
-            status_code=400, detail="No puedes descartar la unica carta de infectado que tienes.")
+            status_code=400,
+            detail="No puedes descartar la unica carta de infectado que tienes.")
 
-    if not jugador_orig.get_la_cosa() and card_id in [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]:
+    if not jugador_orig.get_la_cosa() and card_id in [
+            2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]:
         raise HTTPException(
-            status_code=400, detail="No puedes intercambiar una carta de infectado si no eres la cosa ni infectado.")
+            status_code=400,
+            detail="No puedes intercambiar una carta de infectado si no eres la cosa ni infectado.")
 
-    if jugador_orig.get_infectado() and not jugador_objetivo.get_la_cosa() and card_id in [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]:
+    if jugador_orig.get_infectado() and not jugador_objetivo.get_la_cosa() and card_id in [
+            2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]:
         raise HTTPException(
-            status_code=400, detail="No puedes intercambiar una carta de infectado si no eres la cosa.")
+            status_code=400,
+            detail="No puedes intercambiar una carta de infectado si no eres la cosa.")
 
 
 def check_posibilidad_defensa(card_id: int, juego: Juego):
     if card_id != 0:
         defensa = juego.solicitud_ataque
         carta_ataque = defensa.carta_atacante
-        # Seduccion && Aterrador
-        # Anula intercambio y Mirar carta a intercambiar
-        if carta_ataque in [60, 61, 62, 63, 64, 65, 66] and card_id not in [67, 68, 69, 70]:
+        # Seduccion && Aterrador || No, gracias || Fallaste
+        if carta_ataque in [60, 61, 62, 63, 64, 65, 66] and card_id not in [67, 68, 69, 70, 74, 75, 76, 77, 78, 79, 80]:
             raise HTTPException(
                 status_code=400,
                 detail="Esta carta no puede defenderte.")
         # Cambio de lugar || Más vale que corras && Aquí estoy bien
         # Anula cambio de lugar y mas vale que corras
         elif carta_ataque in [50, 51, 52, 53, 54, 55, 56, 57, 58, 59] and card_id not in [71, 72, 73]:
-            raise HTTPException(
-                status_code=400,
-                detail="Esta carta no puede defenderte.")
-        # Seduccion && No, gracias
-        # Anula intercambio
-        elif carta_ataque in [60, 61, 62, 63, 64, 65, 66] and card_id not in [74, 75, 76, 77]:
-            raise HTTPException(
-                status_code=400,
-                detail="Esta carta no puede defenderte.")
-        # Seduccion && Fallaste
-        # Pasar al Siguiente el intercambio
-        elif carta_ataque in [60, 61, 62, 63, 64, 65, 66] and card_id not in [78, 79, 80]:
             raise HTTPException(
                 status_code=400,
                 detail="Esta carta no puede defenderte.")
@@ -343,24 +341,21 @@ def check_posibilidad_defensa(card_id: int, juego: Juego):
                 detail="Esta carta no puede defenderte.")
 
 
-def check_puedo_defender(juego: Juego, card_id: int, player_objective: int, player_orig: int):
+def check_puedo_defender(
+        juego: Juego,
+        card_id: int,
+        player_objective: int,
+        player_orig: int):
     jugador = get_jugador(player_objective, juego)
     mano = set(jugador.cartas)
-    # Seduccion && Aterrador
+    # Seduccion && Aterrador || No, gracias || Fallaste
     # Anula intercambio y Mirar carta a intercambiar
-    if card_id in [60, 61, 62, 63, 64, 65, 66] and (set(mano) & set([67, 68, 69, 70])):
+    if card_id in [60, 61, 62, 63, 64, 65, 66] and (
+            set(mano) & set([67, 68, 69, 70, 74, 75, 76, 77, 78, 79, 80])):
         return True
     # Cambio de lugar || Más vale que corras && Aquí estoy bien
     # Anula cambio de lugar y mas vale que corras
     elif card_id in [50, 51, 52, 53, 54, 55, 56, 57, 58, 59] and (set(mano) & set([71, 72, 73])):
-        return True
-    # Seduccion && No, gracias
-    # Anula intercambio
-    elif card_id in [60, 61, 62, 63, 64, 65, 66] and (set(mano) & set([74, 75, 76, 77])):
-        return True
-    # Seduccion && Fallaste
-    # Pasar al Siguiente el intercambio
-    elif card_id in [60, 61, 62, 63, 64, 65, 66] and (set(mano) & set([78, 79, 80])):
         return True
     # Lanzallamas && Nada de barbacoas
     # Anula lanzallamas
