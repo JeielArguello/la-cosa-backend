@@ -111,7 +111,7 @@ def finalizar_juego(juego: Juego):
             'message': 'Ganan La Cosa y Los Infectados',
             'winners': la_cosa + infectados_vivos,
             'losers': humanos_vivos + humanos_muertos + infectados_muertos}
-    elif not check_la_cosa_sola_viva(juego):
+    elif not check_no_humanos(juego):
         return {
             'message': 'Ganan los Humanos',
             'winners': humanos_vivos,
