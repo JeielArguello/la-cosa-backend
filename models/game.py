@@ -25,9 +25,11 @@ class Juego:
         self.mazo_descarte = []
         self.posiciones = []
 
+        self.cartas_determinacion = []
+
         self.ws_players_game: List[WebSocket] = []
         self.solicitud_intercambio: IntercambiarCarta = None 
-
+        
         # spawnear jugadores
         crear_jugadores_partida(self)
         # otorgar posiciones
