@@ -153,6 +153,16 @@ class Juego:
         await jugador.ws_player.send_json(message)
         await jugador.ws_player.send_json("reset")
 
+    def robar_carta_determinacion(self):
+        cartas = []
+        while len(cartas)<3:
+            carta_id = self.mazo.pop()
+            if carta_id in list(range(89, 109)):
+                self.mazo_descarte.append({carta_id})
+            else:
+                cartas.append({"id":carta_id})
+        return cartas
+
 
 
 def robar_carta(juego: Juego, jugador: JugadorPartida):
