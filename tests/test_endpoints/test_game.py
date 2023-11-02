@@ -158,6 +158,51 @@ def test_finalizar_partida_succes_lacosa_infectados(mocker,mock_juego):
     assert response.status_code == 200
     assert response.json() == gana_cosa_infectados
 
+def test_decretar_finalizar_partida_succes_lacosa_infectados(mocker,mock_juego):
+    mock_juego.cantidad_jugadores=2
+    mock_juego.jugadores_id=[1, 2]
+    mocker.patch('endpoints.game.get_global_juego',
+                 return_value=mock_juego, autospec=True)
+    mocker.patch("endpoints.game.get_jugador", return_value=mock_j1,
+                 autospec=True,)
+    mocker.patch('endpoints.game.check_la_cosa',
+                 return_value=True, autospec=True)
+    mocker.patch('endpoints.game.get_global_juego',
+                 return_value=mock_juego, autospec=True)
+    mocker.patch('endpoints.game.finalizar_juego',
+                 return_value=gana_cosa_infectados, autospec=True)
+    mocker.patch('endpoints.game.delete_global_juego',
+                 return_value=True, autospec=True)
+    mocker.patch('endpoints.game.delete_match',
+                 return_value=True, autospec=True)
+
+    response = client.post("/game/finish", data={"match_id": 1})
+    assert response.status_code != 422, "Los parametros de entrada del endpoint no pueden ser procesados"
+    assert response.status_code == 200
+    assert response.json() == gana_cosa_infectados
+
+def test_decretar_finalizar_partida_succes_humanos(mocker,mock_juego):
+    mock_juego.cantidad_jugadores=2
+    mock_juego.jugadores_id=[1, 2]
+    mocker.patch('endpoints.game.get_global_juego',
+                 return_value=mock_juego, autospec=True)
+    mocker.patch("endpoints.game.get_jugador", return_value=mock_j1,
+                 autospec=True,)
+    mocker.patch('endpoints.game.check_la_cosa',
+                 return_value=True, autospec=True)
+    mocker.patch('endpoints.game.get_global_juego',
+                 return_value=mock_juego, autospec=True)
+    mocker.patch('endpoints.game.finalizar_juego',
+                 return_value=ganan_humanos, autospec=True)
+    mocker.patch('endpoints.game.delete_global_juego',
+                 return_value=True, autospec=True)
+    mocker.patch('endpoints.game.delete_match',
+                 return_value=True, autospec=True)
+
+    response = client.post("/game/finish", data={"match_id": 1})
+    assert response.status_code != 422, "Los parametros de entrada del endpoint no pueden ser procesados"
+    assert response.status_code == 200
+    assert response.json() == ganan_humanos
 
 def test_finalizar_partida_fail(mocker,mock_juego):
     mock_juego.cantidad_jugadores=2

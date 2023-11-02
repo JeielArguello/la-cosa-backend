@@ -71,8 +71,9 @@ def get_status_player(juego: Juego, player_id: int):
 
 def check_ganador(juego: Juego) -> bool:
     first = check_la_cosa_eliminada(juego)
-    second = check_no_humanos(juego)
-    result = first or second
+    second = check_la_cosa_sola_viva(juego)
+    third = check_no_humanos_no_eliminados(juego)
+    result = first or second or third
     return result
 
 
@@ -97,19 +98,29 @@ def finalizar_juego(juego: Juego):
 
     if check_la_cosa_eliminada(juego):
         return {
-            'message': 'Ganan los Humanos',
+            'message': 'La cosa fue eliminada, Ganan los Humanos.',
             'winners': humanos_vivos,
             'losers': la_cosa + infectados_vivos + infectados_muertos + humanos_muertos}
     elif check_no_humanos_no_eliminados(juego):
         return {
-            'message': 'Gana La Cosa',
+            'message': 'Todos fueron infectados, Gana La Cosa.',
             'winners': la_cosa,
             'losers': infectados_vivos + infectados_muertos + humanos_vivos + humanos_muertos}
     elif check_no_humanos(juego):
         return {
-            'message': 'Ganan La Cosa y Los Infectados',
+            'message': 'Ganan La Cosa y Los Infectados.',
             'winners': la_cosa + infectados_vivos,
             'losers': humanos_vivos + humanos_muertos + infectados_muertos}
+    elif not check_no_humanos(juego):
+        return {
+            'message': 'La cosa decreto mal el fin de la partida, Ganan los Humanos.',
+            'winners': humanos_vivos,
+            'losers': la_cosa + infectados_vivos + humanos_muertos + infectados_muertos}
+    elif check_la_cosa_sola_viva(juego):
+        return {
+            'message': 'La cosa la ultima en pie, Gana la Cosa.',
+            'winners': la_cosa,
+            'losers': humanos_vivos+ infectados_vivos + humanos_muertos + infectados_muertos}
     else:
         raise HTTPException(
             status_code=400, detail="No hay ganadores.")
@@ -144,6 +155,12 @@ def check_no_humanos_no_eliminados(juego: Juego) -> bool:
     print(f'no_humanos_no_eliminados:{no_humanos and no_muertos}')
     return no_humanos and no_muertos
 
+def check_la_cosa_sola_viva(juego:Juego) -> bool:
+    la_cosa_sola_viva = True
+    for j in juego.jugadores_en_partida:
+        if not j.get_la_cosa() and not j.get_muerto():
+            la_cosa_sola_viva = False
+    return la_cosa_sola_viva
 
 async def jugar_la_carta(
         juego: Juego,
@@ -259,6 +276,10 @@ def check_turno(jugador: JugadorPartida):
         raise HTTPException(
             status_code=400, detail="No es el turno del jugador.")
 
+def check_la_cosa(jugador: JugadorPartida):
+    if not jugador.get_la_cosa():
+        raise HTTPException(
+            status_code=400, detail="El jugador no es la cosa.")
 
 def check_cantidad_cartas(jugador: JugadorPartida):
     if len(jugador.cartas) == 5:

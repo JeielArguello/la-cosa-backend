@@ -169,3 +169,21 @@ async def finish_match(match_id: int = Form()):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=error_msg
         )
+
+@router.post('/finish/thething')
+async def finish_match_thething(match_id: int = Form(),player_id: int = Form()):
+    try:
+        juego = get_global_juego(match_id)
+        jugador = juego.get_jugador(player_id)
+        check_la_cosa(jugador)
+        result = finalizar_juego(juego)
+        delete_global_juego(match_id)
+        delete_match(match_id)
+        await juego.broadcast_global({'resultados': result})
+        return result
+    except HTTPException as e:
+        error_msg = f"Error: {e.detail}"
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_msg
+        )
