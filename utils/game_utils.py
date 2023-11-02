@@ -273,6 +273,15 @@ def descartar_carta(card_id: int, player_id: int, juego: Juego):
     jugador = get_jugador(player_id, juego)
     jugador.descartar_carta(card_id)
 
+def agregar_carta_determinacion(card_id: int, player_id: int, juego: Juego):
+    jugador = get_jugador(player_id, juego)
+    jugador.agregar_carta(card_id)
+    juego.cartas_determinacion.remove(card_id)
+    
+    for c in juego.cartas_determinacion:
+        juego.mazo_descarte.append(c)
+
+    juego.cartas_determinacion = []
 
 def validar_carta(card_id: int, player_id: int, juego: Juego):
     jugador = get_jugador(player_id, juego)

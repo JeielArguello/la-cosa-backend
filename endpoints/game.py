@@ -56,7 +56,8 @@ async def jugar_carta(match_id: int = Form(), card_id: int = Form(),
         if ganador:
             await juego.broadcast_global("K")
         await juego.mensaje_personal(player_orig,"D")
-        await juego.mensaje_personal(player_orig, "G")
+        if not juego.cartas_determinacion:
+            await juego.mensaje_personal(player_orig, "G")
         return {
             "carta": card_id,
             "jugada contra": player_objective,
@@ -127,11 +128,11 @@ async def swap_response(match_id: int = Form(), card_id: int = Form(), player_or
         juego = get_global_juego(match_id)
         jugador_orig = juego.get_jugador(player_orig)
         jugador_objetivo = juego.get_jugador_en_turno()
+        check_carta_habilitada(card_id,jugador_orig,jugador_objetivo)
         
         juego.terminar_turno()
         juego.avanzar_turno()
         
-        check_carta_habilitada(card_id,jugador_orig,jugador_objetivo)
         juego.responder_intercambio(player_orig, card_id)
         await juego.mensaje_personal(player_orig,"D")
         await juego.mensaje_personal(jugador_objetivo.id,"D")
@@ -181,6 +182,28 @@ async def finish_match_thething(match_id: int = Form(),player_id: int = Form()):
         delete_match(match_id)
         await juego.broadcast_global({'resultados': result})
         return result
+    except HTTPException as e:
+        error_msg = f"Error: {e.detail}"
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_msg
+        )
+    
+######
+# Seleccionar, Determinacion
+######
+
+@router.post("/play/determination")
+async def endpoint_descartar_carta(match_id: int = Form(),
+                                   card_id: int = Form(), player_id: int = Form()):
+    try:
+        juego = get_global_juego(match_id)
+        jugador = juego.get_jugador(player_id)
+        check_turno(jugador)
+        agregar_carta_determinacion(card_id, player_id, juego)
+        await juego.mensaje_personal(player_id, "D")
+        await juego.mensaje_personal(player_id, "F")
+        return {"carta elegida": card_id}
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
         raise HTTPException(
