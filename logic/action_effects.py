@@ -159,11 +159,11 @@ def play_analisis(juego:Juego,player_orig:int,player_objective:int):
     
     return msg
 
-async def play_seduccion(juego: Juego, player_orig : int, player_objective: int, card_id: int):
+def play_seduccion(juego: Juego, player_orig : int, player_objective: int):
     jugador_atacante = get_jugador(player_orig, juego)
     jugador_objetivo = get_jugador(player_objective, juego)
+    #aqui deberia chequear cuarentena posiblemente.
     jugador_objetivo.afectado_seduccion = True
-    await juego.mensaje_personal(player_orig, "G")
     msg = {"mensaje": jugador_atacante.name + " jugó carta seducción contra " + jugador_objetivo.name + "."}
     return msg
 
