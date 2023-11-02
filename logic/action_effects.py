@@ -163,7 +163,12 @@ def play_seduccion(juego: Juego, player_orig : int, player_objective: int):
     jugador_atacante = get_jugador(player_orig, juego)
     jugador_objetivo = get_jugador(player_objective, juego)
     #aqui deberia chequear cuarentena posiblemente.
-    jugador_objetivo.afectado_seduccion = True
-    msg = {"mensaje": jugador_atacante.name + " jugó carta seducción contra " + jugador_objetivo.name + "."}
+    if not validar_cuarentena(player_objective, juego):
+        jugador_objetivo.afectado_seduccion = True
+        msg = {"mensaje": jugador_atacante.name + " jugó carta seducción contra "
+                + jugador_objetivo.name + "."}
+    else:
+        msg = {"mensaje": "error "
+                + jugador_objetivo.name + "en cuarentena."}
     return msg
 
