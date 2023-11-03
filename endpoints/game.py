@@ -1,5 +1,6 @@
 from fastapi import HTTPException, Body
 from fastapi import APIRouter, Form, HTTPException, status
+from logic.defense_effects import defense_aterrador
 from models.crud import *
 from models.database_utils import *
 from utils.match_utils import *
@@ -195,12 +196,17 @@ async def swap_response(match_id: int = Form(), card_id: int = Form(), player_or
         juego = get_global_juego(match_id)
         jugador_orig = juego.get_jugador(player_orig)
         jugador_objetivo = juego.get_jugador_en_turno()
-
-        check_carta_habilitada(card_id, jugador_orig, jugador_objetivo)
+        check_carta_habilitada(card_id, jugador_orig, jugador_objetivo) 
         juego.terminar_turno()
         juego.avanzar_turno()
-
-        juego.responder_intercambio(player_orig, card_id)
+        
+        '''si el jugador que glopea este endpoint (el objetivo del intercambio), pasa un card_id correspondiente a aterrador.
+           significa que se niega al mismo. '''
+        if card_id not in [67,68,69,70]:
+            juego.responder_intercambio(player_orig, card_id)
+        else: 
+            defense_aterrador(juego,player_orig, card_id)
+    
         await juego.mensaje_personal(player_orig, "D")
         await juego.mensaje_personal(jugador_objetivo.id, "D")
         ganador = check_ganador(juego)
