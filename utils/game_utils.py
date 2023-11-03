@@ -448,11 +448,8 @@ def check_carta_panico(juego: Juego):
 async def jugar_panico(carta: int, juego: Juego):
     # cartas cambio de estado
     if carta in [89, 90, 93, 94, 95, 96, 98, 105]:
-        print("Entre a jugar panico")
         jugador_en_turno_id = juego.posiciones[juego.turno]
-        print(f"jugador_en_turno_id:{jugador_en_turno_id}")
         await jugar_la_carta(juego, carta, jugador_en_turno_id, jugador_en_turno_id)
-        print("sali de jugar panico")
     # seleccionar carta
     elif carta in [99, 100, 103, 104]:
         pass
