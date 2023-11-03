@@ -28,6 +28,7 @@ async def pick_a_card_from_deck(match_id: int = Form(), player_id: int = Form())
             juego.mazo_descarte.append(carta)
             await juego.broadcast_global("C")
             await juego.mensaje_personal(player_id, "G")
+            return {'card_id': carta}
         else:
             carta = robar_carta(juego, jugador)
             await juego.broadcast_global("C")
