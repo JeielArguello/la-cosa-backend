@@ -166,14 +166,18 @@ async def swap_request(match_id: int = Form(), card_id: int = Form(), player_ori
         juego = get_global_juego(match_id)
         jugador_orig = juego.get_jugador(player_orig)
         check_turno(jugador_orig)
-        jugador_objetivo = juego.get_jugador_siguiente_turno()
-        check_carta_habilitada(card_id, jugador_orig, jugador_objetivo)
+        jugador_objetivo_index = next( (i for i, jugador in enumerate(juego.jugadores_en_partida) if jugador.afectado_seduccion), None)
+        if not jugador_objetivo_index is None:
+            jugador_objetivo = juego.jugadores_en_partida[jugador_objetivo_index]
+            #jugador_orig.afectado_seduccion = False
+        else:
+            jugador_objetivo = juego.get_jugador_siguiente_turno()
+            check_objetive_is_next(jugador_objetivo,juego)
+        check_carta_habilitada(card_id,jugador_orig,jugador_objetivo)
+        check_obstaculo(player_orig,jugador_objetivo.id,juego)
 
-        check_objetive_is_next(jugador_objetivo, juego)
-        check_obstaculo(player_orig, jugador_objetivo.id, juego)
-
-        juego.crear_intercambio(player_orig, card_id, jugador_objetivo.id)
-        await juego.mensaje_personal(jugador_objetivo.id, "H")
+        juego.crear_intercambio(player_orig,card_id,jugador_objetivo.id)
+        await juego.mensaje_personal(jugador_objetivo.id,"H")
 
         return {"message": "se creo la solicitud de intercambio"}
     except HTTPException as e:
@@ -190,9 +194,11 @@ async def swap_response(match_id: int = Form(), card_id: int = Form(), player_or
         juego = get_global_juego(match_id)
         jugador_orig = juego.get_jugador(player_orig)
         jugador_objetivo = juego.get_jugador_en_turno()
+
         check_carta_habilitada(card_id, jugador_orig, jugador_objetivo)
         juego.terminar_turno()
         juego.avanzar_turno()
+
         juego.responder_intercambio(player_orig, card_id)
         await juego.mensaje_personal(player_orig, "D")
         await juego.mensaje_personal(jugador_objetivo.id, "D")
@@ -200,7 +206,13 @@ async def swap_response(match_id: int = Form(), card_id: int = Form(), player_or
         if ganador:
             await juego.broadcast_global("K")
 
-        await juego.mensaje_personal(jugador_orig.id, "E")
+        if jugador_orig.afectado_seduccion:
+            jugador = juego.get_jugador_en_turno().id
+            await juego.mensaje_personal(jugador, "E")
+            jugador_orig.afectado_seduccion = False
+        else:
+            await juego.mensaje_personal(jugador_orig.id,"E") 
+
         await juego.broadcast_global("C")
         return {"message": "se completo el intercambio"}
     except HTTPException as e:

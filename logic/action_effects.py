@@ -3,6 +3,7 @@ from fastapi import HTTPException
 from models.crud import get_name_carta
 from models.game import Juego
 from utils.action_utils import *
+from models.game import Juego
 
 
 def play_lanzallamas(atacante_in: int, objetivo_in: int, juego: Juego):
@@ -174,6 +175,18 @@ def play_analisis(juego: Juego, player_orig: int, player_objective: int):
         "cartaMostrar": manoPlayerObj}
     return msg
 
+def play_seduccion(juego: Juego, player_orig : int, player_objective: int):
+    jugador_atacante = get_jugador(player_orig, juego)
+    jugador_objetivo = get_jugador(player_objective, juego)
+    #aqui deberia chequear cuarentena posiblemente.
+    if not validar_cuarentena(player_objective, juego):
+        jugador_objetivo.afectado_seduccion = True
+        msg = {"mensaje": jugador_atacante.name + " jugó carta seducción contra "
+                + jugador_objetivo.name + "."}
+    else:
+        msg = {"mensaje": "error "
+                + jugador_objetivo.name + "en cuarentena."}
+    return msg
 
 def play_determinacion(juego: Juego, player_orig: int):
     playerOrig = get_jugador(player_orig, juego)

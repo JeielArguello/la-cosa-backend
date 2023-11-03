@@ -16,6 +16,7 @@ class JugadorPartida:
         self.cartas = []
         self.ws_player: WebSocket = None
         self.name = get_name(id)
+        self.afectado_seduccion = False
 
     def get_muerto(self):
         return self.muerto
