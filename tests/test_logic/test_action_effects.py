@@ -299,6 +299,20 @@ def test_play_whisky_fail(mocker,mock_juego):
     assert msg == {"error": "no se pudieron mostrar cartas."}
 
 
+def test_play_seduccion_1(mocker, mock_juego, mock_atacante, mock_objetivo):
+    mock_juego.jugadores_en_partida = [mock_atacante, mock_objetivo]
+    mocker.patch("logic.action_effects.validar_cuarentena", return_value = False)
+    msg = play_seduccion(mock_juego, mock_atacante.id, mock_objetivo.id)
+    assert msg == {"mensaje": "pepe" + " jugó carta seducción contra "
+               + "pedro" + "."}
+
+def test_play_seduccion_2(mocker, mock_juego, mock_atacante, mock_objetivo):
+    mock_juego.jugadores_en_partida = [mock_atacante, mock_objetivo]
+    mocker.patch("logic.action_effects.validar_cuarentena", return_value = True)
+    msg = play_seduccion(mock_juego, mock_atacante.id, mock_objetivo.id)
+    assert msg == {"mensaje": "error "
+                + "pedro" + "en cuarentena."}
+
 
 
 
