@@ -40,32 +40,31 @@ async def pick_a_card_from_deck(match_id: int = Form(), player_id: int = Form())
 # Jugar carta
 ######
 
-
-@router.post("/play", status_code=status.HTTP_200_OK)
-async def jugar_carta(match_id: int = Form(), card_id: int = Form(),
-                      player_objective: int = Form(), player_orig: int = Form()):
-    try:
-        juego = get_global_juego(match_id)
-        jugador = get_jugador(player_orig, juego)
-        check_turno(jugador)
-        await jugar_la_carta(juego, card_id, player_objective, player_orig)
-        await juego.broadcast_global("C")
-        descartar_carta(card_id, player_orig, juego)
-        ganador = check_ganador(juego)
-        if ganador:
-            await juego.broadcast_global("K")
-        await juego.mensaje_personal(player_orig, "D")
-        await juego.mensaje_personal(player_orig, "G")
-        return {
-            "carta": card_id,
-            "jugada contra": player_objective,
-            "por": player_orig}
-    except HTTPException as e:
-        error_msg = f"Error: {e.detail}"
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=error_msg
-        )
+# @router.post("/play", status_code=status.HTTP_200_OK)
+# async def jugar_carta(match_id: int = Form(), card_id: int = Form(),
+#                       player_objective: int = Form(), player_orig: int = Form()):
+#     try:
+#         juego = get_global_juego(match_id)
+#         jugador = get_jugador(player_orig, juego)
+#         check_turno(jugador)
+#         await jugar_la_carta(juego, card_id, player_objective, player_orig)
+#         await juego.broadcast_global("C")
+#         descartar_carta(card_id, player_orig, juego)
+#         ganador = check_ganador(juego)
+#         if ganador:
+#             await juego.broadcast_global("K")
+#         await juego.mensaje_personal(player_orig, "D")
+#         await juego.mensaje_personal(player_orig, "G")
+#         return {
+#             "carta": card_id,
+#             "jugada contra": player_objective,
+#             "por": player_orig}
+#     except HTTPException as e:
+#         error_msg = f"Error: {e.detail}"
+#         raise HTTPException(
+#             status_code=status.HTTP_400_BAD_REQUEST,
+#             detail=error_msg
+#         )
 
 
 @router.post("/play/attack", status_code=status.HTTP_200_OK)
@@ -77,11 +76,10 @@ async def jugar_ataque(match_id: int = Form(), card_id: int = Form(),
         check_turno(jugador)
         validar_jugada(juego, card_id, player_objective, player_orig)
         if check_puedo_defender(juego, card_id, player_objective, player_orig):
-            carta_name = get_name_carta(card_id)
+            msg = crear_mensaje_de_ataque(jugador, card_id)
             juego.crear_ataque(player_orig, card_id, player_objective)
             await juego.mensaje_personal(player_objective, "J")
-            await juego.mensaje_personal_dict(player_objective, {"mensaje_ataque":
-                                                                 f"El jugador {jugador.name} jugó {carta_name} contra ti. Quieres defenderte?"})
+            await juego.mensaje_personal_dict(player_objective, {"mensaje_ataque": msg})
             return {"message": "Se creó la solicitud de ataque."}
         else:
             await jugar_la_carta(juego, card_id, player_objective, player_orig)

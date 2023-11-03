@@ -37,61 +37,117 @@ juego.creador = 3
 juego.jugadores_id = [1, 2, 3, 4, 5, 6]
 
 
-def test_jugar_carta_success(mocker, mock_juego):
+def test_jugar_carta_no_defensa(mocker, mock_juego):
     mocker.patch("endpoints.game.get_global_juego", return_value=mock_juego,
                  autospec=True,)
     mocker.patch("endpoints.game.get_jugador", return_value=mock_j1,
                  autospec=True,)
-    mocker.patch("endpoints.game.check_turno", return_value=True,
+    mocker.patch("endpoints.game.check_turno", return_value=None,
                  autospec=True,)
-    mocker.patch("endpoints.game.jugar_la_carta", return_value=True,
+    mocker.patch("endpoints.game.validar_jugada", return_value=None,
                  autospec=True,)
-    mocker.patch("endpoints.game.descartar_carta", return_value=True,
+    mocker.patch("endpoints.game.check_puedo_defender", return_value=False,
+                 autospec=True,)
+    mocker.patch("endpoints.game.jugar_la_carta", return_value=None,
+                 autospec=True,)
+    mocker.patch("endpoints.game.Juego.broadcast_global", return_value=None,
+                 autospec=True,)
+    mocker.patch("endpoints.game.descartar_carta", return_value=None,
+                 autospec=True,)
+    mocker.patch("endpoints.game.check_ganador", return_value=False,
                  autospec=True,)
     mocker.patch("endpoints.game.Juego.mensaje_personal", return_value=None,
                  autospec=True,)
-
-    response = client.post("/game/play", data={"match_id": 1,
-                                               "card_id": 2,
-                                               "player_objective": 3,
-                                               "player_orig": 2})
+    response = client.post("/game/play/attack", data={"match_id": 1,
+                                                      "card_id": 22,
+                                                      "player_objective": 2,
+                                                      "player_orig": 1})
     assert response.status_code == 200
-    assert response.json() == {"carta": 2, "jugada contra": 3, "por": 2}
+    assert response.json() == {"message": "Se jugó el ataque."}
 
 
-def test_jugar_carta_success1(mocker, mock_juego):
+def test_jugar_carta_con_defensa_recibir_ataque(mocker, mock_juego):
     mocker.patch("endpoints.game.get_global_juego", return_value=mock_juego,
                  autospec=True,)
     mocker.patch("endpoints.game.get_jugador", return_value=mock_j1,
                  autospec=True,)
-    mocker.patch("endpoints.game.check_turno", return_value=True,
+    mocker.patch("endpoints.game.check_turno", return_value=None,
                  autospec=True,)
-    mocker.patch("endpoints.game.jugar_la_carta", return_value=True,
+    mocker.patch("endpoints.game.validar_jugada", return_value=None,
                  autospec=True,)
-    mocker.patch("endpoints.game.descartar_carta", return_value=True,
+    mocker.patch("endpoints.game.check_puedo_defender", return_value=True,
+                 autospec=True,)
+    mocker.patch("endpoints.game.crear_mensaje_de_ataque", return_value=None,
                  autospec=True,)
     mocker.patch("endpoints.game.Juego.mensaje_personal", return_value=None,
                  autospec=True,)
-    response = client.post("/game/play", data={"match_id": 1,
-                                               "card_id": 2,
-                                               "player_objective": 3,
-                                               "player_orig": 2})
-    assert response.status_code == 200
-    # assert response.json() == {"error al jugar la carta": 2, "contra": 3, "por": 2}
+    mocker.patch("endpoints.game.Juego.mensaje_personal_dict", return_value=None,
+                 autospec=True,)
+    ###
+    mocker.patch("endpoints.game.jugar_la_carta", return_value=None,
+                 autospec=True,)
+    mocker.patch("endpoints.game.Juego.responder_ataque", return_value=None,
+                 autospec=True,)
+    mocker.patch("endpoints.game.Juego.broadcast_global", return_value=None,
+                 autospec=True,)
+    mocker.patch("endpoints.game.check_ganador", return_value=False,
+                 autospec=True,)
+    response1 = client.post("/game/play/attack", data={"match_id": 1,
+                                                       "card_id": 22,
+                                                       "player_objective": 2,
+                                                       "player_orig": 1})
+    assert response1.status_code == 200
+    assert response1.json() == {"message": "Se creó la solicitud de ataque."}
+    response2 = client.post("/game/play/defense", data={"match_id": 1,
+                                                        "card_id": 0,
+                                                        "player_orig": 2})
+    assert response2.status_code == 200
+    assert response2.json() == {"message": "Se completó el ataque."}
 
 
-def test_jugar_carta_fail(mocker):
-    mocker.patch("endpoints.game.get_global_juego", return_value=juego,
+def test_jugar_carta_con_defensa_no_recibir_ataque(mocker, mock_juego):
+    mocker.patch("endpoints.game.get_global_juego", return_value=mock_juego,
                  autospec=True,)
-    mocker.patch("endpoints.game.jugar_la_carta", return_value=True,
+    mocker.patch("endpoints.game.get_jugador", return_value=mock_j1,
                  autospec=True,)
-    mocker.patch("endpoints.game.descartar_carta", return_value=False,
+    mocker.patch("endpoints.game.check_turno", return_value=None,
                  autospec=True,)
-    response = client.post("/game/play", data={"match_id": "a",
-                                               "card_id": 2,
-                                               "player_objective": 3,
-                                               "player_orig": 2})
-    assert response.status_code == 422
+    mocker.patch("endpoints.game.validar_jugada", return_value=None,
+                 autospec=True,)
+    mocker.patch("endpoints.game.check_puedo_defender", return_value=True,
+                 autospec=True,)
+    mocker.patch("endpoints.game.crear_mensaje_de_ataque", return_value=None,
+                 autospec=True,)
+    mocker.patch("endpoints.game.Juego.mensaje_personal", return_value=None,
+                 autospec=True,)
+    mocker.patch("endpoints.game.Juego.mensaje_personal_dict", return_value=None,
+                 autospec=True,)
+    ###
+    mocker.patch("endpoints.game.validar_carta", return_value=None,
+                 autospec=True,)
+    mocker.patch("endpoints.game.check_posibilidad_defensa", return_value=None,
+                 autospec=True,)
+    mocker.patch("endpoints.game.get_name_carta", return_value="pepe",
+                 autospec=True,)
+    mocker.patch("endpoints.game.Juego.broadcast_global", return_value=None,
+                 autospec=True,)
+    mocker.patch("endpoints.game.Juego.responder_ataque", return_value=None,
+                 autospec=True,)
+    mocker.patch("endpoints.game.Juego.robar_carta_no_panico", return_value=None,
+                 autospec=True,)
+    mocker.patch("endpoints.game.check_ganador", return_value=False,
+                 autospec=True,)
+    response1 = client.post("/game/play/attack", data={"match_id": 1,
+                                                       "card_id": 22,
+                                                       "player_objective": 2,
+                                                       "player_orig": 1})
+    assert response1.status_code == 200
+    assert response1.json() == {"message": "Se creó la solicitud de ataque."}
+    response2 = client.post("/game/play/defense", data={"match_id": 1,
+                                                        "card_id": 81,
+                                                        "player_orig": 2})
+    assert response2.status_code == 200
+    assert response2.json() == {"message": "Se completó la defensa."}
 
 
 #####

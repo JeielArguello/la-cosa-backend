@@ -363,3 +363,9 @@ def check_puedo_defender(
         return True
     else:
         return False
+
+
+def crear_mensaje_de_ataque(jugador: JugadorPartida, card_id: int):
+    carta_name = get_name_carta(card_id)
+    mensaje = f"El jugador {jugador.name} jugó {carta_name} contra ti. Quieres defenderte?"
+    return mensaje
