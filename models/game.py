@@ -26,10 +26,11 @@ class Juego:
         self.mazo_descarte = []
         self.posiciones = []
 
+        self.cartas_determinacion = []
+
         self.ws_players_game: List[WebSocket] = []
         self.solicitud_intercambio: IntercambiarCarta = None
         self.solicitud_ataque: Defensa = None
-
         # spawnear jugadores
         crear_jugadores_partida(self)
         # otorgar posiciones
@@ -199,6 +200,21 @@ class Juego:
         jugador = self.get_jugador(player_id)
         await jugador.ws_player.send_json(message)
         await jugador.ws_player.send_json("reset")
+
+    def robar_carta_determinacion(self):
+        cartas = []
+        while len(cartas) < 3:
+            if len(self.mazo) == 0:
+                random.shuffle(self.mazo_descarte)
+                self.mazo = self.mazo_descarte
+                self.mazo_descarte = []
+            carta_id = self.mazo.pop()
+            if carta_id in list(range(89, 109)):
+                self.mazo_descarte.append(carta_id)
+            else:
+                cartas.append({"id": carta_id})
+                self.cartas_determinacion.append(carta_id)
+        return cartas
 
 
 def robar_carta(juego: Juego, jugador: JugadorPartida):

@@ -2,6 +2,7 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from utils.game_utils import get_global_juego
 from utils.match_utils import *
 from typing import List
+import json
 
 router = APIRouter()
 
@@ -91,7 +92,16 @@ async def websocket_endpoint_game(websocket: WebSocket, match_id: int):
         while True:
             msg = await websocket.receive()
             websocket._raise_on_disconnect(msg)
-            if(msg["text"] == "desconexion"):
+            if(msg["text"] != "desconexion"):
+                msg = json.loads(msg["text"])
+                mensaje = {
+                    "mensaje_chat": {
+                        "player_orig": msg["player_orig"],
+                        "message": msg["message"],
+                    }
+                }
+                msg = mensaje
+            elif(msg["text"] == "desconexion"):
                 await game.disconnect_game(websocket)
                 break
             await game.broadcast_global(msg)
