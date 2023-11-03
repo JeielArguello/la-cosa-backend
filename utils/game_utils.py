@@ -1,9 +1,10 @@
 
-from models.crud import get_name, read_carta
+from models.crud import get_name, read_carta, get_dorso_carta
 from models.database_utils import get_jugadores_match
 from models.game import Juego
 from models.player import JugadorPartida
-from logic.action_effects import * 
+from logic.action_effects import *
+from logic.panic_effects import *
 
 
 from fastapi import HTTPException
@@ -120,7 +121,7 @@ def finalizar_juego(juego: Juego):
         return {
             'message': 'La cosa la ultima en pie, Gana la Cosa.',
             'winners': la_cosa,
-            'losers': humanos_vivos+ infectados_vivos + humanos_muertos + infectados_muertos}
+            'losers': humanos_vivos + infectados_vivos + humanos_muertos + infectados_muertos}
     else:
         raise HTTPException(
             status_code=400, detail="No hay ganadores.")
@@ -155,12 +156,14 @@ def check_no_humanos_no_eliminados(juego: Juego) -> bool:
     print(f'no_humanos_no_eliminados:{no_humanos and no_muertos}')
     return no_humanos and no_muertos
 
-def check_la_cosa_sola_viva(juego:Juego) -> bool:
+
+def check_la_cosa_sola_viva(juego: Juego) -> bool:
     la_cosa_sola_viva = True
     for j in juego.jugadores_en_partida:
         if not j.get_la_cosa() and not j.get_muerto():
             la_cosa_sola_viva = False
     return la_cosa_sola_viva
+
 
 async def jugar_la_carta(
         juego: Juego,
@@ -168,72 +171,78 @@ async def jugar_la_carta(
         player_objective: int,
         player_orig: int):
     validar_jugada(juego, card_id, player_objective, player_orig)
-    
+
     if card_id in [22, 23, 24, 25, 26]:
         msg = play_lanzallamas(player_orig, player_objective, juego)
         await juego.broadcast_global({"carta_id": card_id,
-                                     "mensaje":msg["mensaje"]})
-        await juego.mensaje_personal(player_objective,"D")
-    
-    elif card_id in [27,28,29]:
-        msg = play_analisis(juego,player_orig,player_objective) 
+                                     "mensaje": msg["mensaje"]})
+        await juego.mensaje_personal(player_objective, "D")
+
+    elif card_id in [27, 28, 29]:
+        msg = play_analisis(juego, player_orig, player_objective)
         await juego.broadcast_global({"carta_id": card_id,
-                                        "mensaje": msg["mensaje"]})
+                                      "mensaje": msg["mensaje"]})
         await juego.mensaje_personal(player_orig,
-                                     {"carta_id":card_id,
+                                     {"carta_id": card_id,
                                       "jugador_obj": get_name(player_objective),
-                                        "mensaje":msg["mensaje"],
-                                        "cartaMostrar":msg["cartaMostrar"]})
-    
+                                      "mensaje": msg["mensaje"],
+                                      "cartaMostrar": msg["cartaMostrar"]})
+
     elif card_id in [30, 31]:
         msg = play_hacha(player_orig, player_objective, juego)
         await juego.broadcast_global({"carta_id": card_id,
-                                        "mensaje": msg["mensaje"]})
-        await juego.broadcast_global("C")   
-    
+                                      "mensaje": msg["mensaje"]})
+        await juego.broadcast_global("C")
+
     elif card_id in [32, 33, 34, 35, 36, 37, 38, 39]:
         msg = play_sospecha(player_orig, player_objective, juego)
         await juego.broadcast_global({"carta_id": card_id,
-                                        "mensaje": msg["mensaje"]})
-        await juego.mensaje_personal(player_orig,{"carta_id":card_id,
-                                      "mensaje":msg["mensaje"],
-                                      "cartaMostrar":msg["cartaMostrar"],
-                                      "jugador_obj": get_name(player_objective)})
-    
+                                      "mensaje": msg["mensaje"]})
+        await juego.mensaje_personal(player_orig, {"carta_id": card_id,
+                                                   "mensaje": msg["mensaje"],
+                                                   "cartaMostrar": msg["cartaMostrar"],
+                                                   "jugador_obj": get_name(player_objective)})
+
     elif card_id in [40, 41, 42]:
         msg = play_whisky(player_orig, juego, card_id)
         await juego.broadcast_global({"carta_id": card_id,
-                                        "mensaje": msg["mensaje"],
-                                        "cartaMostrar":msg["cartaMostrar"],
-                                        "jugador_obj": get_name(player_objective)})
-    
+                                      "mensaje": msg["mensaje"],
+                                      "cartaMostrar": msg["cartaMostrar"],
+                                      "jugador_obj": get_name(player_objective)})
+
     elif card_id in [48, 49]:
         play_vigila_tus_espaldas(juego)
         name_player = get_name(player_orig)
         await juego.broadcast_global({"carta_id": card_id,
-                                        "mensaje": name_player + " jugó carta vigila tus espaldas."})
+                                      "mensaje": name_player + " jugó carta vigila tus espaldas."})
         await juego.broadcast_global("C")
-    
-    elif card_id in [50,51,52,53,54]:
-        msg = play_cambio_de_lugar(juego,player_orig,player_objective)
+
+    elif card_id in [50, 51, 52, 53, 54]:
+        msg = play_cambio_de_lugar(juego, player_orig, player_objective)
         await juego.broadcast_global({"carta_id": card_id,
-                                        "mensaje": msg["mensaje"]})
-    
+                                      "mensaje": msg["mensaje"]})
+
     elif card_id in [55, 56, 57, 58, 59]:
         msg = play_mas_vale_que_corras(player_orig, player_objective, juego)
         await juego.broadcast_global({"carta_id": card_id,
-                                        "mensaje": msg["mensaje"]})
+                                      "mensaje": msg["mensaje"]})
         await juego.broadcast_global("C")
 
-    elif card_id in [43,44,45,46,47]:
-        msg = play_determinacion(juego,player_orig)
-        await juego.mensaje_personal(player_orig,{
-            "cartas_determinacion":msg["cartas"]
+    elif card_id in [43, 44, 45, 46, 47]:
+        msg = play_determinacion(juego, player_orig)
+        await juego.mensaje_personal(player_orig, {
+            "cartas_determinacion": msg["cartas"]
         })
         await juego.broadcast_global({
-            "carta_id":card_id,
-            "mensaje":msg["mensaje"]
+            "carta_id": card_id,
+            "mensaje": msg["mensaje"]
         })
+    elif card_id in [105]:
+        msg = play_ups(player_orig, juego, card_id)
+        await juego.broadcast_global({"carta_id": card_id,
+                                      "mensaje": msg["mensaje"],
+                                      "cartaMostrar": msg["cartaMostrar"],
+                                      "jugador_obj": get_name(player_objective)})
     else:
         pass
 
@@ -273,15 +282,17 @@ def descartar_carta(card_id: int, player_id: int, juego: Juego):
     jugador = get_jugador(player_id, juego)
     jugador.descartar_carta(card_id)
 
+
 def agregar_carta_determinacion(card_id: int, player_id: int, juego: Juego):
     jugador = get_jugador(player_id, juego)
     jugador.agregar_carta(card_id)
     juego.cartas_determinacion.remove(card_id)
-    
+
     for c in juego.cartas_determinacion:
         juego.mazo_descarte.append(c)
 
     juego.cartas_determinacion = []
+
 
 def validar_carta(card_id: int, player_id: int, juego: Juego):
     jugador = get_jugador(player_id, juego)
@@ -295,51 +306,80 @@ def check_turno(jugador: JugadorPartida):
         raise HTTPException(
             status_code=400, detail="No es el turno del jugador.")
 
+
 def check_la_cosa(jugador: JugadorPartida):
     if not jugador.get_la_cosa():
         raise HTTPException(
             status_code=400, detail="El jugador no es la cosa.")
+
 
 def check_cantidad_cartas(jugador: JugadorPartida):
     if len(jugador.cartas) == 5:
         raise HTTPException(
             status_code=400, detail="No puedes tener mas de 5 cartas en la mano.")
 
-        
+
 def check_objetive_is_next(proximo_jugador: JugadorPartida, juego: Juego):
     if juego.sentido == 1:
         turnoaux = (juego.turno + 2) % len(juego.posiciones)
     elif juego.sentido == -1:
         turnoaux = (juego.turno - 2) % len(juego.posiciones)
-    if proximo_jugador.id!= juego.posiciones[turnoaux]:
+    if proximo_jugador.id != juego.posiciones[turnoaux]:
         raise HTTPException(
             status_code=400, detail="El jugador objetivo no es el proximo en jugar.")
-    
-def check_obstaculo(atacante_id,objetivo_id, juego: Juego):
+
+
+def check_obstaculo(atacante_id, objetivo_id, juego: Juego):
     len_posiciones = len(juego.posiciones)
     indice_objetivo = juego.posiciones.index(objetivo_id)
     indice_atacante = juego.posiciones.index(atacante_id)
     indice_posicion_intermedia = get_posicion_intermedia(
         len_posiciones, indice_objetivo, indice_atacante)
-    
+
     validar_obstaculo(indice_posicion_intermedia, juego)
 
+
 def check_carta_habilitada(card_id: int, jugador_orig: JugadorPartida, jugador_objetivo: JugadorPartida):
-    if card_id == 1 :
+    if card_id == 1:
         raise HTTPException(
             status_code=400, detail="No puedes descartar la carta la cosa.")
     mano = jugador_orig.get_cartas()
     for c in mano:
-        if c["id"] in [2, 3, 4, 5, 6, 7, 8, 9, 10,11,12,13,14,15,16,17,18,19,20,21] :
-            cantidad_cartas_infectados =+1
-    if jugador_orig.get_infectado() and cantidad_cartas_infectados<2 and card_id in [2, 3, 4, 5, 6, 7, 8, 9, 10,11,12,13,14,15,16,17,18,19,20,21]:
+        if c["id"] in [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]:
+            cantidad_cartas_infectados = +1
+    if jugador_orig.get_infectado() and cantidad_cartas_infectados < 2 and card_id in [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]:
         raise HTTPException(
             status_code=400, detail="No puedes descartar la unica carta de infectado que tienes.")
-        
-    if not jugador_orig.get_la_cosa() and card_id in [2, 3, 4, 5, 6, 7, 8, 9, 10,11,12,13,14,15,16,17,18,19,20,21]:
+
+    if not jugador_orig.get_la_cosa() and card_id in [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]:
         raise HTTPException(
             status_code=400, detail="No puedes intercambiar una carta de infectado si no eres la cosa ni infectado.")
-    
-    if jugador_orig.get_infectado() and not jugador_objetivo.get_la_cosa() and card_id in [2, 3, 4, 5, 6, 7, 8, 9, 10,11,12,13,14,15,16,17,18,19,20,21]:
+
+    if jugador_orig.get_infectado() and not jugador_objetivo.get_la_cosa() and card_id in [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]:
         raise HTTPException(
             status_code=400, detail="No puedes intercambiar una carta de infectado si no eres la cosa.")
+
+
+def check_carta_panico(juego: Juego):
+    carta_id = juego.mazo[-1]
+    dorso = get_dorso_carta(carta_id)
+    return dorso == 1
+
+
+def jugar_panico(carta: int, juego: Juego):
+    # cartas cambio de estado
+    if carta in [89, 90, 93, 94, 95, 96, 98, 105]:
+        jugador_en_turno_id = juego.posiciones[juego.turno]
+        jugar_la_carta(juego, carta, jugador_en_turno_id, jugador_en_turno_id)
+    # seleccionar carta
+    elif carta in [99, 100, 103, 104]:
+        pass
+    # seleccionar jugador
+    elif carta in [91, 92, 97, 106, 107]:
+        pass
+    # seleccionar intercambio
+    elif carta in [99, 100, 101, 102]:
+        pass
+    # revelaciones
+    elif carta in [108]:
+        pass
