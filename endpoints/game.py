@@ -60,7 +60,8 @@ async def jugar_ataque(match_id: int = Form(), card_id: int = Form(),
             if check_ganador(juego):
                 await juego.broadcast_global("K")
             await juego.mensaje_personal(player_orig, "D")
-            await juego.mensaje_personal(player_orig, "G")
+            if not juego.cartas_determinacion:                          
+                await juego.mensaje_personal(player_orig, "G")
             return {"message": "Se jugó el ataque."}
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
@@ -118,8 +119,6 @@ async def jugar_defensa(match_id: int = Form(), card_id: int = Form(),
         else:
             return {"message": "Se completó la defensa."}
         # await juego.mensaje_personal(player_orig,"D")
-        # if not juego.cartas_determinacion:
-        #     await juego.mensaje_personal(player_orig, "G")
         # return {
         #     "carta": card_id,
         #     "jugada contra": player_objective,
