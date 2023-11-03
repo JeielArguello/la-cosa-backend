@@ -17,6 +17,7 @@ client = TestClient(app)
 
 mocker = Mock()
 
+
 @pytest.fixture
 def mock_juego(mocker):
     mocker.patch("models.player.get_name", return_value="pepe")
@@ -25,6 +26,7 @@ def mock_juego(mocker):
     juego.name = "test"
     juego.posiciones = [1, 0, 2, 0, 3, 0, 4, 0]
     return juego
+
 
 def test_create_match_success(mocker):
     mocker.patch("endpoints.match.validar_partida",
@@ -256,9 +258,9 @@ def test_list_fail(mocker):
         'detail': "Error: No se pudo obtener la partida"}
 
 
-def test_get_game_state_succes(mocker,mock_juego):
-    mock_juego.cantidad_jugadores=2
-    mock_juego.jugadores_id=[1, 2]
+def test_get_game_state_succes(mocker, mock_juego):
+    mock_juego.cantidad_jugadores = 2
+    mock_juego.jugadores_id = [1, 2]
 
     mock_status_game = {'posiciones': mock_juego.posiciones, 'jugadores': [
         {'id': 1, 'nombre': 'pepito'}, {'id': 2, 'nombre': 'jose'}], 'sentido': mock_juego.sentido}
@@ -284,9 +286,9 @@ def test_get_game_state_fail_game_no_exist(mocker):
     assert response.json() == {'detail': 'Error: No se pudo acceder al juego'}
 
 
-def test_get_player_state_succes(mocker,mock_juego):
-    mock_juego.cantidad_jugadores=2
-    mock_juego.jugadores_id=[1, 2]
+def test_get_player_state_succes(mocker, mock_juego):
+    mock_juego.cantidad_jugadores = 2
+    mock_juego.jugadores_id = [1, 2]
 
     mock_status_player = {
         'mano': [{'id': 1}, {'id': 2}, {'id': 3}, {'id': 4}],
@@ -316,9 +318,9 @@ def test_get_player_state_fail_game_no_exist(mocker):
     assert response.json() == {'detail': 'Error: No se pudo acceder al juego'}
 
 
-def test_get_player_state_fail_game_no_exist(mocker,mock_juego):
-    mock_juego.cantidad_jugadores=2
-    mock_juego.jugadores_id=[1, 2]
+def test_get_player_state_fail_game_no_exist(mocker, mock_juego):
+    mock_juego.cantidad_jugadores = 2
+    mock_juego.jugadores_id = [1, 2]
     mocker.patch('endpoints.match.get_global_juego',
                  return_value=mock_juego, autospec=True)
     mocker.patch(
