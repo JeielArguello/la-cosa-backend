@@ -25,8 +25,10 @@ class Juego:
         self.mazo: List[int] = []
         self.mazo_descarte = []
         self.posiciones = []
+        self.logs = []
 
         self.cartas_determinacion = []
+
 
         self.ws_players_game: List[WebSocket] = []
         self.solicitud_intercambio: IntercambiarCarta = None
@@ -102,6 +104,12 @@ class Juego:
         for j in self.jugadores_en_partida:
             if j.id == self.posiciones[turnoaux]:
                 return j
+
+    def get_logs(self):
+        return self.logs
+    
+    def agregar_log(self,log:str):
+        self.logs.append(log)
 
     # Funciones para intercambio
     def crear_intercambio(

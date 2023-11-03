@@ -105,6 +105,7 @@ async def jugar_defensa(match_id: int = Form(), card_id: int = Form(),
                 carta_defensa_nombre}
             await juego.broadcast_global({"carta_id": card_id,
                                           "mensaje": msg["mensaje"]})
+            juego.agregar_log(msg["mensaje"])
             juego.responder_ataque(player_orig, card_id)
             juego.robar_carta_no_panico(jugador_defensa)
         ###
@@ -278,6 +279,25 @@ async def seleccionar_carta_determinacion(match_id: int = Form(),
         await juego.mensaje_personal(player_id, "D")
         await juego.mensaje_personal(player_id, "F")
         return {"carta elegida": card_id}
+    except HTTPException as e:
+        error_msg = f"Error: {e.detail}"
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_msg
+        )
+
+#################
+#GET LOGS 
+#################
+
+@router.get("/log/{match_id}")
+async def get_logs_del_juego(match_id: int):
+    try:
+        juego = get_global_juego(match_id)
+        logs = juego.get_logs()
+        return {
+            "logs":logs,
+        }
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
         raise HTTPException(
