@@ -208,7 +208,7 @@ async def swap_response(match_id: int = Form(), card_id: int = Form(), player_or
             msg = defense_aterrador(juego,jugador_orig,jugador_objetivo,card_id)
             await juego.mensaje_personal(player_orig,
                                      {"carta_id": card_id,
-                                      "jugador_obj": get_name(jugador_objetivo),
+                                      "jugador_obj": get_name(jugador_objetivo.id),
                                       "mensaje": msg["mensaje"],
                                       "cartaMostrar": msg["cartaMostrar"]})
         await juego.mensaje_personal(player_orig, "D")

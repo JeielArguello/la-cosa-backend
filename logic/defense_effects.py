@@ -14,12 +14,12 @@ def defense_aterrador(juego: Juego,jOrig: JugadorPartida,jObj:JugadorPartida, ca
     jOrig.descartar_carta(card_id)
     juego.robar_carta_no_panico(jOrig)
     juego.solicitud_intercambio = None    
-    del intercambio
     msg = {
         "mensaje": jOrig.name +
         " jugó carta aterrador contra " +
         jObj.name, 
-        "cartaMostrar":[{"id": card_id}]}
+        "cartaMostrar":[{"id": intercambio.carta_solicitante}]}
+    del intercambio
     juego.agregar_log(msg["mensaje"])
     juego.agregar_log(jOrig.name + " cancelo intercambio con " + jObj.name )
     return msg
