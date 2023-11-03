@@ -167,7 +167,8 @@ async def jugar_la_carta(
         card_id: int,
         player_objective: int,
         player_orig: int):
-    validar_jugada(juego, card_id, player_objective, player_orig)
+    if card_id <= 88:
+        validar_jugada(juego, card_id, player_objective, player_orig)
 
     if card_id in [22, 23, 24, 25, 26]:
         msg = play_lanzallamas(player_orig, player_objective, juego)
@@ -444,11 +445,14 @@ def check_carta_panico(juego: Juego):
     return dorso == 1
 
 
-def jugar_panico(carta: int, juego: Juego):
+async def jugar_panico(carta: int, juego: Juego):
     # cartas cambio de estado
     if carta in [89, 90, 93, 94, 95, 96, 98, 105]:
+        print("Entre a jugar panico")
         jugador_en_turno_id = juego.posiciones[juego.turno]
-        jugar_la_carta(juego, carta, jugador_en_turno_id, jugador_en_turno_id)
+        print(f"jugador_en_turno_id:{jugador_en_turno_id}")
+        await jugar_la_carta(juego, carta, jugador_en_turno_id, jugador_en_turno_id)
+        print("sali de jugar panico")
     # seleccionar carta
     elif carta in [99, 100, 103, 104]:
         pass

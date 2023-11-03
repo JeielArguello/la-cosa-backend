@@ -23,9 +23,9 @@ async def pick_a_card_from_deck(match_id: int = Form(), player_id: int = Form())
         check_turno(jugador)
         check_cantidad_cartas(jugador)
         if check_carta_panico(juego):
-            carta = juego.mazo.pop
-            jugar_panico(carta, juego)
-            juego.mazo.append(carta)
+            carta = juego.mazo.pop()
+            await jugar_panico(carta, juego)
+            juego.mazo_descarte.append(carta)
             await juego.broadcast_global("C")
             await juego.mensaje_personal(player_id, "G")
         else:
