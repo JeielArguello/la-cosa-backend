@@ -8,6 +8,7 @@ from typing import List
 from pony.orm import *
 from models.database import *
 from models.swap_card import IntercambiarCarta
+from models.defense_card import Defensa
 
 
 class Juego:
@@ -28,8 +29,8 @@ class Juego:
         self.cartas_determinacion = []
 
         self.ws_players_game: List[WebSocket] = []
-        self.solicitud_intercambio: IntercambiarCarta = None 
-        
+        self.solicitud_intercambio: IntercambiarCarta = None
+        self.solicitud_ataque: Defensa = None
         # spawnear jugadores
         crear_jugadores_partida(self)
         # otorgar posiciones
@@ -81,17 +82,18 @@ class Juego:
             if iteration == 3:
                 self.mazo = mazo
         random.shuffle(self.mazo)
-    
+
     def get_jugador(self, player_id: int):
         for j in self.jugadores_en_partida:
             if j.id == player_id:
                 return j
 
+    # Funciones para turno
     def get_jugador_en_turno(self):
         for j in self.jugadores_en_partida:
             if j.get_turno():
                 return j
-    
+
     def get_jugador_siguiente_turno(self):
         if self.sentido == 1:
             turnoaux = (self.turno + 2) % len(self.posiciones)
@@ -100,15 +102,21 @@ class Juego:
         for j in self.jugadores_en_partida:
             if j.id == self.posiciones[turnoaux]:
                 return j
-            
-    def crear_intercambio(self, player_orig: int, card_id: int, player_objective: int):
+
+    # Funciones para intercambio
+    def crear_intercambio(
+            self,
+            player_orig: int,
+            card_id: int,
+            player_objective: int):
         if self.solicitud_intercambio is not None:
             raise HTTPException(
                 status_code=400,
                 detail="Ya hay una solicitud de intercambio")
         jugador_orig = self.get_jugador(player_orig)
         jugador_objetivo = self.get_jugador(player_objective)
-        self.solicitud_intercambio = IntercambiarCarta(jugador_orig, card_id, jugador_objetivo)
+        self.solicitud_intercambio = IntercambiarCarta(
+            jugador_orig, card_id, jugador_objetivo)
 
     def responder_intercambio(self, player_id: int, card_id: int):
         intercambio = self.solicitud_intercambio
@@ -121,18 +129,53 @@ class Juego:
         self.solicitud_intercambio = None
         del intercambio
 
+    # Funciones para defensa
+    def crear_ataque(
+            self,
+            player_orig: int,
+            card_id: int,
+            player_objective: int):
+        if self.solicitud_ataque is not None:
+            raise HTTPException(
+                status_code=400,
+                detail="Ya hay una solicitud de ataque")
+        jugador_orig = self.get_jugador(player_orig)
+        jugador_objetivo = self.get_jugador(player_objective)
+        self.solicitud_ataque = Defensa(
+            jugador_orig, card_id, jugador_objetivo)
+
+    def responder_ataque(self, player_id: int, card_id: int):
+        ataque = self.solicitud_ataque
+        if ataque is None:
+            raise HTTPException(
+                status_code=400,
+                detail="No hay solicitud de ataque")
+        ataque.check_defensor(player_id)
+        ataque.completar_ataque(card_id)
+        self.solicitud_ataque = None
+        del ataque
+
+    def robar_carta_no_panico(self, jugador: JugadorPartida):
+        panico = True
+        while panico:
+            carta = robar_carta(self, jugador)
+            if carta in list(range(89, 109)):
+                jugador.descartar_carta(carta)
+            else:
+                panico = False
+
     # Funciones para conexion del websocket
     async def connect_game(self, websocket: WebSocket):
         await websocket.accept()
         msg = await websocket.receive_json()
-        if  "player_id" in msg:
+        if "player_id" in msg:
             for p in self.jugadores_en_partida:
                 if p.id == msg["player_id"]:
-                    jugador = p  
+                    jugador = p
             jugador.ws_player = websocket
             if jugador.get_turno():
-                await self.mensaje_personal(jugador.id,"E")
-        else: 
+                await self.mensaje_personal(jugador.id, "E")
+        else:
             print("error al conectar jugador")
         self.ws_players_game.append(websocket)
         await self.broadcast_global("C")
@@ -153,9 +196,14 @@ class Juego:
         await jugador.ws_player.send_json(message)
         await jugador.ws_player.send_json("reset")
 
+    async def mensaje_personal_dict(self, player_id: int, message: dict):
+        jugador = self.get_jugador(player_id)
+        await jugador.ws_player.send_json(message)
+        await jugador.ws_player.send_json("reset")
+
     def robar_carta_determinacion(self):
         cartas = []
-        while len(cartas)<3:
+        while len(cartas) < 3:
             if len(self.mazo) == 0:
                 random.shuffle(self.mazo_descarte)
                 self.mazo = self.mazo_descarte
@@ -164,10 +212,9 @@ class Juego:
             if carta_id in list(range(89, 109)):
                 self.mazo_descarte.append(carta_id)
             else:
-                cartas.append({"id":carta_id})
+                cartas.append({"id": carta_id})
                 self.cartas_determinacion.append(carta_id)
         return cartas
-
 
 
 def robar_carta(juego: Juego, jugador: JugadorPartida):

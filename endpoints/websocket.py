@@ -90,13 +90,13 @@ async def websocket_endpoint_game(websocket: WebSocket, match_id: int):
 
     try:
         while True:
-            msg = await websocket.receive() 
+            msg = await websocket.receive()
             websocket._raise_on_disconnect(msg)
             if(msg["text"] != "desconexion"):
                 msg = json.loads(msg["text"])
                 mensaje = {
-                    "mensaje_chat" :{
-                       "player_orig": msg["player_orig"],
+                    "mensaje_chat": {
+                        "player_orig": msg["player_orig"],
                         "message": msg["message"],
                     }
                 }
