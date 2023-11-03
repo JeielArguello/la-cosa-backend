@@ -158,3 +158,10 @@ def play_analisis(juego:Juego,player_orig:int,player_objective:int):
     
     return msg
 
+def play_determinacion(juego:Juego,player_orig:int):
+    playerOrig = get_jugador(player_orig,juego)
+    cartas_determinacion = juego.robar_carta_determinacion()
+    msg = {"mensaje": playerOrig.name + " jugó carta Determinacion.","cartas":cartas_determinacion}
+
+    return msg
+

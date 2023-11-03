@@ -298,6 +298,14 @@ def test_play_whisky_fail(mocker,mock_juego):
     msg = play_whisky(4000, mock_juego, mock_card_id) 
     assert msg == {"error": "no se pudieron mostrar cartas."}
 
+def test_play_determinacion__succes(mocker,mock_juego,mock_atacante):
+    mock_juego.jugadores_en_partida = [mock_atacante]
+    mock_atacante.cartas = [1, 44, 2, 3, 4]
+    mock_juego.mazo = [23,22,21,4,5,6,7,8]
+    msg = play_determinacion(mock_juego,mock_atacante.id)
+    assert(msg["mensaje"] == "pepe jugó carta Determinacion.") 
+    assert(msg["cartas"] == [{'id': 8}, {'id': 7}, {'id': 6}])
+    assert(mock_juego.cartas_determinacion == [8,7,6])
 
 
 
