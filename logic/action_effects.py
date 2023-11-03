@@ -5,6 +5,7 @@ from models.game import Juego
 from utils.action_utils import *
 from models.game import Juego
 
+
 def play_lanzallamas(atacante_in: int, objetivo_in: int, juego: Juego):
     # get indices
     len_posiciones = len(juego.posiciones)
@@ -28,11 +29,12 @@ def play_lanzallamas(atacante_in: int, objetivo_in: int, juego: Juego):
     # juego.jugadores_en_partida.remove(objetivo)
     del juego.posiciones[indice_objetivo]
     del juego.posiciones[indice_objetivo]
-    if indice_atacante==max(indice_atacante,indice_objetivo):
+    if indice_atacante == max(indice_atacante, indice_objetivo):
         juego.turno = (juego.turno - 2) % len(juego.posiciones)
-    msg = {"mensaje": jugador_atacante.name+" jugó carta lanzallamas contra "+
-           jugador_objetivo.name
-        }
+    msg = {
+        "mensaje": jugador_atacante.name +
+        " jugó carta lanzallamas contra " +
+        jugador_objetivo.name}
     return msg
 
 
@@ -51,7 +53,10 @@ def play_hacha(atacante_in: int, objetivo_in: int, juego: Juego):
     juego.posiciones[indice_posicion_intermedia] = 0
     jugador_orig = get_jugador(atacante_in, juego)
     jugador_objetivo = get_jugador(objetivo_in, juego)
-    msg = {"mensaje": jugador_orig.name + " jugó carta hacha contra " + jugador_objetivo.name}
+    msg = {
+        "mensaje": jugador_orig.name +
+        " jugó carta hacha contra " +
+        jugador_objetivo.name}
     return msg
 
 
@@ -63,9 +68,11 @@ def play_sospecha(atacante_in: int, objetivo_in: int, juego: Juego):
         raise HTTPException(
             status_code=400,
             detail="No se pudo obtener una carta del jugador objetivo")
-    msg = {"mensaje":jugador_atacante.name+" jugó carta sospecha contra "+jugador_objetivo.name,
-           "cartaMostrar": [{"id": carta_id}]}
+    msg = {"mensaje": jugador_atacante.name +
+           " jugó carta sospecha contra " +
+           jugador_objetivo.name, "cartaMostrar": [{"id": carta_id}]}
     return msg
+
 
 def play_vigila_tus_espaldas(juego: Juego):
     juego.sentido = juego.sentido * (-1)
@@ -85,11 +92,14 @@ def play_mas_vale_que_corras(atacante_in: int, objetivo_in: int, juego: Juego):
     juego.posiciones[indice_atacante] = objetivo_in
     jugador_atacante.posicion = indice_objetivo
     jugador_objetivo.posicion = indice_atacante
-   
+
     juego.turno = indice_objetivo
     jugador_orig = get_jugador(atacante_in, juego)
     jugador_objetivo = get_jugador(objetivo_in, juego)
-    msg = {"mensaje": jugador_orig.name + " jugó carta mas vale que corras contra " + jugador_objetivo.name}
+    msg = {
+        "mensaje": jugador_orig.name +
+        " jugó carta mas vale que corras contra " +
+        jugador_objetivo.name}
     return msg
 
 
@@ -97,66 +107,72 @@ def play_whisky(atacante_in: int, juego: Juego, card_id: int):
     jugador = get_jugador(atacante_in, juego)
     if jugador:
         cartas = jugador.get_cartas()
-        cartas.remove({"id":card_id})
+        cartas.remove({"id": card_id})
         msg = {
-            "mensaje": jugador.name+ " jugó carta whisky.",
+            "mensaje": jugador.name + " jugó carta whisky.",
             "cartaMostrar": cartas
         }
         return (msg)
     else:
-        return {"error": "no se pudieron mostrar cartas."}     
-    
-def play_cambio_de_lugar(juego:Juego,player_orig:int,player_objective:int):
-        
-    posiciones = juego.posiciones
-    posPorg    = posiciones.index( player_orig )
-    posPobj    = posiciones.index( player_objective )
+        return {"error": "no se pudieron mostrar cartas."}
 
-    if(  validar_posiciones_vecinas(posPobj,posPorg,len(posiciones)) ):
+
+def play_cambio_de_lugar(
+        juego: Juego,
+        player_orig: int,
+        player_objective: int):
+
+    posiciones = juego.posiciones
+    posPorg = posiciones.index(player_orig)
+    posPobj = posiciones.index(player_objective)
+
+    if(validar_posiciones_vecinas(posPobj, posPorg, len(posiciones))):
         raise HTTPException(
             status_code=400,
             detail="Los jugadores deben ser adyacentes.")
 
-    posiciones[ posPorg ] = player_objective
-    posiciones[ posPobj ] = player_orig
+    posiciones[posPorg] = player_objective
+    posiciones[posPobj] = player_orig
 
-    jugadoresEnPartida = juego.jugadores_en_partida    
-    indexPOrg = next( (i for i, jugador     in enumerate(jugadoresEnPartida) if jugador.id == player_orig), None )
-    indexPobj = next( (i for i, jugador in enumerate(jugadoresEnPartida) if jugador.id == player_objective), None )
-    
-    pOrg = jugadoresEnPartida[ indexPOrg ]
-    pObj = jugadoresEnPartida[ indexPobj ]
-    
+    jugadoresEnPartida = juego.jugadores_en_partida
+    indexPOrg = next((i for i, jugador in enumerate(
+        jugadoresEnPartida) if jugador.id == player_orig), None)
+    indexPobj = next((i for i, jugador in enumerate(
+        jugadoresEnPartida) if jugador.id == player_objective), None)
+
+    pOrg = jugadoresEnPartida[indexPOrg]
+    pObj = jugadoresEnPartida[indexPobj]
+
     pOrg.posicion = posPobj
-    pObj.posicion = posPorg    
+    pObj.posicion = posPorg
 
     juego.turno = posPobj
     jugador_orig = get_jugador(player_orig, juego)
     jugador_objetivo = get_jugador(player_objective, juego)
-    msg = {"mensaje": jugador_orig.name + " jugó carta cambio de lugar contra " + jugador_objetivo.name}
+    msg = {
+        "mensaje": jugador_orig.name +
+        " jugó carta cambio de lugar contra " +
+        jugador_objetivo.name}
     return msg
 
 
-def play_analisis(juego:Juego,player_orig:int,player_objective:int):
-    
+def play_analisis(juego: Juego, player_orig: int, player_objective: int):
     posiciones = juego.posiciones
-    posPorg    = posiciones.index( player_orig )
-    posPobj    = posiciones.index( player_objective )
-
-    if(  validar_posiciones_vecinas(posPobj,posPorg,len(posiciones)) ):
+    posPorg = posiciones.index(player_orig)
+    posPobj = posiciones.index(player_objective)
+    if(validar_posiciones_vecinas(posPobj, posPorg, len(posiciones))):
         raise HTTPException(
             status_code=400,
             detail="Los jugadores deben ser adyacentes.")
-    
-    playerOrig = get_jugador(player_orig,juego)
-    playerObj  = get_jugador(player_objective,juego)
-    
+    playerOrig = get_jugador(player_orig, juego)
+    playerObj = get_jugador(player_objective, juego)
     manoPlayerObj = playerObj.get_cartas()
-    
-    msg = {"mensaje": playerOrig.name + " jugó carta analisis contra " + playerObj.name + ".",
-            "cartaMostrar": manoPlayerObj
-          }
-    
+    msg = {
+        "mensaje": playerOrig.name +
+        " jugó carta analisis contra " +
+        playerObj.name +
+        ".",
+        "cartaMostrar": manoPlayerObj}
     return msg
 
 def play_seduccion(juego: Juego, player_orig : int, player_objective: int):
@@ -172,3 +188,9 @@ def play_seduccion(juego: Juego, player_orig : int, player_objective: int):
                 + jugador_objetivo.name + "en cuarentena."}
     return msg
 
+def play_determinacion(juego: Juego, player_orig: int):
+    playerOrig = get_jugador(player_orig, juego)
+    cartas_determinacion = juego.robar_carta_determinacion()
+    msg = {"mensaje": playerOrig.name +
+           " jugó carta Determinacion.", "cartas": cartas_determinacion}
+    return msg
