@@ -149,3 +149,43 @@ def test_asignar_cartas_orden_aleatorio(mocker, mock_j1, mock_j2, mock_j3, mock_
     assert mock_j2.cartas == [22, 26, 30, 34]
     assert mock_j3.cartas == [23, 27, 31, 35]
     assert mock_j4.cartas == [24, 28, 32, 36]
+
+
+def test_robar_carta_determinacion_sin_cartas_de_panico_en_medio(mocker, mock_j1, mock_j2, mock_j3, mock_j4):
+
+    mazo = [1, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36]
+    juego = Juego(1, 4, 2, [1, 2, 3, 4])
+    juego.jugadores_en_partida = [mock_j1, mock_j2, mock_j3, mock_j4]
+    juego.mazo = mazo
+
+    cartas_robadas = juego.robar_carta_determinacion()
+
+    assert(cartas_robadas == [{"id":36},{"id":35},{"id":34}])
+    assert(juego.cartas_determinacion == [36,35,34])
+
+
+
+def test_robar_carta_determinacion_con_cartas_de_panico_en_medio(mocker, mock_j1, mock_j2, mock_j3, mock_j4):
+
+    mazo = [1, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 100, 102, 35, 91, 92, 90, 36, 103]
+    juego = Juego(1, 4, 2, [1, 2, 3, 4])
+    juego.jugadores_en_partida = [mock_j1, mock_j2, mock_j3, mock_j4]
+    juego.mazo = mazo
+
+    cartas_robadas = juego.robar_carta_determinacion()
+
+    assert(cartas_robadas == [{"id":36},{"id":35},{"id":34}])
+    assert(juego.cartas_determinacion == [36,35,34])
+
+def test_robar_carta_determinacion_con_mazo_casi_vacio(mocker, mock_j1, mock_j2, mock_j3, mock_j4):
+
+    mazo = [ 35, 36]
+    juego = Juego(1, 4, 2, [1, 2, 3, 4])
+    juego.jugadores_en_partida = [mock_j1, mock_j2, mock_j3, mock_j4]
+    juego.mazo = mazo
+    juego.mazo_descarte = [2,3,4,5]
+    mocker.patch('random.shuffle', return_value=[2,3,4,5])
+    cartas_robadas = juego.robar_carta_determinacion()
+
+    assert(cartas_robadas == [{"id":36},{"id":35},{"id":5}])
+    assert(juego.cartas_determinacion == [36,35,5])

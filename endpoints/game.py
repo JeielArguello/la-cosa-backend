@@ -194,7 +194,7 @@ async def finish_match_thething(match_id: int = Form(),player_id: int = Form()):
 ######
 
 @router.post("/play/determination")
-async def endpoint_descartar_carta(match_id: int = Form(),
+async def seleccionar_carta_determinacion(match_id: int = Form(),
                                    card_id: int = Form(), player_id: int = Form()):
     try:
         juego = get_global_juego(match_id)

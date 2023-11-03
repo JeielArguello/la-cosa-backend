@@ -346,3 +346,42 @@ def test_swap_response_fail(mocker, mock_juego):
                                                         "player_orig": 2})
     assert response.status_code == 400
     assert response.json() == {"detail": "Error: No puedes descartar la unica carta de infectado que tienes."}
+
+
+def test_seleccionar_carta_determinacion_success(mocker,mock_juego):
+    mocker.patch("endpoints.game.get_global_juego", return_value=mock_juego,
+                 autospec=True,)
+    mocker.patch("endpoints.game.get_jugador", return_value=mock_j1,
+                 autospec=True,)
+    mocker.patch("endpoints.game.check_turno", return_value=True,
+                 autospec=True,)
+    mocker.patch("endpoints.game.agregar_carta_determinacion", return_value=True,
+                 autospec=True,)
+    mocker.patch("endpoints.game.Juego.mensaje_personal", return_value=None,
+                 autospec=True,)
+
+    response = client.post("game/play/determination", data={"match_id": 1,
+                                               "card_id": 2,
+                                               "player_id":1})
+    assert response.status_code == 200
+    assert response.json() == {"carta elegida": 2}
+
+
+def test_seleccionar_carta_determinacion_fail(mocker,mock_juego):
+    mocker.patch("endpoints.game.get_global_juego", return_value=mock_juego,
+                 autospec=True,)
+    mocker.patch("endpoints.game.get_jugador", return_value=mock_j1,
+                 autospec=True,)
+    mocker.patch("endpoints.game.check_turno", side_effect=HTTPException(status_code=400, detail="No es el turno del jugador"),
+                 autospec=True,)
+    mocker.patch("endpoints.game.agregar_carta_determinacion", return_value=True,
+                 autospec=True,)
+    mocker.patch("endpoints.game.Juego.mensaje_personal", return_value=None,
+                 autospec=True,)
+
+    response = client.post("game/play/determination", data={"match_id": 1,
+                                               "card_id": 2,
+                                               "player_id":1})
+    assert response.status_code == 400
+    assert response.json() == {"detail": "Error: No es el turno del jugador"}
+

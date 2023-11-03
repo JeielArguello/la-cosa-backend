@@ -156,6 +156,10 @@ class Juego:
     def robar_carta_determinacion(self):
         cartas = []
         while len(cartas)<3:
+            if len(self.mazo) == 0:
+                random.shuffle(self.mazo_descarte)
+                self.mazo = self.mazo_descarte
+                self.mazo_descarte = []
             carta_id = self.mazo.pop()
             if carta_id in list(range(89, 109)):
                 self.mazo_descarte.append(carta_id)
