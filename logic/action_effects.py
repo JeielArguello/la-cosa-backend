@@ -39,6 +39,8 @@ def play_lanzallamas(atacante_in: int, objetivo_in: int, juego: Juego):
         "mensaje": jugador_atacante.name +
         " jugó carta lanzallamas contra " +
         jugador_objetivo.name}
+    juego.agregar_log(msg["mensaje"])
+    juego.agregar_log(jugador_objetivo.name + " murió calsinado por " + jugador_atacante.name)
     return msg
 
 
@@ -61,6 +63,8 @@ def play_hacha(atacante_in: int, objetivo_in: int, juego: Juego):
         "mensaje": jugador_orig.name +
         " jugó carta hacha contra " +
         jugador_objetivo.name}
+    juego.agregar_log(msg["mensaje"])
+    juego.agregar_log(jugador_orig.name + " rompió la puerta atrancada con una hacha" )
     return msg
 
 
@@ -75,6 +79,7 @@ def play_sospecha(atacante_in: int, objetivo_in: int, juego: Juego):
     msg = {"mensaje": jugador_atacante.name +
            " jugó carta sospecha contra " +
            jugador_objetivo.name, "cartaMostrar": [{"id": carta_id}]}
+    juego.agregar_log(msg["mensaje"])
     return msg
 
 
@@ -104,6 +109,8 @@ def play_mas_vale_que_corras(atacante_in: int, objetivo_in: int, juego: Juego):
         "mensaje": jugador_orig.name +
         " jugó carta mas vale que corras contra " +
         jugador_objetivo.name}
+    juego.agregar_log(msg["mensaje"])
+    juego.agregar_log(jugador_objetivo.name + " cambió de lugar con " + jugador_atacante.name)
     return msg
 
 
@@ -116,6 +123,8 @@ def play_whisky(atacante_in: int, juego: Juego, card_id: int):
             "mensaje": jugador.name + " jugó carta whisky.",
             "cartaMostrar": cartas
         }
+        juego.agregar_log(msg["mensaje"])
+        juego.agregar_log(jugador.name + " mostró su mano de cartas")
         return (msg)
     else:
         return {"error": "no se pudieron mostrar cartas."}
@@ -157,6 +166,8 @@ def play_cambio_de_lugar(
         "mensaje": jugador_orig.name +
         " jugó carta cambio de lugar contra " +
         jugador_objetivo.name}
+    juego.agregar_log(msg["mensaje"])
+    juego.agregar_log(jugador_objetivo.name + " cambió de lugar con " + jugador_orig.name )
     return msg
 
 
@@ -177,6 +188,7 @@ def play_analisis(juego: Juego, player_orig: int, player_objective: int):
         playerObj.name +
         ".",
         "cartaMostrar": manoPlayerObj}
+    juego.agregar_log(msg["mensaje"])
     return msg
 
 def play_seduccion(juego: Juego, player_orig : int, player_objective: int):
@@ -190,6 +202,7 @@ def play_seduccion(juego: Juego, player_orig : int, player_objective: int):
     else:
         msg = {"mensaje": "error "
                 + jugador_objetivo.name + "en cuarentena."}
+    juego.agregar_log(msg["mensaje"])
     return msg
 
 def play_determinacion(juego: Juego, player_orig: int):
@@ -197,6 +210,7 @@ def play_determinacion(juego: Juego, player_orig: int):
     cartas_determinacion = juego.robar_carta_determinacion()
     msg = {"mensaje": playerOrig.name +
            " jugó carta Determinacion.", "cartas": cartas_determinacion}
+    juego.agregar_log(msg["mensaje"])
     return msg
 
 

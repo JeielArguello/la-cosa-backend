@@ -22,12 +22,19 @@ async def pick_a_card_from_deck(match_id: int = Form(), player_id: int = Form())
         jugador = get_jugador(player_id, juego)
         check_turno(jugador)
         check_cantidad_cartas(jugador)
-        carta = robar_carta(juego, jugador)
-        await juego.broadcast_global("C")
-        await juego.mensaje_personal(player_id, "D")
-        await juego.mensaje_personal(player_id, "F")
-
-        return {'card_id': carta}
+        if check_carta_panico(juego):
+            carta = juego.mazo.pop()
+            await jugar_panico(carta, juego)
+            juego.mazo_descarte.append(carta)
+            await juego.broadcast_global("C")
+            await juego.mensaje_personal(player_id, "G")
+            return {'card_id': carta}
+        else:
+            carta = robar_carta(juego, jugador)
+            await juego.broadcast_global("C")
+            await juego.mensaje_personal(player_id, "D")
+            await juego.mensaje_personal(player_id, "F")
+            return {'card_id': carta}
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
         raise HTTPException(
@@ -78,6 +85,7 @@ async def jugar_ataque(match_id: int = Form(), card_id: int = Form(),
                     await juego.mensaje_personal(jugador_proximo.id, "E")
                 else:    
                     await juego.mensaje_personal(jugador.id, "G")
+
             return {"message": "Se jugó el ataque."}
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
@@ -121,6 +129,7 @@ async def jugar_defensa(match_id: int = Form(), card_id: int = Form(),
                 carta_defensa_nombre}
             await juego.broadcast_global({"carta_id": card_id,
                                           "mensaje": msg["mensaje"]})
+            juego.agregar_log(msg["mensaje"])
             juego.responder_ataque(player_orig, card_id)
             juego.robar_carta_no_panico(jugador_defensa)
         ###
@@ -199,19 +208,18 @@ async def swap_request(match_id: int = Form(), card_id: int = Form(), player_ori
         juego = get_global_juego(match_id)
         jugador_orig = juego.get_jugador(player_orig)
         check_turno(jugador_orig)
-        jugador_objetivo_index = next( (i for i, jugador in enumerate(juego.jugadores_en_partida) if jugador.afectado_seduccion), None)
+        jugador_objetivo_index = next((i for i, jugador in enumerate(
+            juego.jugadores_en_partida) if jugador.afectado_seduccion), None)
         if not jugador_objetivo_index is None:
             jugador_objetivo = juego.jugadores_en_partida[jugador_objetivo_index]
             #jugador_orig.afectado_seduccion = False
         else:
             jugador_objetivo = juego.get_jugador_siguiente_turno()
-            check_objetive_is_next(jugador_objetivo,juego)
-        check_carta_habilitada(card_id,jugador_orig,jugador_objetivo)
-        check_obstaculo(player_orig,jugador_objetivo.id,juego)
-
-        juego.crear_intercambio(player_orig,card_id,jugador_objetivo.id)
-        await juego.mensaje_personal(jugador_objetivo.id,"H")
-
+            check_objetive_is_next(jugador_objetivo, juego)
+        check_carta_habilitada(card_id, jugador_orig, jugador_objetivo)
+        check_obstaculo(player_orig, jugador_objetivo.id, juego)
+        juego.crear_intercambio(player_orig, card_id, jugador_objetivo.id)
+        await juego.mensaje_personal(jugador_objetivo.id, "H")
         return {"message": "se creo la solicitud de intercambio"}
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
@@ -227,7 +235,6 @@ async def swap_response(match_id: int = Form(), card_id: int = Form(), player_or
         juego = get_global_juego(match_id)
         jugador_orig = juego.get_jugador(player_orig)
         jugador_objetivo = juego.get_jugador_en_turno()
-
         check_carta_habilitada(card_id, jugador_orig, jugador_objetivo)
         juego.terminar_turno()
         juego.avanzar_turno()
@@ -238,14 +245,12 @@ async def swap_response(match_id: int = Form(), card_id: int = Form(), player_or
         ganador = check_ganador(juego)
         if ganador:
             await juego.broadcast_global("K")
-
         if jugador_orig.afectado_seduccion:
             jugador = juego.get_jugador_en_turno().id
             await juego.mensaje_personal(jugador, "E")
             jugador_orig.afectado_seduccion = False
         else:
-            await juego.mensaje_personal(jugador_orig.id,"E") 
-
+            await juego.mensaje_personal(jugador_orig.id, "E")
         await juego.broadcast_global("C")
         return {"message": "se completo el intercambio"}
     except HTTPException as e:
@@ -311,6 +316,25 @@ async def seleccionar_carta_determinacion(match_id: int = Form(),
         await juego.mensaje_personal(player_id, "D")
         await juego.mensaje_personal(player_id, "F")
         return {"carta elegida": card_id}
+    except HTTPException as e:
+        error_msg = f"Error: {e.detail}"
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_msg
+        )
+
+#################
+#GET LOGS 
+#################
+
+@router.get("/log/{match_id}")
+async def get_logs_del_juego(match_id: int):
+    try:
+        juego = get_global_juego(match_id)
+        logs = juego.get_logs()
+        return {
+            "logs":logs,
+        }
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
         raise HTTPException(

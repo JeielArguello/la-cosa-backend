@@ -452,3 +452,15 @@ def test_seleccionar_carta_determinacion_fail(mocker, mock_juego):
                                                             "player_id": 1})
     assert response.status_code == 400
     assert response.json() == {"detail": "Error: No es el turno del jugador"}
+
+def test_get_logs_succes(mocker,mock_juego):
+    
+    mock_juego.logs = ["test logs", "testeando logs", "se testearon los logs"]
+    mocker.patch("endpoints.game.get_global_juego", return_value=mock_juego,
+                 autospec=True,)
+
+    response = client.get('/game/log/1')
+
+    assert response.status_code == 200
+    assert response.json() == {"logs":["test logs", "testeando logs", "se testearon los logs"]}
+

@@ -12,6 +12,18 @@ from fastapi import HTTPException
 def read_carta(id: int) -> Carta:
     carta = get(c for c in Carta if c.id == id)
     return carta
+
+
+@db_session
+def get_name_carta(card_id: int) -> str:
+    card = get(u for u in Carta if u.id == card_id)
+    return card.nombre
+
+
+@db_session
+def get_dorso_carta(card_id: int) -> str:
+    card = get(u for u in Carta if u.id == card_id)
+    return card.tipo_dorso
 # Update
 # Delete
 
@@ -140,12 +152,6 @@ def db_create_user(nombre: str) -> Dict[str, int]:
 def get_name(user_id: int) -> str:
     user = get(u for u in Jugador if u.id == user_id)
     return user.nombre
-
-
-@db_session
-def get_name_carta(card_id: int) -> str:
-    card = get(u for u in Carta if u.id == card_id)
-    return card.nombre
 
 
 # Update
