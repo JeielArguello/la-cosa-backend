@@ -24,3 +24,23 @@ def defense_aterrador(juego: Juego,jOrig: JugadorPartida,jObj:JugadorPartida, ca
     juego.agregar_log(jOrig.name + " cancelo intercambio con " + jObj.name )
     return msg
 
+
+def defensa_no_gracias(juego: Juego, jugador_no_gracias: JugadorPartida,
+                        jugador_atacante: JugadorPartida, card_id:int):
+    intercambio:IntercambiarCarta = juego.solicitud_intercambio
+    if intercambio is None:
+        raise HTTPException(
+            status_code = 400,
+            detail = "No hay solicitud de intrecambio."
+        ) 
+    jugador_no_gracias.descartar_carta(card_id)
+    juego.robar_carta_no_panico(jugador_no_gracias)
+    juego.solicitud_intercambio = None
+    msg = {
+        "mensaje": jugador_no_gracias.name +
+        " jugó carta no gracias contra "+
+        jugador_atacante.name
+    }
+    juego.agregar_log(["mensaje"])
+    juego.agregar_log(jugador_no_gracias.name + " canceló intercambio con "+ jugador_atacante.name)
+    return msg

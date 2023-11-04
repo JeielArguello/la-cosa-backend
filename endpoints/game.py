@@ -1,6 +1,6 @@
 from fastapi import HTTPException, Body
 from fastapi import APIRouter, Form, HTTPException, status
-from logic.defense_effects import defense_aterrador
+from logic.defense_effects import defense_aterrador, defensa_no_gracias
 from models.crud import *
 from models.database_utils import *
 from utils.match_utils import *
@@ -193,7 +193,7 @@ async def swap_request(match_id: int = Form(), card_id: int = Form(), player_ori
 
 
 @router.post("/swap-response")
-async def swap_response(match_id: int = Form(), card_id: int = Form(), player_orig: int = Form(), se_defiende:bool = Form()):
+async def swap_response(match_id: int = Form(), card_id: int = Form(), player_orig: int = Form()):#, se_defiende:bool = Form()):
     try:
         juego = get_global_juego(match_id)
         jugador_orig = juego.get_jugador(player_orig)
@@ -204,13 +204,21 @@ async def swap_response(match_id: int = Form(), card_id: int = Form(), player_or
         
         '''si el jugador que glopea este endpoint (el objetivo del intercambio), pasa un card_id correspondiente a aterrador.
            significa que se niega al mismo. '''
-        if card_id  in [67,68,69,70] and  se_defiende:
+        if card_id  in [67,68,69,70]:# and  se_defiende:
             msg = defense_aterrador(juego,jugador_orig,jugador_objetivo,card_id)
             await juego.mensaje_personal(player_orig,
                                      {"carta_id": card_id,
                                       "jugador_obj": get_name(jugador_objetivo.id),
                                       "mensaje": msg["mensaje"],
                                       "cartaMostrar": msg["cartaMostrar"]})
+        if card_id in [74,75,76,77] :#and se_defiende:
+            msg = defensa_no_gracias(juego, jugador_orig, jugador_objetivo, card_id)
+            await juego.broadcast_global(
+                {"carta_id": card_id,
+                 "jugador_obj": get_name(jugador_objetivo.id),
+                 "mensaje": msg["mensaje"]
+                }
+            )
         else: 
             juego.responder_intercambio(player_orig, card_id)
 
