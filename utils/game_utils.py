@@ -209,6 +209,16 @@ async def jugar_la_carta(
                                       "cartaMostrar": msg["cartaMostrar"],
                                       "jugador_obj": get_name(player_objective)})
 
+    elif card_id in [43, 44, 45, 46, 47]:
+        msg = play_determinacion(juego, player_orig)
+        await juego.mensaje_personal(player_orig, {
+            "cartas_determinacion": msg["cartas"]
+        })
+        await juego.broadcast_global({
+            "carta_id": card_id,
+            "mensaje": msg["mensaje"]
+        })
+
     elif card_id in [48, 49]:
         play_vigila_tus_espaldas(juego)
         name_player = get_name(player_orig)
@@ -232,20 +242,16 @@ async def jugar_la_carta(
         await juego.broadcast_global({"carta_id": card_id,
                                      "mensaje": msg["mensaje"]})
 
-    elif card_id in [43, 44, 45, 46, 47]:
-        msg = play_determinacion(juego, player_orig)
-        await juego.mensaje_personal(player_orig, {
-            "cartas_determinacion": msg["cartas"]
-        })
-        await juego.broadcast_global({
-            "carta_id": card_id,
-            "mensaje": msg["mensaje"]
-        })
     elif card_id in [86, 87, 88]:
         msg = play_puerta_atrancada(juego, player_orig, player_objective)
-        await juego.broadcast_global({"carta_id":card_id,
-                                     "mensaje":msg["mensaje"]})
+        await juego.broadcast_global({"carta_id": card_id,
+                                     "mensaje": msg["mensaje"]})
         await juego.broadcast_global("C")
+
+    elif card_id in [93, 94]:
+        msg = play_tres_cuatro(player_orig, juego, card_id)
+        await juego.broadcast_global({"carta_id": card_id,
+                                     "mensaje": msg["mensaje"]})
 
     elif card_id in [105]:
         msg = play_ups(player_orig, juego, card_id)
@@ -349,6 +355,7 @@ def check_obstaculo(atacante_id, objetivo_id, juego: Juego):
 
     validar_obstaculo(indice_posicion_intermedia, juego)
 
+
 def is_obstaculo(atacante_id, objetivo_id, juego: Juego):
     len_posiciones = len(juego.posiciones)
     indice_objetivo = juego.posiciones.index(objetivo_id)
@@ -357,8 +364,9 @@ def is_obstaculo(atacante_id, objetivo_id, juego: Juego):
         len_posiciones, indice_objetivo, indice_atacante)
     hay_obstaculo = False
     if juego.posiciones[indice_posicion_intermedia] != 0:
-        hay_obstaculo = True 
+        hay_obstaculo = True
     return hay_obstaculo
+
 
 def check_carta_habilitada(
         card_id: int,
