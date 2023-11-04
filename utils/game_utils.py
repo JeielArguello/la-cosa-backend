@@ -208,6 +208,16 @@ async def jugar_la_carta(
                                       "cartaMostrar": msg["cartaMostrar"],
                                       "jugador_obj": get_name(player_objective)})
 
+    elif card_id in [43, 44, 45, 46, 47]:
+        msg = play_determinacion(juego, player_orig)
+        await juego.mensaje_personal(player_orig, {
+            "cartas_determinacion": msg["cartas"]
+        })
+        await juego.broadcast_global({
+            "carta_id": card_id,
+            "mensaje": msg["mensaje"]
+        })
+
     elif card_id in [48, 49]:
         play_vigila_tus_espaldas(juego)
         name_player = get_name(player_orig)
@@ -231,15 +241,10 @@ async def jugar_la_carta(
         await juego.broadcast_global({"carta_id": card_id,
                                      "mensaje": msg["mensaje"]})
 
-    elif card_id in [43, 44, 45, 46, 47]:
-        msg = play_determinacion(juego, player_orig)
-        await juego.mensaje_personal(player_orig, {
-            "cartas_determinacion": msg["cartas"]
-        })
-        await juego.broadcast_global({
-            "carta_id": card_id,
-            "mensaje": msg["mensaje"]
-        })
+    elif card_id in [93, 94]:
+        msg = play_tres_cuatro(player_orig, juego, card_id)
+        await juego.broadcast_global({"carta_id": card_id,
+                                     "mensaje": msg["mensaje"]})
 
     elif card_id in [105]:
         msg = play_ups(player_orig, juego, card_id)
