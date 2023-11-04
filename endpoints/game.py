@@ -85,7 +85,7 @@ async def jugar_ataque(match_id: int = Form(), card_id: int = Form(),
                 await juego.broadcast_global("K")
             await juego.mensaje_personal(player_orig, "D")
             if not juego.cartas_determinacion:    
-                if(player_orig == player_objective):
+                if(player_orig == player_objective or card_id in [50, 51, 52, 53, 54, 55, 56, 57, 58, 59]):
                     jugador_proximo = juego.get_jugador_siguiente_turno()                      
                 if(not jugador_proximo.get_muerto() and is_obstaculo(jugador.id, jugador_proximo.id, juego) and not seduccion ):
                     juego.terminar_turno()
