@@ -180,6 +180,9 @@ async def swap_request(match_id: int = Form(), card_id: int = Form(), player_ori
 
         juego.crear_intercambio(player_orig,card_id,jugador_objetivo.id)
         await juego.mensaje_personal(jugador_objetivo.id,"H")
+        if check_puede_anular_el_intercambio(jugador_objetivo):
+            print("\n entro  \n")
+            await juego.mensaje_personal(jugador_objetivo.id,"N")
 
         return {"message": "se creo la solicitud de intercambio"}
     except HTTPException as e:
@@ -204,6 +207,7 @@ async def swap_response(match_id: int = Form(), card_id: int = Form(), player_or
            significa que se niega al mismo. '''
         if card_id not in [67,68,69,70]:
             juego.responder_intercambio(player_orig, card_id)
+    
         else: 
             msg = defense_aterrador(juego,jugador_orig,jugador_objetivo,card_id)
             await juego.mensaje_personal(player_orig,

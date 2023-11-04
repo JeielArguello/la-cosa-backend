@@ -415,3 +415,13 @@ def crear_mensaje_de_ataque(jugador: JugadorPartida, card_id: int):
     carta_name = get_name_carta(card_id)
     mensaje = f"El jugador {jugador.name} jugó {carta_name} contra ti. Quieres defenderte?"
     return mensaje
+
+def check_puede_anular_el_intercambio(jugador: JugadorPartida):
+    mano = jugador.get_cartas()
+    listaDeCardsIdQueAnulanIntercambio = [67,68,69,70,74,75,76,77]
+    puedeAnularIntercambio = False
+    for card in mano: 
+        if card["id"] in listaDeCardsIdQueAnulanIntercambio:
+            puedeAnularIntercambio = True 
+        
+    return puedeAnularIntercambio
