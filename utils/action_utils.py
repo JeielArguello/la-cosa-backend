@@ -19,9 +19,9 @@ def validar_posiciones_vecinas(
 
 def get_posicion_intermedia(len_posiciones, indice_jugador1, indice_jugador2):
     border_one = (indice_jugador1 == 0 and indice_jugador2 ==
-                  len_posiciones - 1)
+                  len_posiciones - 2)
     border_two = (indice_jugador2 == 0 and indice_jugador1 ==
-                  len_posiciones - 1)
+                  len_posiciones - 2)
     if (border_one or border_two):
         posicion = len_posiciones - 1
     else:
