@@ -27,7 +27,15 @@ async def pick_a_card_from_deck(match_id: int = Form(), player_id: int = Form())
             await jugar_panico(carta, juego)
             juego.mazo_descarte.append(carta)
             await juego.broadcast_global("C")
-            await juego.mensaje_personal(player_id, "G")
+
+            jugador_proximo = juego.get_jugador_siguiente_turno()
+            if(not jugador_proximo.get_muerto() and is_obstaculo(jugador.id, jugador_proximo.id, juego)):
+                juego.terminar_turno()
+                juego.avanzar_turno()
+
+                await juego.mensaje_personal(jugador_proximo.id, "E") 
+            else:
+                await juego.mensaje_personal(player_id, "G")
             return {'card_id': carta}
         else:
             carta = robar_carta(juego, jugador)
@@ -50,9 +58,10 @@ async def pick_a_card_from_deck(match_id: int = Form(), player_id: int = Form())
 async def jugar_ataque(match_id: int = Form(), card_id: int = Form(),
                        player_objective: int = Form(), player_orig: int = Form()):
     try:
-        print("jugador objetivo: ", player_objective)
         juego = get_global_juego(match_id)
         jugador = get_jugador(player_orig, juego)
+        objetivo = juego.get_jugador(player_objective)
+        seduccion = objetivo.afectado_seduccion
         check_turno(jugador)
         validar_jugada(juego, card_id, player_objective, player_orig)
         jugador_proximo = juego.get_jugador_siguiente_turno()
@@ -78,11 +87,12 @@ async def jugar_ataque(match_id: int = Form(), card_id: int = Form(),
             if not juego.cartas_determinacion:    
                 if(player_orig == player_objective):
                     jugador_proximo = juego.get_jugador_siguiente_turno()                      
-                if(is_obstaculo(jugador.id, jugador_proximo.id, juego)):
+                if(not jugador_proximo.get_muerto() and is_obstaculo(jugador.id, jugador_proximo.id, juego) and not seduccion ):
                     juego.terminar_turno()
                     juego.avanzar_turno()
 
                     await juego.mensaje_personal(jugador_proximo.id, "E")
+                #elif(not jugador.get_muerto() and is_obstaculo(jugador_proximo.id, jugador.id, juego)):
                 else:    
                     await juego.mensaje_personal(jugador.id, "G")
 
@@ -217,7 +227,8 @@ async def swap_request(match_id: int = Form(), card_id: int = Form(), player_ori
             jugador_objetivo = juego.get_jugador_siguiente_turno()
             check_objetive_is_next(jugador_objetivo, juego)
         check_carta_habilitada(card_id, jugador_orig, jugador_objetivo)
-        check_obstaculo(player_orig, jugador_objetivo.id, juego)
+        if not jugador_objetivo.afectado_seduccion:
+            check_obstaculo(player_orig, jugador_objetivo.id, juego)
         juego.crear_intercambio(player_orig, card_id, jugador_objetivo.id)
         await juego.mensaje_personal(jugador_objetivo.id, "H")
         return {"message": "se creo la solicitud de intercambio"}
