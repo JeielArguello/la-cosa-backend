@@ -1,4 +1,5 @@
 
+from logic.obstacle_effects import play_puerta_atrancada
 from models.crud import get_name, read_carta
 from models.database_utils import get_jugadores_match
 from models.game import Juego
@@ -239,7 +240,11 @@ async def jugar_la_carta(
             "carta_id":card_id,
             "mensaje":msg["mensaje"]
         })
-        
+    elif card_id in [86, 87, 88]:
+        msg = play_puerta_atrancada(juego, player_orig, player_objective)
+        await juego.broadcast_global({"carta_id":card_id,
+                                     "mensaje":msg["mensaje"]})
+        await juego.broadcast_global("C")
     else:
         pass
 
@@ -333,6 +338,16 @@ def check_obstaculo(atacante_id, objetivo_id, juego: Juego):
 
     validar_obstaculo(indice_posicion_intermedia, juego)
 
+def is_obstaculo(atacante_id, objetivo_id, juego: Juego):
+    len_posiciones = len(juego.posiciones)
+    indice_objetivo = juego.posiciones.index(objetivo_id)
+    indice_atacante = juego.posiciones.index(atacante_id)
+    indice_posicion_intermedia = get_posicion_intermedia(
+        len_posiciones, indice_objetivo, indice_atacante)
+    hay_obstaculo = False
+    if juego.posiciones[indice_posicion_intermedia] != 0:
+        hay_obstaculo = True 
+    return hay_obstaculo
 
 def check_carta_habilitada(
         card_id: int,

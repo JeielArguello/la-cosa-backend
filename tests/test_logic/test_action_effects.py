@@ -188,8 +188,7 @@ def test_vigila_tus_espaldas(mocker, mock_juego):
 def test_hacha(mocker, mock_juego):
     mock_juego.cantidad_jugadores = 2
     mock_juego.jugadores_id = [1, 2]
-    mock_juego.posiciones = [1, 0, 2, 0]
-    mock_juego.posiciones[1] = "p"
+    mock_juego.posiciones = [1, 0, 2, "p"]
     play_hacha(1, 2, mock_juego)
     assert mock_juego.posiciones == [1, 0, 2, 0]
 

@@ -86,7 +86,7 @@ def get_match(match_id: int):
 def get_jugadores_match(posiciones: list):
     jugadores = []
     for j in posiciones:
-        if j != 0:
+        if j != 0 and j != "p":
             id = j
             nombre = get_name(id)
             jugador = {'id': id, 'nombre': nombre}

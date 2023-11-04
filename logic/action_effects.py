@@ -28,7 +28,11 @@ def play_lanzallamas(atacante_in: int, objetivo_in: int, juego: Juego):
             jugador.set_muerto()
     # juego.jugadores_en_partida.remove(objetivo)
     del juego.posiciones[indice_objetivo]
-    del juego.posiciones[indice_objetivo]
+    if juego.posiciones[indice_objetivo] == "p":
+        indiceaux = (indice_objetivo - 1) % len(juego.posiciones)
+        del juego.posiciones[indiceaux]
+    else: 
+        del juego.posiciones[indice_objetivo]
     if indice_atacante == max(indice_atacante, indice_objetivo):
         juego.turno = (juego.turno - 2) % len(juego.posiciones)
     msg = {
@@ -44,7 +48,7 @@ def play_hacha(atacante_in: int, objetivo_in: int, juego: Juego):
     indice_objetivo = juego.posiciones.index(objetivo_in)
     indice_atacante = juego.posiciones.index(atacante_in)
     indice_posicion_intermedia = get_posicion_intermedia(
-        len_posiciones, indice_objetivo, indice_atacante)
+        len_posiciones, indice_atacante, indice_objetivo)
     validar_posiciones_vecinas(
         indice_atacante,
         indice_objetivo,
@@ -194,3 +198,5 @@ def play_determinacion(juego: Juego, player_orig: int):
     msg = {"mensaje": playerOrig.name +
            " jugó carta Determinacion.", "cartas": cartas_determinacion}
     return msg
+
+

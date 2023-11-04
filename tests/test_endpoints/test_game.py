@@ -37,7 +37,7 @@ juego.creador = 3
 juego.jugadores_id = [1, 2, 3, 4, 5, 6]
 
 
-def test_jugar_carta_no_defensa(mocker, mock_juego):
+def test_jugar_carta_no_defensa(mocker, mock_juego,mock_j1):
     mocker.patch("endpoints.game.get_global_juego", return_value=mock_juego,
                  autospec=True,)
     mocker.patch("endpoints.game.get_jugador", return_value=mock_j1,
@@ -57,6 +57,8 @@ def test_jugar_carta_no_defensa(mocker, mock_juego):
     mocker.patch("endpoints.game.check_ganador", return_value=False,
                  autospec=True,)
     mocker.patch("endpoints.game.Juego.mensaje_personal", return_value=None,
+                 autospec=True,)
+    mocker.patch("endpoints.game.is_obstaculo", return_value=False,
                  autospec=True,)
     response = client.post("/game/play/attack", data={"match_id": 1,
                                                       "card_id": 22,

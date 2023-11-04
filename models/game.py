@@ -102,6 +102,15 @@ class Juego:
         for j in self.jugadores_en_partida:
             if j.id == self.posiciones[turnoaux]:
                 return j
+    
+    def get_jugador_anterior_turno(self):
+        if self.sentido == 1:
+            turnoaux = (self.turno - 2) % len(self.posiciones)
+        elif self.sentido == -1:
+            turnoaux = (self.turno + 2) % len(self.posiciones)
+        for j in self.jugadores_en_partida:
+            if j.id == self.posiciones[turnoaux]:
+                return j
 
     # Funciones para intercambio
     def crear_intercambio(
