@@ -161,7 +161,6 @@ async def endpoint_descartar_carta(match_id: int = Form(),
 # Intercambiar carta
 ######
 
-
 @router.post("/swap-request")
 async def swap_request(match_id: int = Form(), card_id: int = Form(), player_orig: int = Form()):
     try:
@@ -171,7 +170,6 @@ async def swap_request(match_id: int = Form(), card_id: int = Form(), player_ori
         jugador_objetivo_index = next( (i for i, jugador in enumerate(juego.jugadores_en_partida) if jugador.afectado_seduccion), None)
         if not jugador_objetivo_index is None:
             jugador_objetivo = juego.jugadores_en_partida[jugador_objetivo_index]
-            #jugador_orig.afectado_seduccion = False
         else:
             jugador_objetivo = juego.get_jugador_siguiente_turno()
             check_objetive_is_next(jugador_objetivo,juego)
@@ -211,7 +209,7 @@ async def swap_response( match_id: int = Form(), card_id: int = Form(), player_o
                                       "jugador_obj": get_name(jugador_objetivo.id),
                                       "mensaje": msg["mensaje"],
                                       "cartaMostrar": msg["cartaMostrar"]})
-        if card_id in [74,75,76,77] :#and se_defiende:
+        elif card_id in [74,75,76,77] and se_defiende:
             msg = defensa_no_gracias(juego, jugador_orig, jugador_objetivo, card_id)
             await juego.broadcast_global(
                 {"carta_id": card_id,
@@ -247,7 +245,6 @@ async def swap_response( match_id: int = Form(), card_id: int = Form(), player_o
 ######
 # Finalizar Partida
 ######
-
 
 @router.post('/finish')
 async def finish_match(match_id: int = Form()):
