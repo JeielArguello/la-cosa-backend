@@ -53,6 +53,18 @@ def test_defensa_no_gracias_succes(mock_juego, mock_atacante, mock_objetivo, moc
     msg = defensa_no_gracias(mock_juego, mock_atacante, mock_objetivo, mock_card_id)
     assert msg == {"mensaje": "pepe jugó carta no gracias contra pedro"}
 
+
+def test_defensa_no_gracias_fail(mock_juego, mock_atacante, mock_objetivo, mock_card_id):
+    mock_intercambio = None
+    mock_juego.solicitud_intercambio = mock_intercambio
+    mock_juego.jugadores_en_partida = [mock_atacante, mock_objetivo]
+    mock_juego.solicitud_intercambio = mock_intercambio
+    with pytest.raises(HTTPException) as exc:
+        defensa_no_gracias(mock_juego, mock_atacante, mock_objetivo, mock_card_id)
+    assert exc.value.status_code == 400
+    assert exc.value.detail == "No hay solicitud de intercambio."
+
+
 def test_defensa_aterrador(mock_juego, mock_atacante, mock_objetivo, mock_card_id):
     mock_intercambio = IntercambiarCarta(mock_objetivo, 5,mock_atacante)
     mock_juego.solicitud_intercambio = mock_intercambio
@@ -60,3 +72,14 @@ def test_defensa_aterrador(mock_juego, mock_atacante, mock_objetivo, mock_card_i
     msg = defense_aterrador(mock_juego, mock_atacante, mock_objetivo, mock_card_id)
     assert (msg["mensaje"] == "pepe jugó carta aterrador contra pedro")
     assert(msg["cartaMostrar"]==[{"id":5}])
+
+
+def test_defensa_aterrador_fail(mock_juego, mock_atacante, mock_objetivo, mock_card_id):
+    mock_intercambio = None
+    mock_juego.solicitud_intercambio = mock_intercambio
+    mock_juego.jugadores_en_partida = [mock_atacante, mock_objetivo]
+    mock_juego.solicitud_intercambio = mock_intercambio
+    with pytest.raises(HTTPException) as exc:
+        defense_aterrador(mock_juego, mock_atacante, mock_objetivo, mock_card_id)
+    assert exc.value.status_code == 400
+    assert exc.value.detail == "No hay solicitud de intercambio"

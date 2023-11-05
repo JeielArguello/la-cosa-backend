@@ -31,7 +31,7 @@ def defensa_no_gracias(juego: Juego, jugador_no_gracias: JugadorPartida,
     if intercambio is None:
         raise HTTPException(
             status_code = 400,
-            detail = "No hay solicitud de intrecambio."
+            detail = "No hay solicitud de intercambio."
         ) 
     jugador_no_gracias.descartar_carta(card_id)
     juego.robar_carta_no_panico(jugador_no_gracias)
