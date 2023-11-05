@@ -73,7 +73,6 @@ def test_defensa_aterrador(mock_juego, mock_atacante, mock_objetivo, mock_card_i
     assert (msg["mensaje"] == "pepe jugó carta aterrador contra pedro")
     assert(msg["cartaMostrar"]==[{"id":5}])
 
-
 def test_defensa_aterrador_fail(mock_juego, mock_atacante, mock_objetivo, mock_card_id):
     mock_intercambio = None
     mock_juego.solicitud_intercambio = mock_intercambio
