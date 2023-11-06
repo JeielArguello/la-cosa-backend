@@ -381,10 +381,10 @@ def test_swap_response_success(mocker, mock_juego):
     response = client.post("/game/swap-response", data={"match_id": 1,
                                                         "card_id": 2,
                                                         "player_objective": 3,
-                                                        "player_orig": 2})
+                                                        "player_orig": 2,
+                                                        "se_defiende":False})
     assert response.status_code == 200
     assert response.json() == {"message": "se completo el intercambio"}
-
 
 def test_swap_response_fail(mocker, mock_juego):
     mocker.patch("endpoints.game.get_global_juego", return_value=mock_juego,
@@ -410,11 +410,11 @@ def test_swap_response_fail(mocker, mock_juego):
     response = client.post("/game/swap-response", data={"match_id": 1,
                                                         "card_id": 2,
                                                         "player_objective": 3,
-                                                        "player_orig": 2})
+                                                        "player_orig": 2,
+                                                        "se_defiende":False})
     assert response.status_code == 400
     assert response.json() == {
         "detail": "Error: No puedes descartar la unica carta de infectado que tienes."}
-
 
 def test_seleccionar_carta_determinacion_success(mocker, mock_juego):
     mocker.patch("endpoints.game.get_global_juego", return_value=mock_juego,
