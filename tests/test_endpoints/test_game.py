@@ -54,7 +54,7 @@ def test_robar_carta_panico_succes(mocker, mock_juego, mock_j1):
                  autospec=True,)
     mocker.patch("endpoints.game.Juego.get_jugador_siguiente_turno", return_value=mock_j1,
                  autospec=True,)
-    mocker.patch("endpoints.game.is_obstaculo", return_value=False,
+    mocker.patch("endpoints.game.is_obstaculo", return_value=True,
                  autospec=True,)
     mocker.patch("endpoints.game.Juego.mensaje_personal", return_value=None,
                  autospec=True,)
@@ -70,7 +70,7 @@ def test_robar_carta_no_panico_succes(mocker, mock_juego, mock_j1):
                  autospec=True,)
     mocker.patch("endpoints.game.get_jugador", return_value=mock_j1,
                  autospec=True,)
-    mocker.patch("endpoints.game.check_carta_panico", return_value=True,
+    mocker.patch("endpoints.game.check_carta_panico", return_value=False,
                  autospec=True,)
     mocker.patch("endpoints.game.robar_carta", return_value=22,
                  autospec=True,)
@@ -118,7 +118,7 @@ def test_jugar_carta_sin_defensa(mocker, mock_juego, mock_j1):
                  autospec=True,)
     mocker.patch("endpoints.game.Juego.mensaje_personal", return_value=None,
                  autospec=True,)
-    mocker.patch("endpoints.game.is_obstaculo", return_value=False,
+    mocker.patch("endpoints.game.is_obstaculo", return_value=True,
                  autospec=True,)
     response = client.post("/game/play/attack", data={"match_id": 1,
                                                       "card_id": 22,
@@ -198,6 +198,8 @@ def test_jugar_carta_con_defensa_no_recibir_ataque(mocker, mock_juego):
     mocker.patch("endpoints.game.Juego.robar_carta_no_panico", return_value=None,
                  autospec=True,)
     mocker.patch("endpoints.game.check_ganador", return_value=False,
+                 autospec=True,)
+    mocker.patch("endpoints.game.is_obstaculo", return_value=True,
                  autospec=True,)
     response1 = client.post("/game/play/attack", data={"match_id": 1,
                                                        "card_id": 22,
@@ -423,6 +425,8 @@ def test_descartar_carta_success(mocker, mock_juego, mock_j1):
                  autoespec=True,)
     mocker.patch("endpoints.game.Juego.mensaje_personal", return_value=True,
                  autoespec=True,)
+    mocker.patch("endpoints.game.is_obstaculo", return_value=True,
+                 autospec=True,)
     response = client.post("/game/discard", data={"match_id": 1,
                                                   "card_id": 2,
                                                   "player_id": 1})
