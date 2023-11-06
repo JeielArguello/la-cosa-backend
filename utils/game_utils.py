@@ -259,6 +259,11 @@ async def jugar_la_carta(
                                       "mensaje": msg["mensaje"],
                                       "cartaMostrar": msg["cartaMostrar"],
                                       "jugador_obj": get_name(player_objective)})
+    elif card_id in [107,106]:
+        msg = play_que_quede_entre_nosotros(player_orig, player_objective, juego, card_id)
+        await juego.mensaje_personal(player_objective, {"carta_id": card_id,
+                                                        "mensaje": msg["mensaje"],
+                                                        "cartaMostrar":msg["cartaMostrar"]})
     else:
         pass
 
