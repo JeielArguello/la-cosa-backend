@@ -1,3 +1,4 @@
+from typing import Tuple
 from fastapi import WebSocket
 from pony.orm import *
 from models.crud import get_name
@@ -17,6 +18,8 @@ class JugadorPartida:
         self.ws_player: WebSocket = None
         self.name = get_name(id)
         self.afectado_seduccion = False
+        self.cuarentena = (False,0) 
+        
 
     def get_muerto(self):
         return self.muerto
@@ -42,6 +45,21 @@ class JugadorPartida:
 
     def get_infectado(self):
         return self.infectado
+    
+    def set_cuartena(self):
+        self.cuarentena = (True, 2)
+    
+    def get_cuartena(self):
+        return self.cuarentena[0]
+    
+    def pop_cuarentena(self):
+        if (self.cuarentena[1] > 0):
+            self.cuarentena = (True,self.cuarentena[1] - 1)
+        if (self.cuarentena[1] == 0):
+            self.cuarentena = (False, 0)
+
+    def remove_cuartena(self):
+        self.cuarentena = (False, 0)
 
     def cambiar_turno(self):
         self.turno_actual = not self.turno_actual

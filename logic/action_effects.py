@@ -21,6 +21,7 @@ def play_lanzallamas(atacante_in: int, objetivo_in: int, juego: Juego):
         indice_objetivo,
         len_posiciones)
     # check obstaculos
+    validar_cuarentena(atacante_in,juego)
     validar_obstaculo(indice_posicion_intermedia, juego)
     for jugador in juego.jugadores_en_partida:
         if jugador.id == objetivo_in:
@@ -55,10 +56,13 @@ def play_hacha(atacante_in: int, objetivo_in: int, juego: Juego):
         indice_atacante,
         indice_objetivo,
         len_posiciones)
-    validar_puerta(indice_posicion_intermedia, juego)
-    juego.posiciones[indice_posicion_intermedia] = 0
-    jugador_orig = get_jugador(atacante_in, juego)
     jugador_objetivo = get_jugador(objetivo_in, juego)
+    jugador_orig = get_jugador(atacante_in, juego)
+    if is_puerta(indice_posicion_intermedia, juego):
+        juego.posiciones[indice_posicion_intermedia] = 0
+    elif is_cuarentena(objetivo_in, juego):
+        jugador_objetivo.remove_cuartena()
+    
     msg = {
         "mensaje": jugador_orig.name +
         " jugó carta hacha contra " +
@@ -90,6 +94,7 @@ def play_vigila_tus_espaldas(juego: Juego):
 def play_mas_vale_que_corras(atacante_in: int, objetivo_in: int, juego: Juego):
     # validar si esta en cuarentena
     validar_cuarentena(objetivo_in, juego)
+    validar_cuarentena(atacante_in, juego)
     # obtengo jugadores
     jugador_atacante = get_jugador(atacante_in, juego)
     jugador_objetivo = get_jugador(objetivo_in, juego)
@@ -139,10 +144,10 @@ def play_cambio_de_lugar(
     posPorg = posiciones.index(player_orig)
     posPobj = posiciones.index(player_objective)
 
-    if(validar_posiciones_vecinas(posPobj, posPorg, len(posiciones))):
-        raise HTTPException(
-            status_code=400,
-            detail="Los jugadores deben ser adyacentes.")
+    validar_cuarentena(player_objective, juego)
+    validar_cuarentena(player_orig, juego)
+
+    validar_posiciones_vecinas(posPobj, posPorg, len(posiciones))
 
     posiciones[posPorg] = player_objective
     posiciones[posPobj] = player_orig
@@ -195,7 +200,8 @@ def play_seduccion(juego: Juego, player_orig : int, player_objective: int):
     jugador_atacante = get_jugador(player_orig, juego)
     jugador_objetivo = get_jugador(player_objective, juego)
     #aqui deberia chequear cuarentena posiblemente.
-    if not validar_cuarentena(player_objective, juego):
+    validar_cuarentena(player_objective, juego)
+    if not is_cuarentena(player_objective, juego):
         jugador_objetivo.afectado_seduccion = True
         msg = {"mensaje": jugador_atacante.name + " jugó carta seducción contra "
                 + jugador_objetivo.name + "."}

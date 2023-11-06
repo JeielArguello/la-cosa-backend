@@ -54,6 +54,8 @@ class Juego:
     def terminar_turno(self):
         for j in self.jugadores_en_partida:
             if j.id == self.posiciones[self.turno]:
+                if j.get_cuartena():
+                    j.pop_cuarentena()
                 j.cambiar_turno()
 
     def repartir_cartas(self, players_num: int):

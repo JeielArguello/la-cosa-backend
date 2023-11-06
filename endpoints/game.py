@@ -65,10 +65,10 @@ async def jugar_ataque(match_id: int = Form(), card_id: int = Form(),
         check_turno(jugador)
         validar_jugada(juego, card_id, player_objective, player_orig)
         jugador_proximo = juego.get_jugador_siguiente_turno()
-        if (player_objective == jugador_proximo.id and card_id not in [30,31]):
+        if (player_objective == jugador_proximo.id and is_hacha(card_id)):
             check_obstaculo(player_orig,jugador_proximo.id,juego)
         jugador_anterior = juego.get_jugador_anterior_turno()
-        if (player_objective == jugador_anterior.id and card_id not in [30,31]):
+        if (player_objective == jugador_anterior.id and is_hacha(card_id)):
             check_obstaculo(player_orig,jugador_anterior.id,juego)
         
         if check_puedo_defender(juego, card_id, player_objective, player_orig):
@@ -92,7 +92,6 @@ async def jugar_ataque(match_id: int = Form(), card_id: int = Form(),
                     juego.avanzar_turno()
 
                     await juego.mensaje_personal(jugador_proximo.id, "E")
-                #elif(not jugador.get_muerto() and is_obstaculo(jugador_proximo.id, jugador.id, juego)):
                 else:    
                     await juego.mensaje_personal(jugador.id, "G")
 

@@ -1,5 +1,5 @@
 
-from logic.obstacle_effects import play_puerta_atrancada
+from logic.obstacle_effects import play_cuarentena, play_puerta_atrancada
 from utils.action_utils import get_jugador
 from fastapi import HTTPException
 from logic.panic_effects import *
@@ -17,10 +17,17 @@ def get_status_game(juego: Juego):
     posiciones = juego.posiciones
     sentido = juego.sentido
     jugadores = get_jugadores_match(juego.posiciones)
+    list_jugadores = []  
+    for j in jugadores:
+        jugador = juego.get_jugador(j['id'])
+        list_jugadores.append({'id' : j['id'],
+                               'nombre' : j['nombre'],
+                               'cuarentena' : jugador.get_cuartena()})
+    
     carta = read_carta(juego.mazo[-1])
     id_player_turno = juego.get_jugador_en_turno().id
     response = {'posiciones': posiciones,
-                'jugadores': jugadores,
+                'jugadores': list_jugadores,
                 'sentido': sentido,
                 'tipo_dorso': carta.tipo_dorso,
                 'id_player_turno': id_player_turno}
@@ -241,6 +248,12 @@ async def jugar_la_carta(
         msg = play_seduccion(juego, player_orig, player_objective)
         await juego.broadcast_global({"carta_id": card_id,
                                      "mensaje": msg["mensaje"]})
+        
+    elif card_id in [84, 85]:
+        msg = play_cuarentena(player_orig, player_objective, juego)
+        await juego.broadcast_global({"carta_id": card_id,
+                                     "mensaje": msg["mensaje"]})
+        await juego.broadcast_global("C")
 
     elif card_id in [86, 87, 88]:
         msg = play_puerta_atrancada(juego, player_orig, player_objective)
@@ -352,7 +365,10 @@ def check_obstaculo(atacante_id, objetivo_id, juego: Juego):
     indice_atacante = juego.posiciones.index(atacante_id)
     indice_posicion_intermedia = get_posicion_intermedia(
         len_posiciones, indice_objetivo, indice_atacante)
-
+    if is_cuarentena(objetivo_id, juego):
+        raise HTTPException(
+            status_code=400,
+            detail="Hay un Obstaculo cuarentena entre los jugadores")
     validar_obstaculo(indice_posicion_intermedia, juego)
 
 
@@ -362,12 +378,21 @@ def is_obstaculo(atacante_id, objetivo_id, juego: Juego):
     indice_atacante = juego.posiciones.index(atacante_id)
     indice_posicion_intermedia = get_posicion_intermedia(
         len_posiciones, indice_objetivo, indice_atacante)
+    objetivo = get_jugador(objetivo_id, juego)
     hay_obstaculo = False
-    if juego.posiciones[indice_posicion_intermedia] != 0:
+    if juego.posiciones[indice_posicion_intermedia] != 0 or objetivo.get_cuartena():
         hay_obstaculo = True
+    
     return hay_obstaculo
 
+def is_lanzallama(card_id : int):
+    lanzallama = card_id in [22, 23, 24, 25, 26]
+    return lanzallama
 
+def is_hacha(card_id : int):
+    hacha = card_id in [30, 31]
+    return hacha
+    
 def check_carta_habilitada(
         card_id: int,
         jugador_orig: JugadorPartida,
