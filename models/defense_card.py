@@ -21,9 +21,5 @@ class Defensa:
                 detail="No eres el receptor del ataque")
 
     def completar_ataque(self, card_id: int):
-        # self.carta_defensor = card_id
-        if card_id == 0:
-            self.atacante.descartar_carta(self.carta_atacante)
-        else:
-            self.atacante.descartar_carta(self.carta_atacante)
-            self.defensor.descartar_carta(self.carta_defensor)
+        self.carta_defensor = card_id
+        self.atacante.descartar_carta(self.carta_atacante)
