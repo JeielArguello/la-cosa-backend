@@ -210,6 +210,7 @@ async def swap_request(match_id: int = Form(), card_id: int = Form(), player_ori
             juego.jugadores_en_partida) if jugador.get_efecto_seduccion()), None)
         if not jugador_objetivo_index is None:
             jugador_objetivo = juego.jugadores_en_partida[jugador_objetivo_index]
+            print("jugador objetivo con seduccion: ", jugador_objetivo.name)
         else:
             jugador_objetivo = juego.get_jugador_siguiente_turno()
             check_objetive_is_next(jugador_objetivo,juego)
@@ -237,8 +238,8 @@ async def swap_request(match_id: int = Form(), card_id: int = Form(), player_ori
 async def swap_response( match_id: int = Form(), card_id: int = Form(), player_orig: int = Form(), se_defiende:bool = Form() ):
     try:
         juego = get_global_juego(match_id)
-        jugador_orig = juego.get_jugador(player_orig)
-        jugador_objetivo = juego.get_jugador_en_turno()
+        jugador_orig = juego.get_jugador(player_orig) #j4
+        jugador_objetivo = juego.get_jugador_en_turno() #j3
         check_carta_habilitada(card_id, jugador_orig, jugador_objetivo) 
         
         '''si el jugador que glopea este endpoint (el objetivo del intercambio), pasa un card_id correspondiente a aterrador.
@@ -262,6 +263,8 @@ async def swap_response( match_id: int = Form(), card_id: int = Form(), player_o
             if fallaste_card : 
                 jugador_orig.remove_efecto_seduccion()
                 proximo = juego.get_jugador_siguiente(jugador_orig)
+                if proximo == jugador_objetivo:
+                    proximo = juego.get_jugador_siguiente(proximo)
                 proximo.set_efecto_seduccion()
             else:
                 jugador = juego.get_jugador_en_turno()

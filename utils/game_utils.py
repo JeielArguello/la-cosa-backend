@@ -6,7 +6,7 @@ from fastapi import HTTPException
 from logic.panic_effects import *
 from models.crud import get_name, read_carta, get_dorso_carta
 from models.database_utils import get_jugadores_match
-from models.game import Juego
+from models.game import Juego, mazo_vacio
 from models.player import JugadorPartida
 from logic.action_effects import *
 
@@ -513,7 +513,7 @@ def crear_mensaje_de_ataque(jugador: JugadorPartida, card_id: int):
 
 
 def check_carta_panico(juego: Juego):
-    carta_id = juego.mazo[-1]
+    carta_id = juego.mazo[len(juego.mazo) - 1]
     dorso = get_dorso_carta(carta_id)
     return dorso == 1
 
@@ -535,3 +535,4 @@ async def jugar_panico(carta: int, juego: Juego):
     # revelaciones
     elif carta in [108]:
         pass
+    mazo_vacio(juego)

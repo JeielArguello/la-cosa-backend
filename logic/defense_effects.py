@@ -58,6 +58,9 @@ async def defensa_fallaste(juego: Juego, jugador_defensor: JugadorPartida,
     juego.robar_carta_no_panico(jugador_defensor)
     
     jugador_siguiente_defensor = juego.get_jugador_siguiente(jugador_defensor)
+
+    if jugador_siguiente_defensor == jugador_atacante:
+        jugador_siguiente_defensor = juego.get_jugador_siguiente(jugador_siguiente_defensor)
     if not juego.is_obstaculo(jugador_defensor.id, jugador_siguiente_defensor.id):
         paso_intercambio = True
         intercambio.cambiar_receptor(jugador_siguiente_defensor)

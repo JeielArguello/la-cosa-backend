@@ -292,12 +292,14 @@ def robar_carta(juego: Juego, jugador: JugadorPartida):
             detail="El mazo esta vacio")
     carta_id = juego.mazo.pop()
     jugador.agregar_carta(carta_id)
+    mazo_vacio(juego)
+    return carta_id
+
+def mazo_vacio(juego: Juego):
     if len(juego.mazo) == 0:
         random.shuffle(juego.mazo_descarte)
         juego.mazo = juego.mazo_descarte
         juego.mazo_descarte = []
-    return carta_id
-
 
 def crear_jugadores_partida(juego: Juego):
     jugadores_id = juego.jugadores_id
