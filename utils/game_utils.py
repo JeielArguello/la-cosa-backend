@@ -493,10 +493,24 @@ async def jugar_panico(carta: int, juego: Juego):
         pass
     # seleccionar jugador
     elif carta in [91, 92, 97, 106, 107]:
-        pass
+        jugador_turno = juego.get_jugador_en_turno()
+        jugador_turno_id = jugador_turno.id
+        jugador_turno_nombre = jugador_turno.name
+        msg = {
+            "carta_especial": {
+		        "tipo_carta":"Que quede entre nosotros",
+		        "cartas":[carta],
+		        "jugadores":[{"nombre": jugador_turno_nombre, "id":jugador_turno_id}]
+            }   
+        }
+        juego.mensaje_personal(jugador_en_turno_id, msg)
+    
     # seleccionar intercambio
     elif carta in [99, 100, 101, 102]:
         pass
     # revelaciones
     elif carta in [108]:
         pass
+
+
+
