@@ -39,7 +39,7 @@ juego.creador = 3
 juego.jugadores_id = [1, 2, 3, 4, 5, 6]
 
 
-def test_robar_carta_panico_succes(mocker, mock_juego, mock_j1):
+def test_robar_carta_panico_200_ok(mocker, mock_juego, mock_j1):
     mock_juego.mazo = [105]
     mock_juego.mazo_descarte = []
     mocker.patch("endpoints.game.get_global_juego", return_value=mock_juego,
@@ -64,7 +64,7 @@ def test_robar_carta_panico_succes(mocker, mock_juego, mock_j1):
     assert response.json() == {'card_id': 105}
 
 
-def test_robar_carta_no_panico_succes(mocker, mock_juego, mock_j1):
+def test_robar_carta_no_panico_200_ok(mocker, mock_juego, mock_j1):
     mock_juego.mazo = [22]
     mocker.patch("endpoints.game.get_global_juego", return_value=mock_juego,
                  autospec=True,)
@@ -84,7 +84,7 @@ def test_robar_carta_no_panico_succes(mocker, mock_juego, mock_j1):
     assert response.json() == {'card_id': 22}
 
 
-def test_robar_carta_fail_no_juego(mocker, mock_juego, mock_j1):
+def test_robar_carta_400_no_juego(mocker, mock_juego, mock_j1):
     mocker.patch(
         'endpoints.game.get_global_juego',
         side_effect=HTTPException(
@@ -97,7 +97,7 @@ def test_robar_carta_fail_no_juego(mocker, mock_juego, mock_j1):
     assert response.json() == {'detail': 'Error: No se pudo acceder al juego'}
 
 
-def test_jugar_carta_sin_defensa(mocker, mock_juego, mock_j1):
+def test_jugar_carta_sin_defensa_200_ok(mocker, mock_juego, mock_j1):
     mocker.patch("endpoints.game.get_global_juego", return_value=mock_juego,
                  autospec=True,)
     mocker.patch("endpoints.game.get_jugador", return_value=mock_j1,
@@ -128,7 +128,7 @@ def test_jugar_carta_sin_defensa(mocker, mock_juego, mock_j1):
     assert response.json() == {"message": "Se jugó el ataque."}
 
 
-def test_jugar_carta_con_defensa_recibir_ataque(mocker, mock_juego):
+def test_jugar_carta_con_defensa_recibir_ataque_200_ok(mocker, mock_juego):
     mocker.patch("endpoints.game.get_global_juego", return_value=mock_juego,
                  autospec=True,)
     mocker.patch("endpoints.game.get_jugador", return_value=mock_j1,
@@ -167,7 +167,7 @@ def test_jugar_carta_con_defensa_recibir_ataque(mocker, mock_juego):
     assert response2.json() == {"message": "Se completó el ataque."}
 
 
-def test_jugar_carta_con_defensa_no_recibir_ataque(mocker, mock_juego):
+def test_jugar_carta_con_defensa_no_recibir_ataque_200_ok(mocker, mock_juego):
     mocker.patch("endpoints.game.get_global_juego", return_value=mock_juego,
                  autospec=True,)
     mocker.patch("endpoints.game.get_jugador", return_value=mock_j1,
@@ -214,7 +214,7 @@ def test_jugar_carta_con_defensa_no_recibir_ataque(mocker, mock_juego):
     assert response2.json() == {"message": "Se completó la defensa."}
 
 
-def test_jugar_carta_ataque_fail_no_juego(mocker, mock_juego, mock_j1):
+def test_jugar_carta_ataque_400_no_juego(mocker, mock_juego, mock_j1):
     mocker.patch(
         'endpoints.game.get_global_juego',
         side_effect=HTTPException(
@@ -229,7 +229,7 @@ def test_jugar_carta_ataque_fail_no_juego(mocker, mock_juego, mock_j1):
     assert response.json() == {'detail': 'Error: No se pudo acceder al juego'}
 
 
-def test_jugar_carta_defense_fail_check_posibilidad_defensa(mocker, mock_juego, mock_j1):
+def test_jugar_carta_defense_400_no_puedes_defenderte(mocker, mock_juego, mock_j1):
     mocker.patch("endpoints.game.get_global_juego", return_value=mock_juego,
                  autospec=True,)
     mocker.patch("endpoints.game.get_jugador", return_value=mock_j1,
@@ -272,150 +272,7 @@ def test_jugar_carta_defense_fail_check_posibilidad_defensa(mocker, mock_juego, 
         'detail': 'Error: Esta carta no puede defenderte.'}
 
 
-#####
-ganan_humanos = {'message': 'Ganan los Humanos', 'winners': [
-    "humanos"], 'losers': ["la_cosa+infectados"]}
-gana_la_cosa = {'message': 'Gana La Cosa', 'winners': [
-    "la_cosa"], 'losers': ["infectados+humanos"]}
-gana_cosa_infectados = {
-    'message': 'Ganan La Cosa y Los Infectados',
-    'winners': ["la_cosa+infectados"],
-    'losers': ["humanos"]}
-no_ganadores = "No hay ganadores."
-
-
-def test_finalizar_partida_succes_ganan_humanos(mocker, mock_juego):
-    mock_juego.cantidad_jugadores = 2
-    mock_juego.jugadores_id = [1, 2]
-    mocker.patch('endpoints.game.get_global_juego',
-                 return_value=mock_juego, autospec=True)
-    mocker.patch('endpoints.game.finalizar_juego',
-                 return_value=ganan_humanos, autospec=True)
-    mocker.patch('endpoints.game.delete_global_juego',
-                 return_value=True, autospec=True)
-    mocker.patch('endpoints.game.delete_match',
-                 return_value=True, autospec=True)
-
-    response = client.post("/game/finish", data={"match_id": 1})
-    assert response.status_code != 422, "Los parametros de entrada del endpoint no pueden ser procesados"
-    assert response.status_code == 200
-    assert response.json() == ganan_humanos
-
-
-def test_finalizar_partida_succes_gana_la_cosa(mocker, mock_juego):
-    mock_juego.cantidad_jugadores = 2
-    mock_juego.jugadores_id = [1, 2]
-    mocker.patch('endpoints.game.get_global_juego',
-                 return_value=mock_juego, autospec=True)
-    mocker.patch('endpoints.game.finalizar_juego',
-                 return_value=gana_la_cosa, autospec=True)
-    mocker.patch('endpoints.game.delete_global_juego',
-                 return_value=True, autospec=True)
-    mocker.patch('endpoints.game.delete_match',
-                 return_value=True, autospec=True)
-
-    response = client.post("/game/finish", data={"match_id": 1})
-    assert response.status_code != 422, "Los parametros de entrada del endpoint no pueden ser procesados"
-    assert response.status_code == 200
-    assert response.json() == gana_la_cosa
-
-
-def test_finalizar_partida_succes_gana_la_cosa_e_infectados(mocker, mock_juego):
-    mock_juego.cantidad_jugadores = 2
-    mock_juego.jugadores_id = [1, 2]
-    mocker.patch('endpoints.game.get_global_juego',
-                 return_value=mock_juego, autospec=True)
-    mocker.patch('endpoints.game.finalizar_juego',
-                 return_value=gana_cosa_infectados, autospec=True)
-    mocker.patch('endpoints.game.delete_global_juego',
-                 return_value=True, autospec=True)
-    mocker.patch('endpoints.game.delete_match',
-                 return_value=True, autospec=True)
-
-    response = client.post("/game/finish", data={"match_id": 1})
-    assert response.status_code != 422, "Los parametros de entrada del endpoint no pueden ser procesados"
-    assert response.status_code == 200
-    assert response.json() == gana_cosa_infectados
-
-
-def test_finalizar_partida_fail_no_hay_ganadores(mocker, mock_juego):
-    mock_juego.cantidad_jugadores = 2
-    mock_juego.jugadores_id = [1, 2]
-    mocker.patch('endpoints.game.get_global_juego',
-                 return_value=mock_juego, autospec=True)
-    mocker.patch(
-        'endpoints.game.finalizar_juego',
-        side_effect=HTTPException(
-            status_code=400,
-            detail=no_ganadores),
-        autospec=True)
-
-    response = client.post("/game/finish", data={"match_id": 1})
-    assert response.status_code != 422, "Los parametros de entrada del endpoint no pueden ser procesados"
-    assert response.status_code == 400
-    assert response.json() == {
-        'detail': "Error: " + no_ganadores}
-
-
-def test_decretar_finalizar_partida_succes_gana_la_cosa_e_infectados(mocker, mock_juego):
-    mocker.patch('endpoints.game.get_global_juego',
-                 return_value=mock_juego, autospec=True)
-    mocker.patch("endpoints.game.get_jugador", return_value=mock_j1,
-                 autospec=True,)
-    mocker.patch('endpoints.game.check_la_cosa',
-                 return_value=True, autospec=True)
-    mocker.patch('endpoints.game.finalizar_juego',
-                 return_value=gana_cosa_infectados, autospec=True)
-    mocker.patch('endpoints.game.delete_global_juego',
-                 return_value=True, autospec=True)
-    mocker.patch('endpoints.game.delete_match',
-                 return_value=True, autospec=True)
-    mocker.patch('endpoints.game.Juego.broadcast_global',
-                 return_value=True, autospec=True)
-
-    response = client.post("/game/finish/thething",
-                           data={"match_id": 1, "player_id": 1})
-    assert response.status_code != 422, "Los parametros de entrada del endpoint no pueden ser procesados"
-    assert response.status_code == 200
-    assert response.json() == gana_cosa_infectados
-
-
-def test_decretar_finalizar_partida_succes_ganan_humanos(mocker, mock_juego):
-    mocker.patch('endpoints.game.get_global_juego',
-                 return_value=mock_juego, autospec=True)
-    mocker.patch("endpoints.game.get_jugador", return_value=mock_j1,
-                 autospec=True,)
-    mocker.patch('endpoints.game.check_la_cosa',
-                 return_value=True, autospec=True)
-    mocker.patch('endpoints.game.finalizar_juego',
-                 return_value=ganan_humanos, autospec=True)
-    mocker.patch('endpoints.game.delete_global_juego',
-                 return_value=True, autospec=True)
-    mocker.patch('endpoints.game.delete_match',
-                 return_value=True, autospec=True)
-    mocker.patch('endpoints.game.Juego.broadcast_global',
-                 return_value=True, autospec=True)
-
-    response = client.post("/game/finish/thething",
-                           data={"match_id": 1, "player_id": 1})
-    assert response.status_code != 422, "Los parametros de entrada del endpoint no pueden ser procesados"
-    assert response.status_code == 200
-    assert response.json() == ganan_humanos
-
-
-def test_decretar_finalizar_partida_fail_check_la_cosa(mocker, mock_juego):
-    mocker.patch('endpoints.game.get_global_juego',
-                 return_value=mock_juego, autospec=True)
-    mocker.patch("endpoints.game.get_jugador", return_value=mock_j1,
-                 autospec=True,)
-    response = client.post("/game/finish/thething",
-                           data={"match_id": 1, "player_id": 1})
-    assert response.status_code != 422, "Los parametros de entrada del endpoint no pueden ser procesados"
-    assert response.status_code == 400
-    assert response.json() == {'detail': 'Error: El jugador no es la cosa.'}
-
-
-def test_descartar_carta_success(mocker, mock_juego, mock_j1):
+def test_descartar_carta_200_ok(mocker, mock_juego, mock_j1):
     mock_juego.cantidad_jugadores = 2
     mock_juego.jugadores_id = [1, 2]
     mock_j1.mano = [1, 2, 3, 4]
@@ -434,7 +291,7 @@ def test_descartar_carta_success(mocker, mock_juego, mock_j1):
     assert response.json() == {"carta descartada": 2}
 
 
-def test_descartar_carta_fail_descartar_carta(mocker, mock_juego, mock_j1):
+def test_descartar_carta_400_no_tiene_la_carta(mocker, mock_juego, mock_j1):
     mocker.patch("endpoints.game.get_global_juego", return_value=mock_juego,
                  autospec=True,)
     mocker.patch("endpoints.game.get_jugador", return_value=mock_j1,
@@ -453,7 +310,7 @@ def test_descartar_carta_fail_descartar_carta(mocker, mock_juego, mock_j1):
         'detail': 'Error: El jugador no posee esta carta'}
 
 
-def test_swap_request_success(mocker, mock_juego):
+def test_swap_request_200_ok(mocker, mock_juego):
     mocker.patch("endpoints.game.get_global_juego", return_value=mock_juego,
                  autospec=True,)
     mocker.patch("endpoints.game.get_jugador", return_value=mock_j1,
@@ -486,7 +343,7 @@ def test_swap_request_success(mocker, mock_juego):
         "message": "se creo la solicitud de intercambio"}
 
 
-def test_swap_request_fail(mocker, mock_juego):
+def test_swap_request_400_no_turno(mocker, mock_juego):
     mocker.patch("endpoints.game.get_global_juego", return_value=mock_juego,
                  autospec=True,)
     mocker.patch("endpoints.game.get_jugador", return_value=mock_j1,
@@ -501,7 +358,7 @@ def test_swap_request_fail(mocker, mock_juego):
     assert response.json() == {"detail": "Error: No es el turno del jugador"}
 
 
-def test_swap_response_success(mocker, mock_juego):
+def test_swap_response_200_ok(mocker, mock_juego):
     mocker.patch("endpoints.game.get_global_juego", return_value=mock_juego,
                  autospec=True,)
     mocker.patch("endpoints.game.get_jugador", return_value=mock_j1,
@@ -526,7 +383,7 @@ def test_swap_response_success(mocker, mock_juego):
     assert response.json() == {"message": "se completo el intercambio"}
 
 
-def test_swap_response_fail(mocker, mock_juego):
+def test_swap_response_400_infectado_no_cambia_carta_infectado(mocker, mock_juego):
     mocker.patch("endpoints.game.get_global_juego", return_value=mock_juego,
                  autospec=True,)
     mocker.patch("endpoints.game.get_jugador", return_value=mock_j1,
@@ -557,7 +414,150 @@ def test_swap_response_fail(mocker, mock_juego):
         "detail": "Error: No puedes descartar la unica carta de infectado que tienes."}
 
 
-def test_seleccionar_carta_determinacion_success(mocker, mock_juego):
+#####
+ganan_humanos = {'message': 'Ganan los Humanos', 'winners': [
+    "humanos"], 'losers': ["la_cosa+infectados"]}
+gana_la_cosa = {'message': 'Gana La Cosa', 'winners': [
+    "la_cosa"], 'losers': ["infectados+humanos"]}
+gana_cosa_infectados = {
+    'message': 'Ganan La Cosa y Los Infectados',
+    'winners': ["la_cosa+infectados"],
+    'losers': ["humanos"]}
+no_ganadores = "No hay ganadores."
+
+
+def test_finalizar_partida_200_ok_ganan_humanos(mocker, mock_juego):
+    mock_juego.cantidad_jugadores = 2
+    mock_juego.jugadores_id = [1, 2]
+    mocker.patch('endpoints.game.get_global_juego',
+                 return_value=mock_juego, autospec=True)
+    mocker.patch('endpoints.game.finalizar_juego',
+                 return_value=ganan_humanos, autospec=True)
+    mocker.patch('endpoints.game.delete_global_juego',
+                 return_value=True, autospec=True)
+    mocker.patch('endpoints.game.delete_match',
+                 return_value=True, autospec=True)
+
+    response = client.post("/game/finish", data={"match_id": 1})
+    assert response.status_code != 422, "Los parametros de entrada del endpoint no pueden ser procesados"
+    assert response.status_code == 200
+    assert response.json() == ganan_humanos
+
+
+def test_finalizar_partida_200_ok_gana_la_cosa(mocker, mock_juego):
+    mock_juego.cantidad_jugadores = 2
+    mock_juego.jugadores_id = [1, 2]
+    mocker.patch('endpoints.game.get_global_juego',
+                 return_value=mock_juego, autospec=True)
+    mocker.patch('endpoints.game.finalizar_juego',
+                 return_value=gana_la_cosa, autospec=True)
+    mocker.patch('endpoints.game.delete_global_juego',
+                 return_value=True, autospec=True)
+    mocker.patch('endpoints.game.delete_match',
+                 return_value=True, autospec=True)
+
+    response = client.post("/game/finish", data={"match_id": 1})
+    assert response.status_code != 422, "Los parametros de entrada del endpoint no pueden ser procesados"
+    assert response.status_code == 200
+    assert response.json() == gana_la_cosa
+
+
+def test_finalizar_partida_200_ok_gana_la_cosa_e_infectados(mocker, mock_juego):
+    mock_juego.cantidad_jugadores = 2
+    mock_juego.jugadores_id = [1, 2]
+    mocker.patch('endpoints.game.get_global_juego',
+                 return_value=mock_juego, autospec=True)
+    mocker.patch('endpoints.game.finalizar_juego',
+                 return_value=gana_cosa_infectados, autospec=True)
+    mocker.patch('endpoints.game.delete_global_juego',
+                 return_value=True, autospec=True)
+    mocker.patch('endpoints.game.delete_match',
+                 return_value=True, autospec=True)
+
+    response = client.post("/game/finish", data={"match_id": 1})
+    assert response.status_code != 422, "Los parametros de entrada del endpoint no pueden ser procesados"
+    assert response.status_code == 200
+    assert response.json() == gana_cosa_infectados
+
+
+def test_finalizar_partida_400_no_hay_ganadores(mocker, mock_juego):
+    mock_juego.cantidad_jugadores = 2
+    mock_juego.jugadores_id = [1, 2]
+    mocker.patch('endpoints.game.get_global_juego',
+                 return_value=mock_juego, autospec=True)
+    mocker.patch(
+        'endpoints.game.finalizar_juego',
+        side_effect=HTTPException(
+            status_code=400,
+            detail=no_ganadores),
+        autospec=True)
+
+    response = client.post("/game/finish", data={"match_id": 1})
+    assert response.status_code != 422, "Los parametros de entrada del endpoint no pueden ser procesados"
+    assert response.status_code == 400
+    assert response.json() == {
+        'detail': "Error: " + no_ganadores}
+
+
+def test_decretar_finalizar_partida_200_ok_gana_la_cosa_e_infectados(mocker, mock_juego):
+    mocker.patch('endpoints.game.get_global_juego',
+                 return_value=mock_juego, autospec=True)
+    mocker.patch("endpoints.game.get_jugador", return_value=mock_j1,
+                 autospec=True,)
+    mocker.patch('endpoints.game.check_la_cosa',
+                 return_value=True, autospec=True)
+    mocker.patch('endpoints.game.finalizar_juego',
+                 return_value=gana_cosa_infectados, autospec=True)
+    mocker.patch('endpoints.game.delete_global_juego',
+                 return_value=True, autospec=True)
+    mocker.patch('endpoints.game.delete_match',
+                 return_value=True, autospec=True)
+    mocker.patch('endpoints.game.Juego.broadcast_global',
+                 return_value=True, autospec=True)
+
+    response = client.post("/game/finish/thething",
+                           data={"match_id": 1, "player_id": 1})
+    assert response.status_code != 422, "Los parametros de entrada del endpoint no pueden ser procesados"
+    assert response.status_code == 200
+    assert response.json() == gana_cosa_infectados
+
+
+def test_decretar_finalizar_partida_200_ok_ganan_humanos(mocker, mock_juego):
+    mocker.patch('endpoints.game.get_global_juego',
+                 return_value=mock_juego, autospec=True)
+    mocker.patch("endpoints.game.get_jugador", return_value=mock_j1,
+                 autospec=True,)
+    mocker.patch('endpoints.game.check_la_cosa',
+                 return_value=True, autospec=True)
+    mocker.patch('endpoints.game.finalizar_juego',
+                 return_value=ganan_humanos, autospec=True)
+    mocker.patch('endpoints.game.delete_global_juego',
+                 return_value=True, autospec=True)
+    mocker.patch('endpoints.game.delete_match',
+                 return_value=True, autospec=True)
+    mocker.patch('endpoints.game.Juego.broadcast_global',
+                 return_value=True, autospec=True)
+
+    response = client.post("/game/finish/thething",
+                           data={"match_id": 1, "player_id": 1})
+    assert response.status_code != 422, "Los parametros de entrada del endpoint no pueden ser procesados"
+    assert response.status_code == 200
+    assert response.json() == ganan_humanos
+
+
+def test_decretar_finalizar_partida_400_no_eres_la_cosa(mocker, mock_juego):
+    mocker.patch('endpoints.game.get_global_juego',
+                 return_value=mock_juego, autospec=True)
+    mocker.patch("endpoints.game.get_jugador", return_value=mock_j1,
+                 autospec=True,)
+    response = client.post("/game/finish/thething",
+                           data={"match_id": 1, "player_id": 1})
+    assert response.status_code != 422, "Los parametros de entrada del endpoint no pueden ser procesados"
+    assert response.status_code == 400
+    assert response.json() == {'detail': 'Error: El jugador no es la cosa.'}
+
+
+def test_seleccionar_carta_determinacion_200_ok(mocker, mock_juego):
     mocker.patch("endpoints.game.get_global_juego", return_value=mock_juego,
                  autospec=True,)
     mocker.patch("endpoints.game.get_jugador", return_value=mock_j1,
@@ -576,7 +576,7 @@ def test_seleccionar_carta_determinacion_success(mocker, mock_juego):
     assert response.json() == {"carta elegida": 2}
 
 
-def test_seleccionar_carta_determinacion_fail(mocker, mock_juego):
+def test_seleccionar_carta_determinacion_400_no_es_tu_turno(mocker, mock_juego):
     mocker.patch("endpoints.game.get_global_juego", return_value=mock_juego,
                  autospec=True,)
     mocker.patch("endpoints.game.get_jugador", return_value=mock_j1,
@@ -595,7 +595,7 @@ def test_seleccionar_carta_determinacion_fail(mocker, mock_juego):
     assert response.json() == {"detail": "Error: No es el turno del jugador"}
 
 
-def test_get_logs_succes(mocker, mock_juego):
+def test_get_logs_200_ok(mocker, mock_juego):
     mock_juego.logs = ["test logs", "testeando logs", "se testearon los logs"]
     mocker.patch("endpoints.game.get_global_juego", return_value=mock_juego,
                  autospec=True,)
@@ -605,7 +605,7 @@ def test_get_logs_succes(mocker, mock_juego):
         "logs": ["test logs", "testeando logs", "se testearon los logs"]}
 
 
-def test_get_logs_fail_no_juego(mocker, mock_juego):
+def test_get_logs_400_no_juego(mocker, mock_juego):
     response = client.get('/game/log/1')
     assert response.status_code == 400
     assert response.json() == {'detail': 'Error: No se pudo acceder al juego'}

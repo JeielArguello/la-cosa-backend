@@ -13,10 +13,9 @@ client = TestClient(app)
 mocker = Mock()
 
 
-def test_crear_partida(mocker):
+def test_crear_partida_ok(mocker):
     partida_mock = Mock(spec=Partida)
     jugador_mock = Mock(spec=Jugador)
-
     jugador_mock.id = 1
     jugador_mock.nombre = "pepe"
     mocker.patch(
@@ -24,7 +23,6 @@ def test_crear_partida(mocker):
         return_value=jugador_mock,
         autospec=True,
     )
-
     partida_mock.id = 1
     partida_mock.nombre = "Partida de prueba"
     partida_mock.iniciado = False
@@ -38,6 +36,5 @@ def test_crear_partida(mocker):
         return_value=partida_mock,
         autospec=True,
     )
-
     new_match = crear_partida(1, "Partida de prueba", None, 12, 4)
     assert new_match == {"id_partida": 1}

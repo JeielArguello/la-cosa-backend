@@ -320,6 +320,10 @@ async def finish_match(match_id: int = Form()):
             detail=error_msg
         )
 
+######
+# Decretar Finalizar Partida
+######
+
 
 @router.post('/finish/thething')
 async def finish_match_thething(match_id: int = Form(), player_id: int = Form()):
@@ -362,9 +366,9 @@ async def seleccionar_carta_determinacion(match_id: int = Form(),
             detail=error_msg
         )
 
-#################
+######
 # GET LOGS
-#################
+######
 
 
 @router.get("/log/{match_id}")
