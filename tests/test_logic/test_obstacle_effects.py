@@ -44,7 +44,7 @@ def mock_objetivo_no_vecino(mocker):
     return jugador
 
 # Test 1: puerta atrancada aplicada correctamente
-def test_play_puerta_atrancada(mocker, mock_juego,mock_atacante, mock_objetivo):
+def test_play_puerta_atrancada_succes(mocker, mock_juego,mock_atacante, mock_objetivo):
     juego = mock_juego
     mocker.patch("logic.obstacle_effects.get_jugador", side_effect={mock_atacante, mock_objetivo})
     expected_posiciones = [1, 0, 2, 0, 3, 0, 4, "p"]
@@ -62,7 +62,7 @@ def test_play_puerta_atrancada(mocker, mock_juego,mock_atacante, mock_objetivo):
 def test_play_puerta_atrancada_no_vecino(mocker, mock_juego,mock_atacante, mock_objetivo_no_vecino):
     juego = mock_juego
     mocker.patch("logic.obstacle_effects.get_jugador", side_effect={mock_atacante, mock_objetivo_no_vecino})
-    mocker.patch("logic.obstacle_effects.validar_posiciones_vecinas", side_effect=HTTPException(status_code=400, detail="Los jugadores no son vecinos"))
+    mocker.patch("logic.obstacle_effects.Juego.validar_posiciones_vecinas", side_effect=HTTPException(status_code=400, detail="Los jugadores no son vecinos"))
     
     with pytest.raises(HTTPException) as excinfo:
         play_puerta_atrancada(juego, mock_atacante.id, mock_objetivo_no_vecino.id)
