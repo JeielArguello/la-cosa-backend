@@ -210,20 +210,17 @@ async def swap_request(match_id: int = Form(), card_id: int = Form(), player_ori
             juego.jugadores_en_partida) if jugador.get_efecto_seduccion()), None)
         if not jugador_objetivo_index is None:
             jugador_objetivo = juego.jugadores_en_partida[jugador_objetivo_index]
-            print("jugador objetivo con seduccion: ", jugador_objetivo.name)
         else:
             jugador_objetivo = juego.get_jugador_siguiente_turno()
             check_objetive_is_next(jugador_objetivo,juego)
         check_carta_habilitada(card_id,jugador_orig,jugador_objetivo)
-        check_obstaculo(player_orig,jugador_objetivo.id,juego)
+        if not jugador_objetivo.get_efecto_seduccion():
+            check_obstaculo(player_orig,jugador_objetivo.id,juego)
 
         juego.crear_intercambio(player_orig,card_id,jugador_objetivo.id)
         await juego.mensaje_personal(jugador_objetivo.id,"H")
         if jugador_objetivo.check_puede_anular_el_intercambio():
             await juego.mensaje_personal(jugador_objetivo.id,"N")
-
-        if not jugador_objetivo.get_efecto_seduccion():
-            check_obstaculo(player_orig, jugador_objetivo.id, juego)
 
         return {"message": "se creo la solicitud de intercambio"}
     except HTTPException as e:
@@ -249,7 +246,7 @@ async def swap_response( match_id: int = Form(), card_id: int = Form(), player_o
         else: 
             juego.responder_intercambio(player_orig, card_id)
         
-        fallaste_card = is_fallaste(card_id)
+        fallaste_card = is_fallaste(card_id) and se_defiende
         if not fallaste_card:
             juego.terminar_turno()
             juego.avanzar_turno()
