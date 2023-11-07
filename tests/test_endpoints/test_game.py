@@ -58,7 +58,7 @@ def test_jugar_carta_no_defensa(mocker, mock_juego,mock_j1):
                  autospec=True,)
     mocker.patch("endpoints.game.Juego.mensaje_personal", return_value=None,
                  autospec=True,)
-    mocker.patch("endpoints.game.is_obstaculo", return_value=False,
+    mocker.patch("endpoints.game.Juego.is_obstaculo", return_value=False,
                  autospec=True,)
     response = client.post("/game/play/attack", data={"match_id": 1,
                                                       "card_id": 22,
@@ -107,10 +107,13 @@ def test_jugar_carta_con_defensa_recibir_ataque(mocker, mock_juego):
     assert response2.json() == {"message": "Se completó el ataque."}
 
 
-def test_jugar_carta_con_defensa_no_recibir_ataque(mocker, mock_juego):
+def test_jugar_carta_con_defensa_no_recibir_ataque(mocker, mock_juego,mock_j1: JugadorPartida):
+    jugador = mock_j1
+    jugador.cartas = [1, 2, 3, 81]
+    mock_j1.cartas = [1, 2, 3, 81]
     mocker.patch("endpoints.game.get_global_juego", return_value=mock_juego,
                  autospec=True,)
-    mocker.patch("endpoints.game.get_jugador", return_value=mock_j1,
+    mocker.patch("endpoints.game.get_jugador", return_value=None,
                  autospec=True,)
     mocker.patch("endpoints.game.check_turno", return_value=None,
                  autospec=True,)
@@ -145,6 +148,8 @@ def test_jugar_carta_con_defensa_no_recibir_ataque(mocker, mock_juego):
                                                        "player_orig": 1})
     assert response1.status_code == 200
     assert response1.json() == {"message": "Se creó la solicitud de ataque."}
+    mocker.patch("endpoints.game.Juego.get_jugador", side_effect = {mock_j1,jugador},
+                 autospec=True,)
     response2 = client.post("/game/play/defense", data={"match_id": 1,
                                                         "card_id": 81,
                                                         "player_orig": 2})
@@ -381,10 +386,10 @@ def test_swap_response_success(mocker, mock_juego):
     response = client.post("/game/swap-response", data={"match_id": 1,
                                                         "card_id": 2,
                                                         "player_objective": 3,
-                                                        "player_orig": 2})
+                                                        "player_orig": 2,
+                                                        "se_defiende":False})
     assert response.status_code == 200
     assert response.json() == {"message": "se completo el intercambio"}
-
 
 def test_swap_response_fail(mocker, mock_juego):
     mocker.patch("endpoints.game.get_global_juego", return_value=mock_juego,
@@ -410,11 +415,11 @@ def test_swap_response_fail(mocker, mock_juego):
     response = client.post("/game/swap-response", data={"match_id": 1,
                                                         "card_id": 2,
                                                         "player_objective": 3,
-                                                        "player_orig": 2})
+                                                        "player_orig": 2,
+                                                        "se_defiende":False})
     assert response.status_code == 400
     assert response.json() == {
         "detail": "Error: No puedes descartar la unica carta de infectado que tienes."}
-
 
 def test_seleccionar_carta_determinacion_success(mocker, mock_juego):
     mocker.patch("endpoints.game.get_global_juego", return_value=mock_juego,

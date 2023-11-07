@@ -1,11 +1,12 @@
 
-from logic.obstacle_effects import play_cuarentena, play_puerta_atrancada
+from logic.defense_effects import defensa_aqui_estoy_bien, defensa_fallaste, defensa_nada_de_barbacoas, defensa_no_gracias, defense_aterrador
+from logic.obstacle_effects import play_puerta_atrancada, play_cuarentena
 from utils.action_utils import get_jugador
 from fastapi import HTTPException
 from logic.panic_effects import *
 from models.crud import get_name, read_carta, get_dorso_carta
 from models.database_utils import get_jugadores_match
-from models.game import Juego
+from models.game import Juego, mazo_vacio
 from models.player import JugadorPartida
 from logic.action_effects import *
 
@@ -23,7 +24,6 @@ def get_status_game(juego: Juego):
         list_jugadores.append({'id' : j['id'],
                                'nombre' : j['nombre'],
                                'cuarentena' : jugador.get_cuartena()})
-    
     carta = read_carta(juego.mazo[-1])
     id_player_turno = juego.get_jugador_en_turno().id
     response = {'posiciones': posiciones,
@@ -276,6 +276,57 @@ async def jugar_la_carta(
         pass
 
 
+async def defenderse_de_intercambio(
+        juego: Juego,
+        card_id: int,
+        jugador_orig: JugadorPartida,
+        jugador_atacante: JugadorPartida):
+    
+    if card_id  in [67,68,69,70]:
+            msg = defense_aterrador(juego,jugador_orig,jugador_atacante,card_id)
+            await juego.mensaje_personal(jugador_orig.id,
+                                     {"carta_id": card_id,
+                                      "jugador_obj": get_name(jugador_atacante.id),
+                                      "mensaje": msg["mensaje"],
+                                      "cartaMostrar": msg["cartaMostrar"]})
+    elif card_id in [71,72,73]:
+        carta_ataque = juego.solicitud_ataque.carta_atacante
+        nombre_ataque = get_name_carta(carta_ataque)
+        msg = defensa_aqui_estoy_bien(juego, jugador_orig, jugador_atacante, card_id, nombre_ataque)
+        await juego.broadcast_global(
+            {"carta_id": card_id,
+                "mensaje": msg["mensaje"]
+            }
+        )
+    elif card_id in [74,75,76,77]:
+        msg = defensa_no_gracias(juego, jugador_orig, jugador_atacante, card_id)
+        await juego.broadcast_global(
+            {"carta_id": card_id,
+                "jugador_obj": get_name(jugador_atacante.id),
+                "mensaje": msg["mensaje"]
+            }
+        )
+    elif card_id in [78,79,80]:
+        msg = await defensa_fallaste(juego, jugador_orig, jugador_atacante, card_id)
+        await juego.broadcast_global(
+            {"carta_id": card_id,
+                "jugador_obj": get_name(jugador_atacante.id),
+                "mensaje": msg["mensaje"]
+            }
+        )
+    elif card_id in [81,82,83]:
+        msg = defensa_nada_de_barbacoas(juego, jugador_orig, jugador_atacante, card_id)
+        await juego.broadcast_global(
+            {"carta_id": card_id,
+                "mensaje": msg["mensaje"]
+            }
+        )
+    else:
+        pass
+
+
+            
+
 def validar_jugada(juego: Juego,
                    card_id: int,
                    player_objective: int,
@@ -359,31 +410,31 @@ def check_objetive_is_next(proximo_jugador: JugadorPartida, juego: Juego):
             status_code=400, detail="El jugador objetivo no es el proximo en jugar.")
 
 
-def check_obstaculo(atacante_id, objetivo_id, juego: Juego):
-    len_posiciones = len(juego.posiciones)
-    indice_objetivo = juego.posiciones.index(objetivo_id)
-    indice_atacante = juego.posiciones.index(atacante_id)
-    indice_posicion_intermedia = get_posicion_intermedia(
-        len_posiciones, indice_objetivo, indice_atacante)
+def check_obstaculo(atacante_id: int, objetivo_id: int, juego: Juego):
+    indice_posicion_intermedia = juego.get_posicion_intermedia(objetivo_id, atacante_id)
     if is_cuarentena(objetivo_id, juego):
         raise HTTPException(
             status_code=400,
             detail="Hay un Obstaculo cuarentena entre los jugadores")
     validar_obstaculo(indice_posicion_intermedia, juego)
 
-
 def is_obstaculo(atacante_id, objetivo_id, juego: Juego):
-    len_posiciones = len(juego.posiciones)
-    indice_objetivo = juego.posiciones.index(objetivo_id)
-    indice_atacante = juego.posiciones.index(atacante_id)
-    indice_posicion_intermedia = get_posicion_intermedia(
-        len_posiciones, indice_objetivo, indice_atacante)
+    indice_posicion_intermedia = juego.get_posicion_intermedia( objetivo_id, atacante_id)
     objetivo = get_jugador(objetivo_id, juego)
     hay_obstaculo = False
     if juego.posiciones[indice_posicion_intermedia] != 0 or objetivo.get_cuartena():
         hay_obstaculo = True
-    
+
     return hay_obstaculo
+
+
+def is_card_defense(card_id):
+    is_card_defense = card_id in range(67,83)
+    return is_card_defense
+
+def is_fallaste(card_id):
+    is_fallaste = card_id in [78,79,80]
+    return is_fallaste
 
 def is_lanzallama(card_id : int):
     lanzallama = card_id in [22, 23, 24, 25, 26]
@@ -392,7 +443,12 @@ def is_lanzallama(card_id : int):
 def is_hacha(card_id : int):
     hacha = card_id in [30, 31]
     return hacha
-    
+
+def is_seduccion(card_id):
+    is_seduccion = card_id in [60,61,62,63,64,65,66]
+    return is_seduccion
+
+
 def check_carta_habilitada(
         card_id: int,
         jugador_orig: JugadorPartida,
@@ -489,7 +545,7 @@ def crear_mensaje_de_ataque(jugador: JugadorPartida, card_id: int):
 
 
 def check_carta_panico(juego: Juego):
-    carta_id = juego.mazo[-1]
+    carta_id = juego.mazo[len(juego.mazo) - 1]
     dorso = get_dorso_carta(carta_id)
     return dorso == 1
 
@@ -511,3 +567,4 @@ async def jugar_panico(carta: int, juego: Juego):
     # revelaciones
     elif carta in [108]:
         pass
+    mazo_vacio(juego)

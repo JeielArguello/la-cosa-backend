@@ -13,12 +13,13 @@ class JugadorPartida:
         self.infectado = False
         self.humano = True
         self.turno_actual = False
+        self.cuarentena = (False,0) 
         self.posicion = 0
         self.cartas = []
         self.ws_player: WebSocket = None
         self.name = get_name(id)
-        self.afectado_seduccion = False
-        self.cuarentena = (False,0) 
+        self.efecto_seduccion = False
+        self.efecto_fallaste = False
         
 
     def get_muerto(self):
@@ -48,10 +49,10 @@ class JugadorPartida:
     
     def set_cuartena(self):
         self.cuarentena = (True, 2)
-    
+
     def get_cuartena(self):
         return self.cuarentena[0]
-    
+
     def pop_cuarentena(self):
         if (self.cuarentena[1] > 0):
             self.cuarentena = (True,self.cuarentena[1] - 1)
@@ -84,3 +85,31 @@ class JugadorPartida:
 
     def descartar_carta(self, carta: int):
         return self.cartas.remove(carta)
+    
+    def set_efecto_seduccion(self):
+        self.efecto_seduccion = True
+
+    def get_efecto_seduccion(self):
+        return self.efecto_seduccion
+    
+    def remove_efecto_seduccion(self):
+        self.efecto_seduccion = False
+    
+    def set_efecto_fallaste(self):
+        self.efecto_fallaste = True
+
+    def get_efecto_fallaste(self):
+        return self.efecto_fallaste
+    
+    def remove_efecto_fallaste(self):
+        self.efecto_fallaste = False
+    
+    def check_puede_anular_el_intercambio(self):
+        mano = self.get_cartas()
+        listaDeCardsIdQueAnulanIntercambio = [67,68,69,70,74,75,76,77,78,79,80]
+        puedeAnularIntercambio = False
+        for card in mano: 
+            if card["id"] in listaDeCardsIdQueAnulanIntercambio:
+                puedeAnularIntercambio = True 
+            
+        return puedeAnularIntercambio
