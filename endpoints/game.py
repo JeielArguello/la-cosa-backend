@@ -376,3 +376,27 @@ async def get_logs_del_juego(match_id: int):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=error_msg
         )
+    
+
+######
+# Panico, Que quede entre nosotros.
+######
+
+router.post("play/que_quede_entre_nosotros")
+async def que_quede_entre_nostros(match_id: int = Form(), 
+                                            player_objective: int = Form(), 
+                                            player_orig: int = Form()):
+    try:
+        juego = get_global_juego(match_id)
+        jugador = get_jugador(player_orig, juego)
+        check_turno(jugador)    
+        msg = play_que_quede_entre_nosotros(player_orig, player_objective, juego)
+        await juego.mensaje_personal(player_objective, {"carta_id": 106,
+                                                        "mensaje": msg["mensaje"],
+                                                        "cartaMostrar":msg["cartaMostrar"]})
+    except HTTPException as e:
+        error_msg = f"Error:{e.detail}"
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_msg
+        )
