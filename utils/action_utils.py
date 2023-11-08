@@ -4,31 +4,6 @@ from fastapi import HTTPException
 from models.game import Juego
 
 
-def validar_posiciones_vecinas(
-        indice_objetivo: int,
-        indice_atacante: int,
-        len_posiciones: int):
-    primero = min(indice_objetivo, indice_atacante)
-    segundo = max(indice_objetivo, indice_atacante)
-    if (primero + 2 != segundo) and (primero !=
-                                     0 or segundo != len_posiciones - 2):
-        raise HTTPException(
-            status_code=400,
-            detail="Los jugadores no son vecinos")
-
-
-def get_posicion_intermedia(len_posiciones, indice_jugador1, indice_jugador2):
-    border_one = (indice_jugador1 == 0 and indice_jugador2 ==
-                  len_posiciones - 2)
-    border_two = (indice_jugador2 == 0 and indice_jugador1 ==
-                  len_posiciones - 2)
-    if (border_one or border_two):
-        posicion = len_posiciones - 1
-    else:
-        posicion = min(indice_jugador1, indice_jugador2) + 1
-    return posicion
-
-
 def validar_obstaculo(indice_posicion_intermedia: int, juego: Juego):
     if juego.posiciones[indice_posicion_intermedia] != 0:
         raise HTTPException(

@@ -30,3 +30,7 @@ class IntercambiarCarta:
         self.receptor.descartar_carta(self.carta_receptor)
         self.soliciatante.agregar_carta(self.carta_receptor)
         self.receptor.agregar_carta(self.carta_solicitante)
+
+    # Esta funcion deberia cambiar el receptor del intercambio al siguiente jugador en el sentido del juego
+    def cambiar_receptor(self, nuevo_receptor: JugadorPartida):
+        self.receptor = nuevo_receptor

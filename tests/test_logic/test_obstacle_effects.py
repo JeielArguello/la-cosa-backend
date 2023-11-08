@@ -70,8 +70,8 @@ def test_play_puerta_atrancada__http_exception_no_vecino(mocker, mock_juego, moc
     juego = mock_juego
     mocker.patch("logic.obstacle_effects.get_jugador", side_effect={
                  mock_atacante, mock_objetivo_no_vecino})
-    mocker.patch("logic.obstacle_effects.validar_posiciones_vecinas", side_effect=HTTPException(
-        status_code=400, detail="Los jugadores no son vecinos"))
+    mocker.patch("logic.obstacle_effects.Juego.validar_posiciones_vecinas",
+                 side_effect=HTTPException(status_code=400, detail="Los jugadores no son vecinos"))
     with pytest.raises(HTTPException) as excinfo:
         play_puerta_atrancada(juego, mock_atacante.id,
                               mock_objetivo_no_vecino.id)

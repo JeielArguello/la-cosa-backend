@@ -54,7 +54,7 @@ def test_robar_carta_panico_200_ok(mocker, mock_juego, mock_j1):
                  autospec=True,)
     mocker.patch("endpoints.game.Juego.get_jugador_siguiente_turno", return_value=mock_j1,
                  autospec=True,)
-    mocker.patch("endpoints.game.is_obstaculo", return_value=True,
+    mocker.patch("endpoints.game.Juego.is_obstaculo", return_value=True,
                  autospec=True,)
     mocker.patch("endpoints.game.Juego.mensaje_personal", return_value=None,
                  autospec=True,)
@@ -118,7 +118,7 @@ def test_jugar_carta_sin_defensa_200_ok(mocker, mock_juego, mock_j1):
                  autospec=True,)
     mocker.patch("endpoints.game.Juego.mensaje_personal", return_value=None,
                  autospec=True,)
-    mocker.patch("endpoints.game.is_obstaculo", return_value=True,
+    mocker.patch("endpoints.game.Juego.is_obstaculo", return_value=False,
                  autospec=True,)
     response = client.post("/game/play/attack", data={"match_id": 1,
                                                       "card_id": 22,
@@ -167,10 +167,13 @@ def test_jugar_carta_con_defensa_recibir_ataque_200_ok(mocker, mock_juego):
     assert response2.json() == {"message": "Se completó el ataque."}
 
 
-def test_jugar_carta_con_defensa_no_recibir_ataque_200_ok(mocker, mock_juego):
+def test_jugar_carta_con_defensa_no_recibir_ataque_200_ok(mocker, mock_juego, mock_j1: JugadorPartida):
+    jugador = mock_j1
+    jugador.cartas = [1, 2, 3, 81]
+    mock_j1.cartas = [1, 2, 3, 81]
     mocker.patch("endpoints.game.get_global_juego", return_value=mock_juego,
                  autospec=True,)
-    mocker.patch("endpoints.game.get_jugador", return_value=mock_j1,
+    mocker.patch("endpoints.game.get_jugador", return_value=None,
                  autospec=True,)
     mocker.patch("endpoints.game.check_turno", return_value=None,
                  autospec=True,)
@@ -199,7 +202,7 @@ def test_jugar_carta_con_defensa_no_recibir_ataque_200_ok(mocker, mock_juego):
                  autospec=True,)
     mocker.patch("endpoints.game.check_ganador", return_value=False,
                  autospec=True,)
-    mocker.patch("endpoints.game.is_obstaculo", return_value=True,
+    mocker.patch("endpoints.game.Juego.is_obstaculo", return_value=True,
                  autospec=True,)
     response1 = client.post("/game/play/attack", data={"match_id": 1,
                                                        "card_id": 22,
@@ -207,6 +210,8 @@ def test_jugar_carta_con_defensa_no_recibir_ataque_200_ok(mocker, mock_juego):
                                                        "player_orig": 1})
     assert response1.status_code == 200
     assert response1.json() == {"message": "Se creó la solicitud de ataque."}
+    mocker.patch("endpoints.game.Juego.get_jugador", side_effect={mock_j1, jugador},
+                 autospec=True,)
     response2 = client.post("/game/play/defense", data={"match_id": 1,
                                                         "card_id": 81,
                                                         "player_orig": 2})
@@ -282,7 +287,7 @@ def test_descartar_carta_200_ok(mocker, mock_juego, mock_j1):
                  autoespec=True,)
     mocker.patch("endpoints.game.Juego.mensaje_personal", return_value=True,
                  autoespec=True,)
-    mocker.patch("endpoints.game.is_obstaculo", return_value=True,
+    mocker.patch("endpoints.game.Juego.is_obstaculo", return_value=True,
                  autospec=True,)
     response = client.post("/game/discard", data={"match_id": 1,
                                                   "card_id": 2,
