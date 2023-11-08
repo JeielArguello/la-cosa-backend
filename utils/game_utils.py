@@ -33,7 +33,7 @@ def get_global_juego(match_id: int) -> Juego:
     for juego in global_juegos:
         if juego.partida_id == match_id:
             result = juego
-    if(result is None):
+    if (result is None):
         raise HTTPException(
             status_code=400, detail="No se pudo acceder al juego")
     return result
@@ -44,7 +44,7 @@ def delete_global_juego(match_id):
     for juego in global_juegos:
         if juego.partida_id == match_id:
             result = juego
-    if(result is None):
+    if (result is None):
         raise HTTPException(
             status_code=400, detail="No se puedo borrar el juego")
     global_juegos.remove(result)
@@ -249,13 +249,18 @@ async def jugar_la_carta(
                                      "mensaje": msg["mensaje"]})
         await juego.broadcast_global("C")
 
+    elif card_id in [89, 90]:
+        msg = play_cuerdas_podridas(player_orig, juego)
+        await juego.broadcast_global({"carta_id": card_id,
+                                     "mensaje": msg["mensaje"]})
+
     elif card_id in [93, 94]:
-        msg = play_tres_cuatro(player_orig, juego, card_id)
+        msg = play_tres_cuatro(player_orig, juego)
         await juego.broadcast_global({"carta_id": card_id,
                                      "mensaje": msg["mensaje"]})
 
     elif card_id in [105]:
-        msg = play_ups(player_orig, juego, card_id)
+        msg = play_ups(player_orig, juego)
         await juego.broadcast_global({"carta_id": card_id,
                                       "mensaje": msg["mensaje"],
                                       "cartaMostrar": msg["cartaMostrar"],
@@ -269,51 +274,52 @@ async def defenderse_de_intercambio(
         card_id: int,
         jugador_orig: JugadorPartida,
         jugador_atacante: JugadorPartida):
-    
-    if card_id  in [67,68,69,70]:
-            msg = defense_aterrador(juego,jugador_orig,jugador_atacante,card_id)
-            await juego.mensaje_personal(jugador_orig.id,
+
+    if card_id in [67, 68, 69, 70]:
+        msg = defense_aterrador(juego, jugador_orig, jugador_atacante, card_id)
+        await juego.mensaje_personal(jugador_orig.id,
                                      {"carta_id": card_id,
                                       "jugador_obj": get_name(jugador_atacante.id),
                                       "mensaje": msg["mensaje"],
                                       "cartaMostrar": msg["cartaMostrar"]})
-    elif card_id in [71,72,73]:
+    elif card_id in [71, 72, 73]:
         carta_ataque = juego.solicitud_ataque.carta_atacante
         nombre_ataque = get_name_carta(carta_ataque)
-        msg = defensa_aqui_estoy_bien(juego, jugador_orig, jugador_atacante, card_id, nombre_ataque)
+        msg = defensa_aqui_estoy_bien(
+            juego, jugador_orig, jugador_atacante, card_id, nombre_ataque)
         await juego.broadcast_global(
             {"carta_id": card_id,
                 "mensaje": msg["mensaje"]
-            }
+             }
         )
-    elif card_id in [74,75,76,77]:
-        msg = defensa_no_gracias(juego, jugador_orig, jugador_atacante, card_id)
+    elif card_id in [74, 75, 76, 77]:
+        msg = defensa_no_gracias(
+            juego, jugador_orig, jugador_atacante, card_id)
         await juego.broadcast_global(
             {"carta_id": card_id,
                 "jugador_obj": get_name(jugador_atacante.id),
                 "mensaje": msg["mensaje"]
-            }
+             }
         )
-    elif card_id in [78,79,80]:
+    elif card_id in [78, 79, 80]:
         msg = await defensa_fallaste(juego, jugador_orig, jugador_atacante, card_id)
         await juego.broadcast_global(
             {"carta_id": card_id,
                 "jugador_obj": get_name(jugador_atacante.id),
                 "mensaje": msg["mensaje"]
-            }
+             }
         )
-    elif card_id in [81,82,83]:
-        msg = defensa_nada_de_barbacoas(juego, jugador_orig, jugador_atacante, card_id)
+    elif card_id in [81, 82, 83]:
+        msg = defensa_nada_de_barbacoas(
+            juego, jugador_orig, jugador_atacante, card_id)
         await juego.broadcast_global(
             {"carta_id": card_id,
                 "mensaje": msg["mensaje"]
-            }
+             }
         )
     else:
         pass
 
-
-            
 
 def validar_jugada(juego: Juego,
                    card_id: int,
@@ -399,21 +405,24 @@ def check_objetive_is_next(proximo_jugador: JugadorPartida, juego: Juego):
 
 
 def check_obstaculo(atacante_id: int, objetivo_id: int, juego: Juego):
-    indice_posicion_intermedia = juego.get_posicion_intermedia(objetivo_id, atacante_id)
+    indice_posicion_intermedia = juego.get_posicion_intermedia(
+        objetivo_id, atacante_id)
 
     validar_obstaculo(indice_posicion_intermedia, juego)
 
 
 def is_card_defense(card_id):
-    is_card_defense = card_id in range(67,83)
+    is_card_defense = card_id in range(67, 83)
     return is_card_defense
 
+
 def is_fallaste(card_id):
-    is_fallaste = card_id in [78,79,80]
+    is_fallaste = card_id in [78, 79, 80]
     return is_fallaste
 
+
 def is_seduccion(card_id):
-    is_seduccion = card_id in [60,61,62,63,64,65,66]
+    is_seduccion = card_id in [60, 61, 62, 63, 64, 65, 66]
     return is_seduccion
 
 
@@ -520,7 +529,7 @@ def check_carta_panico(juego: Juego):
 
 async def jugar_panico(carta: int, juego: Juego):
     # cartas cambio de estado
-    if carta in [89, 90, 93, 94, 95, 96, 98, 105]:
+    if carta in [89, 90, 93, 94, 95, 96, 105]:
         jugador_en_turno_id = juego.posiciones[juego.turno]
         await jugar_la_carta(juego, carta, jugador_en_turno_id, jugador_en_turno_id)
     # seleccionar carta
