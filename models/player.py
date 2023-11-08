@@ -20,7 +20,7 @@ class JugadorPartida:
         self.name = get_name(id)
         self.efecto_seduccion = False
         self.efecto_fallaste = False
-        
+
 
     def get_muerto(self):
         return self.muerto

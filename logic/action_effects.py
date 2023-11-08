@@ -13,6 +13,7 @@ def play_lanzallamas(atacante_in: int, objetivo_in: int, juego: Juego):
     indice_atacante = juego.posiciones.index(atacante_in)
     jugador_objetivo = juego.get_jugador(objetivo_in)
     jugador_atacante = juego.get_jugador(atacante_in)
+
     indice_posicion_intermedia = juego.get_posicion_intermedia(
         objetivo_in, atacante_in)
     # check vecinos

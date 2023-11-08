@@ -64,6 +64,7 @@ async def jugar_ataque(match_id: int = Form(), card_id: int = Form(),
         juego = get_global_juego(match_id)
         jugador = get_jugador(player_orig, juego)
         objetivo = juego.get_jugador(player_objective)
+        seduccion = objetivo.get_efecto_seduccion()
         check_turno(jugador)
         validar_jugada(juego, card_id, player_objective, player_orig)
         jugador_proximo = juego.get_jugador_siguiente_turno()
@@ -251,6 +252,7 @@ async def swap_response( match_id: int = Form(), card_id: int = Form(), player_o
             else:    
                 await mostrar_cartas_cuarentena(jugador_orig, card_id, juego,3)
                 await mostrar_cartas_cuarentena(jugador_objetivo,juego.solicitud_intercambio.carta_solicitante, juego,3)
+
             juego.responder_intercambio(player_orig, card_id)
         
         fallaste_card = is_fallaste(card_id) and se_defiende
