@@ -113,7 +113,58 @@ class Juego:
         for j in self.jugadores_en_partida:
             if j.id == self.posiciones[turnoaux]:
                 return j
+    
+    def get_posicion_de_jugador(self, jugador_id: int):
+        indice_jugador = self.posiciones.index(jugador_id)
+        return indice_jugador
+    
+    def is_obstaculo(self, atacante_id:int, objetivo_id: int):
+        indice_posicion_intermedia = self.get_posicion_intermedia( objetivo_id, atacante_id)
+        hay_obstaculo = False
+        if self.posiciones[indice_posicion_intermedia] != 0:
+            hay_obstaculo = True
+        return hay_obstaculo
+    
+    def get_posicion_intermedia(self, jugador1: int, jugador2: int):
+        len_posiciones = len(self.posiciones)
+        indice_jugador1 = self.get_posicion_de_jugador(jugador1)
+        indice_jugador2 = self.get_posicion_de_jugador(jugador2)
+        border_one = (indice_jugador1 == 0 and indice_jugador2 ==
+                    len_posiciones - 2)
+        border_two = (indice_jugador2 == 0 and indice_jugador1 ==
+                    len_posiciones - 2)
+        if (border_one or border_two):
+            posicion = len_posiciones - 1
+        else:
+            posicion = min(indice_jugador1, indice_jugador2) + 1
+        return posicion
+    
+    def validar_posiciones_vecinas(
+            self, objetivo_id: int, atacante_id: int):
+        len_posiciones = len(self.posiciones)
+        indice_objetivo = self.posiciones.index(objetivo_id)
+        indice_atacante = self.posiciones.index(atacante_id)
+        primero = min(indice_objetivo, indice_atacante)
+        segundo = max(indice_objetivo, indice_atacante)
+        if (primero + 2 != segundo) and (primero !=
+                                        0 or segundo != len_posiciones - 2):
+            raise HTTPException(
+                status_code=400,
+                detail="Los jugadores no son vecinos")
 
+    # Funciones para encontrar proximo jugador
+    def get_jugador_siguiente(self, jugador: JugadorPartida):
+        indice_jugador = self.get_posicion_de_jugador(jugador.id)
+        if self.sentido == 1:
+            indice_siguiente = (indice_jugador + 2) % len(self.posiciones)
+        elif self.sentido == -1:
+            indice_siguiente = (indice_jugador - 2) % len(self.posiciones)
+        for j in self.jugadores_en_partida:
+            if j.id == self.posiciones[indice_siguiente]:
+                return j
+            
+    
+    # Funciones para log
     def get_logs(self):
         return self.logs
     
@@ -241,12 +292,14 @@ def robar_carta(juego: Juego, jugador: JugadorPartida):
             detail="El mazo esta vacio")
     carta_id = juego.mazo.pop()
     jugador.agregar_carta(carta_id)
+    mazo_vacio(juego)
+    return carta_id
+
+def mazo_vacio(juego: Juego):
     if len(juego.mazo) == 0:
         random.shuffle(juego.mazo_descarte)
         juego.mazo = juego.mazo_descarte
         juego.mazo_descarte = []
-    return carta_id
-
 
 def crear_jugadores_partida(juego: Juego):
     jugadores_id = juego.jugadores_id
