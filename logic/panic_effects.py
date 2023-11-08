@@ -30,5 +30,5 @@ def play_ups(atacante_in: int, juego: Juego, card_id: int):
         juego.agregar_log(
             jugador.name + " mostró su mano de cartas.")
         return (msg)
-    else:
-        return {"error": "no se pudieron mostrar cartas."}
+    # else:
+    #     return {"error": "no se pudieron mostrar cartas."}

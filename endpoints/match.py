@@ -123,16 +123,21 @@ async def abandonar_partida(id_jugador: int = Form(), match_id: int = Form()):
 
 @router.post("/start")
 async def iniciar_partida(user_id: int = Form(), match_id: int = Form()):
-    database_utils_iniciar_partida(match_id, user_id)
-    # ##########
-    lobby = get_lobby(match_id)
-    await lobby.init_game()
-    # ##########
-    # broadcast a los jugadores para que listen las partidas
-    await broadcast("A")
-    # broadcast a los jugadores del lobby para que inicien el juego
-    await lobby.broadcast_lobby("L")
-    return {"message": "Se inició con éxito la partida."}
+    try:
+        database_utils_iniciar_partida(match_id, user_id)
+        lobby = get_lobby(match_id)
+        await lobby.init_game()
+        # broadcast a los jugadores para que listen las partidas
+        await broadcast("A")
+        # broadcast a los jugadores del lobby para que inicien el juego
+        await lobby.broadcast_lobby("L")
+        return {"message": "Se inició con éxito la partida."}
+    except HTTPException as e:
+        error_msg = f"Error: {e.detail}"
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_msg
+        )
 
 ######
 # Listar Partida
@@ -144,13 +149,12 @@ async def match_list():
     try:
         list_partida = listar_partidas()
         return list_partida
-
-    except ValueError as ve:
-        error_msg = f"Error: {ve}"
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=error_msg
-        )
+    # except ValueError as ve:
+    #     error_msg = f"Error: {ve}"
+    #     raise HTTPException(
+    #         status_code=status.HTTP_400_BAD_REQUEST,
+    #         detail=error_msg
+    #     )
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
         raise HTTPException(

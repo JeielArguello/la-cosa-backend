@@ -156,16 +156,22 @@ def test_join_match_400_mal_contraseña(mocker):
         "detail": "Error: Contraseña incorrecta"}, "El detalle de el error es incorrecto"
 
 
-def test_iniciar_partida_400_ya_iniciada(mocker):
-    mocker.patch(
-        "endpoints.match.database_utils_iniciar_partida",
-        side_effect=HTTPException(
-            status_code=400,
-            detail="La partida ya esta inicializada."),
-        autospec=True)
-    response = client.post("/match/start", data={"user_id": 1, "match_id": 1})
-    assert (response.status_code == 400)
-    assert (response.json() == {"detail": "La partida ya esta inicializada."})
+def test_join_match_400_no_usuario(mocker, mock_lobby: Lobby):
+    mocker.patch("endpoints.match.validar_entrada_partida",
+                 return_value=None, autospec=True,)
+    mocker.patch("endpoints.match.update_add_player",
+                 side_effect=HTTPException(status_code=400,
+                                           detail="No se pudo obtener el usuario"),
+                 autospec=True,)
+    response = client.post(
+        "/match/join",
+        data={"match_id": 2,
+              "user_id": 1,
+              "contrasena": "1234"})
+    assert response.status_code != 422, "Los parametros de entrada del endpoint no pueden ser procesados"
+    assert response.status_code == 400
+    assert response.json() == {
+        'detail': 'Error: No se pudo obtener el usuario'}
 
 
 def test_get_state_partida_200_ok(mocker):
@@ -349,3 +355,75 @@ def test_abandonar_partida_jugador_creador_200_ok(mocker):
             "id_jugador": 1,
             "match_id": 1})
     assert response.status_code == 200
+
+
+def test_abandonar_partida_jugador_no_creador_400_no_jugador(mocker):
+    # Crear un objeto Lobby para el mock
+    mock_lobby = Lobby(
+        id_usuario_creador=1,
+        id_name="Sala de Prueba",
+        contraseña="laContrasenas",
+        num_max_jugadores=4,
+        num_min_jugadores=2,
+        id_partida=1
+    )
+    mocker.patch("endpoints.match.get_lobby", return_value=mock_lobby)
+    mocker.patch(
+        'endpoints.match.models_crud_eliminar_jugador_no_creador_de_pratida_sin_inicializar',
+        side_effect=HTTPException(
+            status_code=400,
+            detail="No se obtuvo el jugador."),
+        autospec=True)
+    response = client.post("/match/exit",
+                           data={
+                               "id_jugador": 2,
+                               "match_id": 1})
+    assert response.status_code == 400
+    assert response.json() == {
+        'detail': 'Error: No se obtuvo el jugador.'}
+
+
+def test_iniciar_partida_200_ok(mocker, mock_lobby: Lobby):
+    mocker.patch('endpoints.match.database_utils_iniciar_partida',
+                 return_value=None, autospec=True)
+    mocker.patch("endpoints.match.get_lobby",
+                 return_value=mock_lobby, autospec=True)
+    mocker.patch("endpoints.match.Lobby.init_game",
+                 return_value=None, autospec=True)
+    mocker.patch("endpoints.match.broadcast",
+                 return_value=None, autospec=True)
+    mocker.patch("endpoints.match.Lobby.broadcast_lobby",
+                 return_value=None, autospec=True)
+    response = client.post("/match/start", data={
+        "user_id": 1,
+        "match_id": 1})
+    assert response.status_code == 200
+    assert response.json() == {"message": "Se inició con éxito la partida."}
+
+
+def test_iniciar_partida_400_ya_iniciada(mocker):
+    mocker.patch(
+        "endpoints.match.database_utils_iniciar_partida",
+        side_effect=HTTPException(
+            status_code=400,
+            detail="La partida ya esta inicializada."),
+        autospec=True)
+    response = client.post("/match/start", data={"user_id": 1, "match_id": 1})
+    assert (response.status_code == 400)
+    assert (response.json() == {
+            'detail': 'Error: La partida ya esta inicializada.'})
+
+
+def test_iniciar_partida_400_invalid_match_id(mocker):
+    mocker.patch(
+        'endpoints.match.database_utils_iniciar_partida',
+        side_effect=HTTPException(
+            status_code=400,
+            detail="El match_id no es válido"),
+        autospec=True)
+    response = client.post("/match/start", data={
+        "user_id": 1,
+        "match_id": 100})
+    assert response.status_code == 400
+    assert response.json() == {
+        'detail': 'Error: El match_id no es válido'}
