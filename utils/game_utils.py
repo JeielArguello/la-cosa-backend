@@ -157,7 +157,14 @@ async def mostrar_cartas_cuarentena(jugador: JugadorPartida, card_id: int, juego
                                           "jugador_obj": get_name(jugador.id),
                                           "mensaje": "El jugador " + jugador.name + " que está en cuarentena intercambio una carta.",
                                           "cartaMostrar": [{"id": card_id}]})
-        
+
+async def mostrar_cartas_cuarentena_ambos(jugador: JugadorPartida, card_id: int, jugador_obj: JugadorPartida, card_id_obj: int, juego: Juego ):
+    if jugador.get_cuartena() and jugador_obj.get_cuartena():
+        await juego.broadcast_global({"carta_id": 84,
+                                          "jugador_obj":"Los jugadores "+ get_name(jugador.id) + " y " + get_name(jugador_obj.id),
+                                          "mensaje": jugador.name + " y "+ jugador_obj.name +" que estan en cuarentena intercambiaron cartas.",
+                                          "cartaMostrar": [{"id": card_id}, {"id": card_id_obj} ]})
+             
 
 def check_no_humanos(juego: Juego) -> bool:
     no_humanos = True
@@ -430,10 +437,6 @@ def check_objetive_is_next(proximo_jugador: JugadorPartida, juego: Juego):
 
 def check_obstaculo(atacante_id: int, objetivo_id: int, juego: Juego):
     indice_posicion_intermedia = juego.get_posicion_intermedia(objetivo_id, atacante_id)
-    if is_cuarentena(objetivo_id, juego):
-        raise HTTPException(
-            status_code=400,
-            detail="Hay un Obstaculo cuarentena entre los jugadores")
     validar_obstaculo(indice_posicion_intermedia, juego)
 
 def is_obstaculo(atacante_id, objetivo_id, juego: Juego):

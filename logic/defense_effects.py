@@ -61,7 +61,7 @@ async def defensa_fallaste(juego: Juego, jugador_defensor: JugadorPartida,
 
     if jugador_siguiente_defensor == jugador_atacante:
         jugador_siguiente_defensor = juego.get_jugador_siguiente(jugador_siguiente_defensor)
-    if not juego.is_obstaculo(jugador_defensor.id, jugador_siguiente_defensor.id):
+    if not juego.is_obstaculo(jugador_defensor.id, jugador_siguiente_defensor.id) and not jugador_siguiente_defensor.get_cuartena():
         paso_intercambio = True
         intercambio.cambiar_receptor(jugador_siguiente_defensor)
         jugador_siguiente_defensor.set_efecto_fallaste()

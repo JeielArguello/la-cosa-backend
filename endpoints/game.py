@@ -64,14 +64,13 @@ async def jugar_ataque(match_id: int = Form(), card_id: int = Form(),
         juego = get_global_juego(match_id)
         jugador = get_jugador(player_orig, juego)
         objetivo = juego.get_jugador(player_objective)
-        seduccion = objetivo.get_efecto_seduccion()
         check_turno(jugador)
         validar_jugada(juego, card_id, player_objective, player_orig)
         jugador_proximo = juego.get_jugador_siguiente_turno()
         if (player_objective == jugador_proximo.id and not is_hacha(card_id)):
             check_obstaculo(player_orig,jugador_proximo.id,juego)
         jugador_anterior = juego.get_jugador_anterior_turno()
-        if (player_objective == jugador_proximo.id and not is_hacha(card_id)):
+        if (player_objective == jugador_anterior.id and not is_hacha(card_id)):
             check_obstaculo(player_orig,jugador_anterior.id,juego)
         
         if check_puedo_defender(juego, card_id, player_objective, player_orig) and not is_seduccion(card_id):
@@ -247,8 +246,11 @@ async def swap_response( match_id: int = Form(), card_id: int = Form(), player_o
         if is_card_defense(card_id) and  se_defiende:
             await defenderse_de_intercambio(juego, card_id, jugador_orig, jugador_objetivo)
         else: 
-            await mostrar_cartas_cuarentena(jugador_orig, card_id, juego,3)
-            await mostrar_cartas_cuarentena(jugador_objetivo,juego.solicitud_intercambio.carta_solicitante, juego,3)
+            if jugador_orig.get_cuartena() and jugador_objetivo.get_cuartena():
+                await mostrar_cartas_cuarentena_ambos(jugador_orig, card_id, jugador_objetivo, juego.solicitud_intercambio.carta_solicitante, juego)
+            else:    
+                await mostrar_cartas_cuarentena(jugador_orig, card_id, juego,3)
+                await mostrar_cartas_cuarentena(jugador_objetivo,juego.solicitud_intercambio.carta_solicitante, juego,3)
             juego.responder_intercambio(player_orig, card_id)
         
         fallaste_card = is_fallaste(card_id) and se_defiende

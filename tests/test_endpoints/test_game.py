@@ -8,19 +8,10 @@ from models.game import Juego
 
 from main import app
 from models.player import JugadorPartida
+from models.swap_card import IntercambiarCarta
 client = TestClient(app)
 
 mocker = Mock()
-
-
-@pytest.fixture
-def mock_juego(mocker):
-    mocker.patch("models.player.get_name", return_value="pepe")
-    juego = Juego(partida_id=1, cantidad_jugadores=4,
-                  creador=1, jugadores_id=[1, 3, 2, 4])
-    juego.name = "test"
-    juego.posiciones = [1, 0, 2, 0, 3, 0, 4, 0]
-    return juego
 
 
 @pytest.fixture
@@ -29,6 +20,26 @@ def mock_j1(mocker):
     jugador = JugadorPartida(id=1)
     return jugador
 
+@pytest.fixture
+def mock_j2(mocker):
+    mocker.patch("models.player.get_name", return_value="pedro")
+    jugador = JugadorPartida(id=2)
+    return jugador
+
+@pytest.fixture
+def mock_intercambio(mock_j1, mock_j2):
+    swap_card = IntercambiarCarta(mock_j1, 1, mock_j2)    
+    return swap_card
+
+@pytest.fixture
+def mock_juego(mocker, mock_intercambio):
+    mocker.patch("models.player.get_name", return_value="pepe")
+    juego = Juego(partida_id=1, cantidad_jugadores=4,
+                  creador=1, jugadores_id=[1, 3, 2, 4])
+    juego.name = "test"
+    juego.posiciones = [1, 0, 2, 0, 3, 0, 4, 0]
+    juego.solicitud_intercambio = mock_intercambio
+    return juego
 
 juego = AsyncMock()
 juego.partida_id = 1
@@ -382,6 +393,9 @@ def test_swap_response_success(mocker, mock_juego):
                  autospec=True,)
     mocker.patch("endpoints.game.Juego.broadcast_global", return_value=None,
                  autospec=True,)
+    mocker.patch("endpoints.game.mostrar_cartas_cuarentena", return_value=None,
+                 autospec=True,)
+    
 
     response = client.post("/game/swap-response", data={"match_id": 1,
                                                         "card_id": 2,

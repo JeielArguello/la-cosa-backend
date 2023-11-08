@@ -11,8 +11,8 @@ def play_lanzallamas(atacante_in: int, objetivo_in: int, juego: Juego):
     len_posiciones = len(juego.posiciones)
     indice_objetivo = juego.posiciones.index(objetivo_in)
     indice_atacante = juego.posiciones.index(atacante_in)
-    jugador_objetivo = get_jugador(objetivo_in, juego)
-    jugador_atacante = get_jugador(atacante_in, juego)
+    jugador_objetivo = juego.get_jugador(objetivo_in)
+    jugador_atacante = juego.get_jugador(atacante_in)
     indice_posicion_intermedia = juego.get_posicion_intermedia(
         objetivo_in, atacante_in)
     # check vecinos
@@ -59,6 +59,8 @@ def play_hacha(atacante_in: int, objetivo_in: int, juego: Juego):
     elif is_cuarentena(objetivo_in, juego):
         jugador_objetivo.remove_cuartena()
         saco_cuarentena = True
+    else:
+        validar_puerta(indice_posicion_intermedia, juego)
     msg = {
         "mensaje": jugador_orig.name +
         " jugó carta hacha contra " +

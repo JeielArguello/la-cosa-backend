@@ -118,8 +118,9 @@ def test_lanzallamas(mocker, mock_juego, mock_atacante, mock_objetivo):
         0,
         10,
         0]
-    mocker.patch("logic.action_effects.get_jugador", return_value=mock_j5)
-    mocker.patch("logic.action_effects.get_jugador", return_value=mock_j4)
+    mocker.patch("logic.action_effects.Juego.get_jugador", side_effect={mock_j4,mock_j5})
+    mocker.patch("utils.action_utils.Juego.get_jugador", return_value=mock_j4)
+    
     play_lanzallamas(4, 5, mock_juego)
     response1 = {'jugadores': len(mock_juego.jugadores_en_partida),
                  'posiciones': mock_juego.posiciones}
@@ -185,10 +186,11 @@ def test_vigila_tus_espaldas(mocker, mock_juego):
     assert antes_cambio == despues_cambio * (-1)
 
 
-def test_hacha(mocker, mock_juego):
-    mock_juego.cantidad_jugadores = 2
-    mock_juego.jugadores_id = [1, 2]
-    mock_juego.posiciones = [1, 0, 2, "p"]
+def test_hacha( mock_juego):
+    juego: Juego = mock_juego
+    juego.cantidad_jugadores = 2
+    juego.jugadores_id = [1, 2]
+    juego.posiciones = [1, 0, 2, "p"]
     play_hacha(1, 2, mock_juego)
     assert mock_juego.posiciones == [1, 0, 2, 0]
 
