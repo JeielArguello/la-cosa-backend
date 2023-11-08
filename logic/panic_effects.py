@@ -34,7 +34,7 @@ def play_ups(atacante_in: int, juego: Juego, card_id: int):
         return {"error": "no se pudieron mostrar cartas."}
 
 
-def play_que_quede_entre_nosotros(player_at:int, player_obj:int, juego:Juego, card_id: int):
+def play_que_quede_entre_nosotros(player_at:int, player_obj:int, juego:Juego):
     jugador_atacante = get_jugador(player_at, juego)
     jugador_objetivo = get_jugador(player_obj, juego)
     if jugador_atacante and jugador_objetivo:

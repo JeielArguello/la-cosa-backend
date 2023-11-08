@@ -506,7 +506,7 @@ async def jugar_panico(carta: int, juego: Juego):
         jug_sig_turno_nombre = jug_sig_turno.name
         jug_ant_turno_id = jug_ant_turno.id
         jug_ant_turno_nombre = jug_ant_turno.name
-
+        
         msg = {
             "carta_especial": {
 		        "tipo_carta":"Que quede entre nosotros",
@@ -515,7 +515,7 @@ async def jugar_panico(carta: int, juego: Juego):
                        {"nombre": jug_ant_turno_nombre,"id":jug_ant_turno_id }]
             }   
         }
-        juego.mensaje_personal(jugador_turno_id, msg)
+        await juego.mensaje_personal(jugador_turno_id, msg)
     
     # seleccionar intercambio
     elif carta in [99, 100, 101, 102]:

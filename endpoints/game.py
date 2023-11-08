@@ -382,7 +382,7 @@ async def get_logs_del_juego(match_id: int):
 # Panico, Que quede entre nosotros.
 ######
 
-router.post("play/que_quede_entre_nosotros")
+@router.post("/play/que_quede_entre_nosotros")
 async def que_quede_entre_nostros(match_id: int = Form(), 
                                             player_objective: int = Form(), 
                                             player_orig: int = Form()):
