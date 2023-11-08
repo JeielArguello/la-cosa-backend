@@ -47,21 +47,27 @@ def play_lanzallamas(atacante_in: int, objetivo_in: int, juego: Juego):
 def play_hacha(atacante_in: int, objetivo_in: int, juego: Juego):
     
     indice_posicion_intermedia = juego.get_posicion_intermedia(atacante_in, objetivo_in)
-    juego.validar_posiciones_vecinas(
-        atacante_in,
-        objetivo_in)
+    if atacante_in != objetivo_in:
+        juego.validar_posiciones_vecinas(atacante_in, objetivo_in)
     jugador_orig = get_jugador(atacante_in, juego)
+    jugador_objetivo = get_jugador(objetivo_in, juego)
+    saco_puerta = False
+    saco_cuarentena = False
     if is_puerta(indice_posicion_intermedia, juego):
         juego.posiciones[indice_posicion_intermedia] = 0
+        saco_puerta = True
     elif is_cuarentena(objetivo_in, juego):
         jugador_objetivo.remove_cuartena()
-    jugador_objetivo = get_jugador(objetivo_in, juego)
+        saco_cuarentena = True
     msg = {
         "mensaje": jugador_orig.name +
         " jugó carta hacha contra " +
         jugador_objetivo.name}
     juego.agregar_log(msg["mensaje"])
-    juego.agregar_log(jugador_orig.name + " rompió la puerta atrancada con una hacha" )
+    if saco_cuarentena:
+        juego.agregar_log(jugador_orig.name + " elimino la cuarentena de " + jugador_objetivo.name)
+    if saco_puerta:
+        juego.agregar_log(jugador_orig.name + " rompió la puerta atrancada con una hacha" )
     return msg
 
 

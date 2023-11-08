@@ -140,6 +140,24 @@ def check_la_cosa_eliminada(juego: Juego) -> bool:
     print(f'la_cosa_eliminada:{la_cosa_eliminada}')
     return la_cosa_eliminada
 
+async def mostrar_cartas_cuarentena(jugador: JugadorPartida, card_id: int, juego: Juego ,etapa : int):
+    if jugador.get_cuartena():
+        if etapa == 1: #robar
+            await juego.broadcast_global({"carta_id": 84,
+                                          "jugador_obj": get_name(jugador.id),
+                                          "mensaje": "El jugador " + jugador.name + " que está en cuarentena robó una carta.",
+                                          "cartaMostrar": [{"id": card_id}]})
+        elif etapa == 2: #descartar
+            await juego.broadcast_global({"carta_id": 84,
+                                          "jugador_obj": get_name(jugador.id),
+                                          "mensaje": "El jugador " + jugador.name + " que está en cuarentena descarto una carta.",
+                                          "cartaMostrar": [{"id": card_id}]})
+        elif etapa == 3: #intercambio
+            await juego.broadcast_global({"carta_id": 84,
+                                          "jugador_obj": get_name(jugador.id),
+                                          "mensaje": "El jugador " + jugador.name + " que está en cuarentena intercambio una carta.",
+                                          "cartaMostrar": [{"id": card_id}]})
+        
 
 def check_no_humanos(juego: Juego) -> bool:
     no_humanos = True

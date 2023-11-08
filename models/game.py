@@ -123,7 +123,7 @@ class Juego:
     def is_obstaculo(self, atacante_id:int, objetivo_id: int):
         indice_posicion_intermedia = self.get_posicion_intermedia( objetivo_id, atacante_id)
         hay_obstaculo = False
-        if self.posiciones[indice_posicion_intermedia] != 0:
+        if self.posiciones[indice_posicion_intermedia] != 0 :
             hay_obstaculo = True
         return hay_obstaculo
     

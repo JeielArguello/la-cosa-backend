@@ -23,7 +23,7 @@ def play_puerta_atrancada(juego: Juego, atacante_in: int, objetivo_in: int):
         " jugó carta puerta atrancada contra " +
         jugador_objetivo.name}
     juego.agregar_log(msg["mensaje"])
-    juego.agregar_log("hay una puerta entre" + jugador_objetivo.name + " y " + jugador_atacante.name)
+    juego.agregar_log("Hay una puerta entre " + jugador_objetivo.name + " y " + jugador_atacante.name)
     return msg
 
 
@@ -31,14 +31,10 @@ def play_cuarentena(atacante_in: int, objetivo_in: int, juego: Juego):
     # obtengo jugadores
     jugador_atacante = juego.get_jugador(atacante_in)
     jugador_objetivo = juego.get_jugador(objetivo_in)
-    # obtengo el indice de los jugadores
-    indice_objetivo = juego.posiciones.index(objetivo_in)
-    indice_atacante = juego.posiciones.index(atacante_in)
     #valido vecinos
-    len_posiciones = len(juego.posiciones)
     juego.validar_posiciones_vecinas(
-        indice_atacante,
-        indice_objetivo)
+        atacante_in,
+        objetivo_in)
     # aplico cuarentena a objetivo
     jugador_objetivo.set_cuartena()
 
