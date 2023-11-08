@@ -222,6 +222,9 @@ async def swap_request(match_id: int = Form(), card_id: int = Form(), player_ori
         if jugador_objetivo.check_puede_anular_el_intercambio():
             await juego.mensaje_personal(jugador_objetivo.id,"N")
 
+        if not jugador_objetivo.afectado_seduccion:
+            check_obstaculo(player_orig, jugador_objetivo.id, juego)
+
         return {"message": "se creo la solicitud de intercambio"}
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
@@ -359,6 +362,30 @@ async def get_logs_del_juego(match_id: int):
         }
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_msg
+        )
+    
+
+######
+# Panico, Que quede entre nosotros.
+######
+
+@router.post("/play/que_quede_entre_nosotros")
+async def que_quede_entre_nostros(match_id: int = Form(), 
+                                            player_objective: int = Form(), 
+                                            player_orig: int = Form()):
+    try:
+        juego = get_global_juego(match_id)
+        jugador = get_jugador(player_orig, juego)
+        check_turno(jugador)    
+        msg = play_que_quede_entre_nosotros(player_orig, player_objective, juego)
+        await juego.mensaje_personal(player_objective, {"carta_id": 106,
+                                                        "mensaje": msg["mensaje"],
+                                                        "cartaMostrar":msg["cartaMostrar"]})
+    except HTTPException as e:
+        error_msg = f"Error:{e.detail}"
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=error_msg

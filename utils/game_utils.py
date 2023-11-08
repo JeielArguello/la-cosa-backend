@@ -212,9 +212,14 @@ async def jugar_la_carta(
 
     elif card_id in [43, 44, 45, 46, 47]:
         msg = play_determinacion(juego, player_orig)
-        await juego.mensaje_personal(player_orig, {
-            "cartas_determinacion": msg["cartas"]
-        })
+        mensaje = {
+            "carta_especial": {
+		        "tipo_carta":"Determinacion",
+		        "cartas":msg["cartas"],
+		        "jugadores":[]
+            }   
+        }
+        await juego.mensaje_personal(player_orig, mensaje)
         await juego.broadcast_global({
             "carta_id": card_id,
             "mensaje": msg["mensaje"]
@@ -260,6 +265,11 @@ async def jugar_la_carta(
                                       "mensaje": msg["mensaje"],
                                       "cartaMostrar": msg["cartaMostrar"],
                                       "jugador_obj": get_name(player_objective)})
+    elif card_id in [107,106]:
+        msg = play_que_quede_entre_nosotros(player_orig, player_objective, juego, card_id)
+        await juego.mensaje_personal(player_objective, {"carta_id": card_id,
+                                                        "mensaje": msg["mensaje"],
+                                                        "cartaMostrar":msg["cartaMostrar"]})
     else:
         pass
 
@@ -528,7 +538,25 @@ async def jugar_panico(carta: int, juego: Juego):
         pass
     # seleccionar jugador
     elif carta in [91, 92, 97, 106, 107]:
-        pass
+        jugador_turno = juego.get_jugador_en_turno()
+        jugador_turno_id = jugador_turno.id
+        jug_sig_turno = juego.get_jugador_siguiente_turno()
+        jug_ant_turno = juego.get_jugador_anterior_turno()
+        jug_sig_turno_id = jug_sig_turno.id
+        jug_sig_turno_nombre = jug_sig_turno.name
+        jug_ant_turno_id = jug_ant_turno.id
+        jug_ant_turno_nombre = jug_ant_turno.name
+        
+        msg = {
+            "carta_especial": {
+		        "tipo_carta":"Que quede entre nosotros",
+		        "cartas":[],
+		        "jugadores":[{"nombre": jug_sig_turno_nombre, "id":jug_sig_turno_id}, 
+                       {"nombre": jug_ant_turno_nombre,"id":jug_ant_turno_id }]
+            }   
+        }
+        await juego.mensaje_personal(jugador_turno_id, msg)
+    
     # seleccionar intercambio
     elif carta in [99, 100, 101, 102]:
         pass
