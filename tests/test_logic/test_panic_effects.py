@@ -58,6 +58,8 @@ def test_play_tres_cuatro_ok(mock_juego, mock_j1):
 def test_play_cuerdas_podridas_ok(mock_juego, mock_j1):
     mock_j1.cuarentena = (True, 2)
     mock_juego.jugadores_en_partida = [mock_j1, mock_j1, mock_j1]
+    for jugador in mock_juego.jugadores_en_partida:
+        assert (jugador.get_cuartena() == True)
     msg = play_cuerdas_podridas(mock_j1.id, mock_juego)
     assert (msg["mensaje"] == "pepe jugó la carta Cuerdas Podridas.")
     for jugador in mock_juego.jugadores_en_partida:
