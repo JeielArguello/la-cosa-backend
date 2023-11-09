@@ -132,7 +132,7 @@ def play_whisky(atacante_in: int, juego: Juego, card_id: int):
         cartas = jugador.get_cartas()
         cartas.remove({"id": card_id})
         msg = {
-            "mensaje": jugador.name + " jugó carta whisky.",
+            "mensaje": jugador.name + " jugó carta Whisky.",
             "cartaMostrar": cartas
         }
         juego.agregar_log(msg["mensaje"])
@@ -210,7 +210,7 @@ def play_seduccion(juego: Juego, player_orig : int, player_objective: int):
                 + jugador_objetivo.name + "."}
     else:
         msg = {"mensaje": "error "
-                + jugador_objetivo.name + "en cuarentena."}
+                + jugador_objetivo.name + " en cuarentena."}
     juego.agregar_log(msg["mensaje"])
     juego.agregar_log(jugador_atacante.name + " sedujo a " + jugador_objetivo.name +" para relizar un intercambio de cartas")
     return msg

@@ -293,7 +293,7 @@ def test_play_analisis_ok(mocker, mock_juego, mock_atacante, mock_objetivo):
     mock_juego.posiciones = [1, 0, 2, 0]
     mock_objetivo.cartas = [10, 2, 3, 4]
     msg = play_analisis(mock_juego, mock_atacante.id, mock_objetivo.id)
-    assert (msg["mensaje"] == "pepe jugó carta analisis contra pedro.")
+    assert (msg["mensaje"] == "pepe jugó carta Análisis contra pedro.")
     assert (msg["cartaMostrar"] == [
         {'id': 10}, {'id': 2}, {'id': 3}, {'id': 4}])
 
@@ -303,7 +303,7 @@ def test_play_whisky_ok(mocker, mock_juego, mock_atacante):
     mock_atacante.cartas = [1, 10, 2, 3, 4]
     mock_card_id = 1
     msg = play_whisky(mock_atacante.id, mock_juego, mock_card_id)
-    assert (msg["mensaje"] == "pepe jugó carta whisky.")
+    assert (msg["mensaje"] == "pepe jugó carta Whisky.")
     assert (msg["cartaMostrar"] == [
         {'id': 10}, {'id': 2}, {'id': 3}, {'id': 4}])
 
@@ -319,7 +319,7 @@ def test_play_seduccion_ok(mocker, mock_juego, mock_atacante, mock_objetivo):
     mock_juego.jugadores_en_partida = [mock_atacante, mock_objetivo]
     mocker.patch("logic.action_effects.is_cuarentena", return_value = False)
     msg = play_seduccion(mock_juego, mock_atacante.id, mock_objetivo.id)
-    assert msg == {"mensaje": "pepe" + " jugó carta seducción contra "
+    assert msg == {"mensaje": "pepe" + " jugó carta Seducción contra "
                    + "pedro" + "."}
 
 
@@ -327,8 +327,7 @@ def test_play_seduccion_error_objetivo_en_cuarentena(mocker, mock_juego, mock_at
     mock_juego.jugadores_en_partida = [mock_atacante, mock_objetivo]
     mocker.patch("logic.action_effects.is_cuarentena", return_value = True)
     msg = play_seduccion(mock_juego, mock_atacante.id, mock_objetivo.id)
-    assert msg == {"mensaje": "error "
-                   + "pedro" + "en cuarentena."}
+    assert msg == {"mensaje": "error pedro en cuarentena."}
 
 
 def test_play_determinacion_ok(mocker, mock_juego, mock_atacante):
@@ -336,6 +335,6 @@ def test_play_determinacion_ok(mocker, mock_juego, mock_atacante):
     mock_atacante.cartas = [1, 44, 2, 3, 4]
     mock_juego.mazo = [23, 22, 21, 4, 5, 6, 7, 8]
     msg = play_determinacion(mock_juego, mock_atacante.id)
-    assert (msg["mensaje"] == "pepe jugó carta Determinacion.")
+    assert (msg["mensaje"] == "pepe jugó carta Determinación.")
     assert (msg["cartas"] == [{'id': 8}, {'id': 7}, {'id': 6}])
     assert (mock_juego.cartas_determinacion == [8, 7, 6])

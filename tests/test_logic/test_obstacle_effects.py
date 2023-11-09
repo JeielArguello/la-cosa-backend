@@ -54,10 +54,10 @@ def test_play_puerta_atrancada_ok(mocker, mock_juego, mock_atacante, mock_objeti
                  side_effect={mock_atacante, mock_objetivo})
     expected_posiciones = [1, 0, 2, 0, 3, 0, 4, "p"]
     expected_msg = {
-        "mensaje": "pepe jugó carta puerta atrancada contra pedro"
+        "mensaje": "pepe jugó carta Puerta atrancada contra pedro"
     }
     expected_msg_2 = {
-        "mensaje": "pedro jugó carta puerta atrancada contra pepe"
+        "mensaje": "pedro jugó carta Puerta atrancada contra pepe"
     }
     msg = play_puerta_atrancada(juego, mock_atacante.id, mock_objetivo.id)
     assert msg == expected_msg or msg == expected_msg_2
@@ -86,7 +86,7 @@ def test_play_cuarentena_succes(mocker, mock_juego,mock_atacante, mock_objetivo)
     print(jugador_objetivo.name)
     mocker.patch("logic.obstacle_effects.Juego.get_jugador", side_effect=[jugador_atacanate, jugador_objetivo])
     expected_msg = {
-        "mensaje": "pepe jugó carta cuarentena contra pedro"
+        "mensaje": "pepe jugó carta Cuarentena contra pedro"
     }
     msg = play_cuarentena(mock_atacante.id, mock_objetivo.id, juego)
     assert msg == expected_msg 

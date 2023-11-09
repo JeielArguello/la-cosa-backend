@@ -50,7 +50,7 @@ def test_swap_check_receptor_http_exception_no_eres_receptor(mock_intercambio,mo
 
 
 
-def test_swap_completar_intercambio_ok(mock_j1, mock_j2):
+def test_swap_completar_intercambio_ok(mock_intercambio, mock_j1, mock_j2):
     player_orig = mock_j1
     player_objetive = mock_j2
     player_orig.agregar_carta(22)

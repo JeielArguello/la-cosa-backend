@@ -81,7 +81,7 @@ def test_defensa_no_gracias_ok(mock_juego, mock_atacante, mock_objetivo, mock_ca
     mock_juego.jugadores_en_partida = [mock_atacante, mock_objetivo]
     msg = defensa_no_gracias(mock_juego, mock_atacante,
                              mock_objetivo, mock_card_id)
-    assert msg == {"mensaje": "pepe jugó carta no gracias contra pedro"}
+    assert msg == {"mensaje": "pepe jugó carta ¡No, gracias! contra pedro"}
 
 
 def test_defensa_no_gracias_http_exception_no_hay_solicitud_intercambio(mock_juego, mock_atacante, mock_objetivo, mock_card_id):
@@ -102,7 +102,7 @@ def test_defensa_aterrador_ok(mock_juego, mock_atacante, mock_objetivo, mock_car
     mock_juego.jugadores_en_partida = [mock_atacante, mock_objetivo]
     msg = defense_aterrador(mock_juego, mock_atacante,
                             mock_objetivo, mock_card_id)
-    assert (msg["mensaje"] == "pepe jugó carta aterrador contra pedro")
+    assert (msg["mensaje"] == "pepe jugó carta Aterrador contra pedro")
     assert (msg["cartaMostrar"] == [{"id": 5}])
 
 
@@ -130,7 +130,7 @@ async def test_defensa_fallaste_ok(mocker, mock_juego_async, mock_atacante, mock
     mocker.patch("logic.defense_effects.Juego.mensaje_personal",
                  return_value=None)
     msg = await defensa_fallaste(mock_juego_async, mock_objetivo, mock_atacante, mock_card_id)
-    assert msg == {"mensaje": "pedro jugó carta fallaste contra pepe"}
+    assert msg == {"mensaje": "pedro jugó carta ¡Fallaste! contra pepe"}
 
 
 @pytest.mark.asyncio
