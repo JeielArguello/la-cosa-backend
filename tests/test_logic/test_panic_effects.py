@@ -31,16 +31,23 @@ def mock_j1(mocker):
     return jugador
 
 
-def test_play_ups_succes(mock_juego, mock_j1):
+@pytest.fixture
+def mock_j2(mocker):
+    mocker.patch("models.player.get_name", return_value="pedro")
+    jugador = JugadorPartida(id=2)
+    return jugador
+
+
+def test_play_ups_ok(mock_juego, mock_j1):
     mock_juego.jugadores_en_partida = [mock_j1]
     mock_j1.cartas = [1, 2, 3, 4]
     msg = play_ups(mock_j1.id, mock_juego)
-    assert (msg["mensaje"] == "pepe jugó la carta Ups.")
+    assert (msg["mensaje"] == "pepe jugó la carta ¡Ups!")
     assert (msg["cartaMostrar"] == [
         {'id': 1}, {'id': 2}, {'id': 3}, {'id': 4}])
 
 
-def test_play_tres_cuatro(mock_juego, mock_j1):
+def test_play_tres_cuatro_ok(mock_juego, mock_j1):
     mock_juego.jugadores_en_partida = [mock_j1]
     mock_juego.posiciones = [1, "p", 2, 0, 3, "p", 4, "p"]
     msg = play_tres_cuatro(mock_j1.id, mock_juego)
@@ -51,6 +58,8 @@ def test_play_tres_cuatro(mock_juego, mock_j1):
 def test_play_cuerdas_podridas_ok(mock_juego, mock_j1):
     mock_j1.cuarentena = (True, 2)
     mock_juego.jugadores_en_partida = [mock_j1, mock_j1, mock_j1]
+    for jugador in mock_juego.jugadores_en_partida:
+        assert (jugador.get_cuartena() == True)
     msg = play_cuerdas_podridas(mock_j1.id, mock_juego)
     assert (msg["mensaje"] == "pepe jugó la carta Cuerdas Podridas.")
     for jugador in mock_juego.jugadores_en_partida:
@@ -60,7 +69,7 @@ def test_play_cuerdas_podridas_ok(mock_juego, mock_j1):
 def test_play_es_aqui_la_fiesta_ok_pares(mock_juego, mock_j1):
     mock_juego.posiciones = [1, 0, 2, 0, 3, 0, 4, 0]
     mock_id_inicio = 3
-    msg = play_cuerdas_podridas(mock_id_inicio, mock_juego)
+    msg = play_es_aqui_la_fiesta(mock_id_inicio, mock_juego)
     assert (msg["mensaje"] == "pepe jugó la carta Es Aqui la Fiesta?.")
     assert mock_juego.posiciones == [4, 0, 3, 0, 2, 0, 1, 0]
 
@@ -68,6 +77,16 @@ def test_play_es_aqui_la_fiesta_ok_pares(mock_juego, mock_j1):
 def test_play_es_aqui_la_fiesta_ok_impares(mock_juego, mock_j1):
     mock_juego.posiciones = [1, 0, 2, 0, 3, 0, 4, 0, 5, 0]
     mock_id_inicio = 3
-    msg = play_cuerdas_podridas(mock_id_inicio, mock_juego)
+    msg = play_es_aqui_la_fiesta(mock_id_inicio, mock_juego)
     assert (msg["mensaje"] == "pepe jugó la carta Es Aqui la Fiesta?.")
     assert mock_juego.posiciones == [5, 0, 3, 0, 2, 0, 4, 0, 1, 0]
+
+
+def test_play_que_qude_entre_nosotros_ok(mocker, mock_juego, mock_j1, mock_j2):
+    mock_juego.jugadores_en_partida = [mock_j1, mock_j2]
+    mock_j1.cartas = [1, 2, 3, 4]
+    msg = play_que_quede_entre_nosotros(
+        mock_j1.id, mock_j2.id, mock_juego)
+    assert (msg["mensaje"] == "pepe jugó la carta Que quede entre nosotros...")
+    assert (msg["cartaMostrar"] == [
+        {'id': 1}, {'id': 2}, {'id': 3}, {'id': 4}])

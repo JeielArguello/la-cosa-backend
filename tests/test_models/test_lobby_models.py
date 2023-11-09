@@ -18,35 +18,35 @@ def lobby():
     return lobby
 
 
-@pytest.fixture
-def mock_j1(mocker):
-    mocker.patch("models.player.get_name", return_value="pepe")
-    jugador = JugadorPartida(id=1)
-    return jugador
+# @pytest.fixture
+# def mock_j1(mocker):
+#     mocker.patch("models.player.get_name", return_value="pepe")
+#     jugador = JugadorPartida(id=1)
+#     return jugador
 
 
-@pytest.fixture
-def mock_j2(mocker):
-    mocker.patch("models.player.get_name", return_value="pedro")
-    jugador = JugadorPartida(id=2)
-    return jugador
+# @pytest.fixture
+# def mock_j2(mocker):
+#     mocker.patch("models.player.get_name", return_value="pedro")
+#     jugador = JugadorPartida(id=2)
+#     return jugador
 
 
-@pytest.fixture
-def mock_j3(mocker):
-    mocker.patch("models.player.get_name", return_value="jose")
-    jugador = JugadorPartida(id=1)
-    return jugador
+# @pytest.fixture
+# def mock_j3(mocker):
+#     mocker.patch("models.player.get_name", return_value="jose")
+#     jugador = JugadorPartida(id=1)
+#     return jugador
 
 
-def test_add_player(lobby):
+def test_add_player_lobby_ok(lobby):
     assert lobby.cantidad_jugadores == 1
     lobby.add_player(2)
     assert lobby.cantidad_jugadores == 2
     assert lobby.users_id == [1, 2]
 
 
-def test_remove_player(lobby):
+def test_remove_player_lobby_ok(lobby):
     lobby.add_player(2)
     lobby.add_player(3)
     assert lobby.cantidad_jugadores == 3
@@ -55,14 +55,14 @@ def test_remove_player(lobby):
     assert lobby.users_id == [1, 3]
 
 
-def test_list_players(lobby):
+def test_list_players_lobby_ok(lobby):
     lobby.add_player(2)
     lobby.add_player(3)
     assert lobby.list_players() == [1, 2, 3]
 
 
 @pytest.mark.asyncio
-async def test_init_game(mocker, lobby):
+async def test_init_game_ok(mocker, lobby):
     lobby.add_player(2)
     lobby.add_player(3)
     mocker.patch(

@@ -30,11 +30,11 @@ async def pick_a_card_from_deck(match_id: int = Form(), player_id: int = Form())
             await juego.broadcast_global("C")
 
             jugador_proximo = juego.get_jugador_siguiente_turno()
-            if(not jugador_proximo.get_muerto() and juego.is_obstaculo(jugador.id, jugador_proximo.id)):
+            if (not jugador_proximo.get_muerto() and juego.is_obstaculo(jugador.id, jugador_proximo.id)):
                 juego.terminar_turno()
                 juego.avanzar_turno()
 
-                await juego.mensaje_personal(jugador_proximo.id, "E") 
+                await juego.mensaje_personal(jugador_proximo.id, "E")
             else:
                 await juego.mensaje_personal(player_id, "G")
             return {'card_id': carta}
@@ -43,6 +43,8 @@ async def pick_a_card_from_deck(match_id: int = Form(), player_id: int = Form())
             await juego.broadcast_global("C")
             await juego.mensaje_personal(player_id, "D")
             await juego.mensaje_personal(player_id, "F")
+            await mostrar_cartas_cuarentena(jugador, carta, juego, 1)
+
             return {'card_id': carta}
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
@@ -66,12 +68,11 @@ async def jugar_ataque(match_id: int = Form(), card_id: int = Form(),
         check_turno(jugador)
         validar_jugada(juego, card_id, player_objective, player_orig)
         jugador_proximo = juego.get_jugador_siguiente_turno()
-        if (player_objective == jugador_proximo.id and card_id not in [30,31]):
-            check_obstaculo(player_orig,jugador_proximo.id,juego)
+        if (player_objective == jugador_proximo.id and not is_hacha(card_id)):
+            check_obstaculo(player_orig, jugador_proximo.id, juego)
         jugador_anterior = juego.get_jugador_anterior_turno()
-        if (player_objective == jugador_anterior.id and card_id not in [30,31]):
-            check_obstaculo(player_orig,jugador_anterior.id,juego)
-        
+        if (player_objective == jugador_anterior.id and not is_hacha(card_id)):
+            check_obstaculo(player_orig, jugador_anterior.id, juego)
         if check_puedo_defender(juego, card_id, player_objective, player_orig) and not is_seduccion(card_id):
             msg = crear_mensaje_de_ataque(jugador, card_id)
             juego.crear_ataque(player_orig, card_id, player_objective)
@@ -85,15 +86,15 @@ async def jugar_ataque(match_id: int = Form(), card_id: int = Form(),
             if check_ganador(juego):
                 await juego.broadcast_global("K")
             await juego.mensaje_personal(player_orig, "D")
-            if not juego.cartas_determinacion:    
-                if(player_orig == player_objective or card_id in [50, 51, 52, 53, 54, 55, 56, 57, 58, 59]):
-                    jugador_proximo = juego.get_jugador_siguiente_turno()                      
-                if(not jugador_proximo.get_muerto() and juego.is_obstaculo(jugador.id, jugador_proximo.id) and not is_seduccion(card_id) ):
+            if not juego.cartas_determinacion:
+                if (player_orig == player_objective or card_id in [50, 51, 52, 53, 54, 55, 56, 57, 58, 59]):
+                    jugador_proximo = juego.get_jugador_siguiente_turno()
+                if (not jugador_proximo.get_muerto() and juego.is_obstaculo(jugador.id, jugador_proximo.id) and not is_seduccion(card_id)):
                     juego.terminar_turno()
                     juego.avanzar_turno()
 
                     await juego.mensaje_personal(jugador_proximo.id, "E")
-                else:    
+                else:
                     await juego.mensaje_personal(jugador.id, "G")
 
             return {"message": "Se jugó el ataque."}
@@ -137,14 +138,13 @@ async def jugar_defensa(match_id: int = Form(), card_id: int = Form(),
             await juego.broadcast_global("K")
         await juego.mensaje_personal(player_orig, "D")
         await juego.mensaje_personal(jugador_ataque.id, "D")
-        
+
         jugador_proximo = juego.get_jugador_siguiente_turno()
-        if(juego.is_obstaculo(jugador_ataque.id, jugador_proximo.id) and not is_fallaste(card_id)):
+        if (juego.is_obstaculo(jugador_ataque.id, jugador_proximo.id) and not is_fallaste(card_id)):
             juego.terminar_turno()
             juego.avanzar_turno()
-
             await juego.mensaje_personal(jugador_proximo.id, "E")
-        else:    
+        else:
             await juego.mensaje_personal(jugador_ataque.id, "G")
         if card_id == 0:
             return {"message": "Se completó el ataque."}
@@ -173,20 +173,18 @@ async def endpoint_descartar_carta(match_id: int = Form(),
                                    card_id: int = Form(), player_id: int = Form()):
     try:
         juego = get_global_juego(match_id)
-        jugador = juego.get_jugador(player_id)
+        jugador = get_jugador(player_id, juego)
         check_turno(jugador)
         descartar_carta(card_id, player_id, juego)
         await juego.mensaje_personal(player_id, "D")
-
         jugador_objetivo = juego.get_jugador_siguiente_turno()
-
-        if(juego.is_obstaculo(jugador.id, jugador_objetivo.id)):
+        if (juego.is_obstaculo(jugador.id, jugador_objetivo.id)):
             juego.terminar_turno()
             juego.avanzar_turno()
-
             await juego.mensaje_personal(jugador_objetivo.id, "E")
-        else:    
+        else:
             await juego.mensaje_personal(player_id, "G")
+        await mostrar_cartas_cuarentena(jugador, card_id, juego, 2)
         return {"carta descartada": card_id}
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
@@ -212,15 +210,18 @@ async def swap_request(match_id: int = Form(), card_id: int = Form(), player_ori
             jugador_objetivo = juego.jugadores_en_partida[jugador_objetivo_index]
         else:
             jugador_objetivo = juego.get_jugador_siguiente_turno()
-            check_objetive_is_next(jugador_objetivo,juego)
-        check_carta_habilitada(card_id,jugador_orig,jugador_objetivo)
-        if not jugador_objetivo.get_efecto_seduccion():
-            check_obstaculo(player_orig,jugador_objetivo.id,juego)
+            check_objetive_is_next(jugador_objetivo, juego)
+        check_carta_habilitada(card_id, jugador_orig, jugador_objetivo)
+        if not jugador_objetivo.get_efecto_seduccion() and not jugador_objetivo.get_cuartena():
+            check_obstaculo(player_orig, jugador_objetivo.id, juego)
 
-        juego.crear_intercambio(player_orig,card_id,jugador_objetivo.id)
-        await juego.mensaje_personal(jugador_objetivo.id,"H")
+        juego.crear_intercambio(player_orig, card_id, jugador_objetivo.id)
+        await juego.mensaje_personal(jugador_objetivo.id, "H")
         if jugador_objetivo.check_puede_anular_el_intercambio():
-            await juego.mensaje_personal(jugador_objetivo.id,"N")
+            await juego.mensaje_personal(jugador_objetivo.id, "N")
+
+        if not jugador_objetivo.get_efecto_seduccion():
+            check_obstaculo(player_orig, jugador_objetivo.id, juego)
 
         return {"message": "se creo la solicitud de intercambio"}
     except HTTPException as e:
@@ -232,32 +233,34 @@ async def swap_request(match_id: int = Form(), card_id: int = Form(), player_ori
 
 
 @router.post("/swap-response")
-async def swap_response( match_id: int = Form(), card_id: int = Form(), player_orig: int = Form(), se_defiende:bool = Form() ):
+async def swap_response(match_id: int = Form(), card_id: int = Form(), player_orig: int = Form(), se_defiende: bool = Form()):
     try:
         juego = get_global_juego(match_id)
-        jugador_orig = juego.get_jugador(player_orig) #j4
-        jugador_objetivo = juego.get_jugador_en_turno() #j3
-        check_carta_habilitada(card_id, jugador_orig, jugador_objetivo) 
-        
+        jugador_orig = juego.get_jugador(player_orig)  # j4
+        jugador_objetivo = juego.get_jugador_en_turno()  # j3
+        check_carta_habilitada(card_id, jugador_orig, jugador_objetivo)
         '''si el jugador que glopea este endpoint (el objetivo del intercambio), pasa un card_id correspondiente a aterrador.
            significa que se niega al mismo. '''
-        if is_card_defense(card_id) and  se_defiende:
+        if is_card_defense(card_id) and se_defiende:
             await defenderse_de_intercambio(juego, card_id, jugador_orig, jugador_objetivo)
-        else: 
+        else:
+            if jugador_orig.get_cuartena() and jugador_objetivo.get_cuartena():
+                await mostrar_cartas_cuarentena_ambos(jugador_orig, card_id, jugador_objetivo, juego.solicitud_intercambio.carta_solicitante, juego)
+            else:
+                await mostrar_cartas_cuarentena(jugador_orig, card_id, juego, 3)
+                await mostrar_cartas_cuarentena(jugador_objetivo, juego.solicitud_intercambio.carta_solicitante, juego, 3)
             juego.responder_intercambio(player_orig, card_id)
-        
         fallaste_card = is_fallaste(card_id) and se_defiende
         if not fallaste_card:
             juego.terminar_turno()
             juego.avanzar_turno()
-
         await juego.mensaje_personal(player_orig, "D")
         await juego.mensaje_personal(jugador_objetivo.id, "D")
         ganador = check_ganador(juego)
         if ganador:
             await juego.broadcast_global("K")
         if jugador_orig.get_efecto_seduccion():
-            if fallaste_card : 
+            if fallaste_card:
                 jugador_orig.remove_efecto_seduccion()
                 proximo = juego.get_jugador_siguiente(jugador_orig)
                 if proximo == jugador_objetivo:
@@ -267,6 +270,7 @@ async def swap_response( match_id: int = Form(), card_id: int = Form(), player_o
                 jugador = juego.get_jugador_en_turno()
                 await juego.mensaje_personal(jugador.id, "E")
                 jugador_orig.remove_efecto_seduccion()
+
         else:
             if not fallaste_card and not jugador_orig.get_efecto_fallaste():
                 await juego.mensaje_personal(jugador_orig.id, "E")
@@ -287,6 +291,7 @@ async def swap_response( match_id: int = Form(), card_id: int = Form(), player_o
 # Finalizar Partida
 ######
 
+
 @router.post('/finish')
 async def finish_match(match_id: int = Form()):
     try:
@@ -302,6 +307,10 @@ async def finish_match(match_id: int = Form()):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=error_msg
         )
+
+######
+# Decretar Finalizar Partida
+######
 
 
 @router.post('/finish/thething')
@@ -345,9 +354,10 @@ async def seleccionar_carta_determinacion(match_id: int = Form(),
             detail=error_msg
         )
 
-#################
-#GET LOGS 
-#################
+######
+# GET LOGS
+######
+
 
 @router.get("/log/{match_id}")
 async def get_logs_del_juego(match_id: int):
@@ -355,10 +365,35 @@ async def get_logs_del_juego(match_id: int):
         juego = get_global_juego(match_id)
         logs = juego.get_logs()
         return {
-            "logs":logs,
+            "logs": logs,
         }
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_msg
+        )
+
+######
+# Panico, Que quede entre nosotros.
+######
+
+
+@router.post("/play/que_quede_entre_nosotros")
+async def que_quede_entre_nostros(match_id: int = Form(),
+                                  player_objective: int = Form(),
+                                  player_orig: int = Form()):
+    try:
+        juego = get_global_juego(match_id)
+        jugador = get_jugador(player_orig, juego)
+        check_turno(jugador)
+        msg = play_que_quede_entre_nosotros(
+            player_orig, player_objective, juego)
+        await juego.mensaje_personal(player_objective, {"carta_id": 106,
+                                                        "mensaje": msg["mensaje"],
+                                                        "cartaMostrar": msg["cartaMostrar"]})
+    except HTTPException as e:
+        error_msg = f"Error:{e.detail}"
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=error_msg

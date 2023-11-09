@@ -5,4 +5,4 @@ pycodestyle
 pytest-mock
 uvicorn
 pytest-asyncio
-
+pytest-cov
