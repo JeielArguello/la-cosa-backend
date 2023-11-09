@@ -43,7 +43,7 @@ def test_play_ups_ok(mocker, mock_juego, mock_j1):
     mock_j1.cartas = [1, 2, 3, 4]
     mock_card_id = 105
     msg = play_ups(mock_j1.id, mock_juego, mock_card_id)
-    assert (msg["mensaje"] == "pepe jugó la carta Ups.")
+    assert (msg["mensaje"] == "pepe jugó la carta ¡Ups!")
     assert (msg["cartaMostrar"] == [
         {'id': 1}, {'id': 2}, {'id': 3}, {'id': 4}])
 
@@ -62,6 +62,6 @@ def test_play_que_qude_entre_nosotros_ok(mocker, mock_juego, mock_j1, mock_j2):
     mock_j1.cartas = [1, 2, 3, 4]
     msg = play_que_quede_entre_nosotros(
         mock_j1.id, mock_j2.id, mock_juego)
-    assert (msg["mensaje"] == "pepe jugó la carta Que quede entre nosotros.")
+    assert (msg["mensaje"] == "pepe jugó la carta Que quede entre nosotros...")
     assert (msg["cartaMostrar"] == [
         {'id': 1}, {'id': 2}, {'id': 3}, {'id': 4}])

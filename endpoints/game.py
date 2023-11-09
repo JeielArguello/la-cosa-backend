@@ -43,6 +43,8 @@ async def pick_a_card_from_deck(match_id: int = Form(), player_id: int = Form())
             await juego.broadcast_global("C")
             await juego.mensaje_personal(player_id, "D")
             await juego.mensaje_personal(player_id, "F")
+            await mostrar_cartas_cuarentena(jugador, carta, juego,1)
+
             return {'card_id': carta}
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
@@ -66,12 +68,11 @@ async def jugar_ataque(match_id: int = Form(), card_id: int = Form(),
         check_turno(jugador)
         validar_jugada(juego, card_id, player_objective, player_orig)
         jugador_proximo = juego.get_jugador_siguiente_turno()
-        if (player_objective == jugador_proximo.id and card_id not in [30, 31]):
-            check_obstaculo(player_orig, jugador_proximo.id, juego)
+        if (player_objective == jugador_proximo.id and not is_hacha(card_id)):
+            check_obstaculo(player_orig,jugador_proximo.id,juego)
         jugador_anterior = juego.get_jugador_anterior_turno()
-        if (player_objective == jugador_anterior.id and card_id not in [30, 31]):
-            check_obstaculo(player_orig, jugador_anterior.id, juego)
-
+        if (player_objective == jugador_anterior.id and not is_hacha(card_id)):
+            check_obstaculo(player_orig,jugador_anterior.id,juego)
         if check_puedo_defender(juego, card_id, player_objective, player_orig) and not is_seduccion(card_id):
             msg = crear_mensaje_de_ataque(jugador, card_id)
             juego.crear_ataque(player_orig, card_id, player_objective)
@@ -183,6 +184,7 @@ async def endpoint_descartar_carta(match_id: int = Form(),
             await juego.mensaje_personal(jugador_objetivo.id, "E")
         else:
             await juego.mensaje_personal(player_id, "G")
+        await mostrar_cartas_cuarentena(jugador,card_id, juego, 2)
         return {"carta descartada": card_id}
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
@@ -208,16 +210,17 @@ async def swap_request(match_id: int = Form(), card_id: int = Form(), player_ori
             jugador_objetivo = juego.jugadores_en_partida[jugador_objetivo_index]
         else:
             jugador_objetivo = juego.get_jugador_siguiente_turno()
-            check_objetive_is_next(jugador_objetivo, juego)
-        check_carta_habilitada(card_id, jugador_orig, jugador_objetivo)
-        if not jugador_objetivo.get_efecto_seduccion():
-            check_obstaculo(player_orig, jugador_objetivo.id, juego)
-        juego.crear_intercambio(player_orig, card_id, jugador_objetivo.id)
-        await juego.mensaje_personal(jugador_objetivo.id, "H")
+            check_objetive_is_next(jugador_objetivo,juego)
+        check_carta_habilitada(card_id,jugador_orig,jugador_objetivo)
+        if not jugador_objetivo.get_efecto_seduccion() and not jugador_objetivo.get_cuartena():
+            check_obstaculo(player_orig,jugador_objetivo.id,juego)
+
+        juego.crear_intercambio(player_orig,card_id,jugador_objetivo.id)
+        await juego.mensaje_personal(jugador_objetivo.id,"H")
         if jugador_objetivo.check_puede_anular_el_intercambio():
             await juego.mensaje_personal(jugador_objetivo.id, "N")
 
-        if not jugador_objetivo.efecto_seduccion:
+        if not jugador_objetivo.get_efecto_seduccion():
             check_obstaculo(player_orig, jugador_objetivo.id, juego)
 
         return {"message": "se creo la solicitud de intercambio"}
@@ -240,7 +243,12 @@ async def swap_response(match_id: int = Form(), card_id: int = Form(), player_or
            significa que se niega al mismo. '''
         if is_card_defense(card_id) and se_defiende:
             await defenderse_de_intercambio(juego, card_id, jugador_orig, jugador_objetivo)
-        else:
+        else: 
+            if jugador_orig.get_cuartena() and jugador_objetivo.get_cuartena():
+                await mostrar_cartas_cuarentena_ambos(jugador_orig, card_id, jugador_objetivo, juego.solicitud_intercambio.carta_solicitante, juego)
+            else:    
+                await mostrar_cartas_cuarentena(jugador_orig, card_id, juego,3)
+                await mostrar_cartas_cuarentena(jugador_objetivo,juego.solicitud_intercambio.carta_solicitante, juego,3)
             juego.responder_intercambio(player_orig, card_id)
         fallaste_card = is_fallaste(card_id) and se_defiende
         if not fallaste_card:
@@ -262,6 +270,7 @@ async def swap_response(match_id: int = Form(), card_id: int = Form(), player_or
                 jugador = juego.get_jugador_en_turno()
                 await juego.mensaje_personal(jugador.id, "E")
                 jugador_orig.remove_efecto_seduccion()
+
         else:
             if not fallaste_card and not jugador_orig.get_efecto_fallaste():
                 await juego.mensaje_personal(jugador_orig.id, "E")
@@ -364,7 +373,6 @@ async def get_logs_del_juego(match_id: int):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=error_msg
         )
-
 
 ######
 # Panico, Que quede entre nosotros.

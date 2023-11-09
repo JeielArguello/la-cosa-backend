@@ -1,6 +1,6 @@
 
 from logic.defense_effects import defensa_aqui_estoy_bien, defensa_fallaste, defensa_nada_de_barbacoas, defensa_no_gracias, defense_aterrador
-from logic.obstacle_effects import play_puerta_atrancada
+from logic.obstacle_effects import play_puerta_atrancada, play_cuarentena
 from utils.action_utils import get_jugador
 from fastapi import HTTPException
 from logic.panic_effects import *
@@ -18,10 +18,16 @@ def get_status_game(juego: Juego):
     posiciones = juego.posiciones
     sentido = juego.sentido
     jugadores = get_jugadores_match(juego.posiciones)
+    list_jugadores = []  
+    for j in jugadores:
+        jugador = juego.get_jugador(j['id'])
+        list_jugadores.append({'id' : j['id'],
+                               'nombre' : j['nombre'],
+                               'cuarentena' : jugador.get_cuartena()})
     carta = read_carta(juego.mazo[-1])
     id_player_turno = juego.get_jugador_en_turno().id
     response = {'posiciones': posiciones,
-                'jugadores': jugadores,
+                'jugadores': list_jugadores,
                 'sentido': sentido,
                 'tipo_dorso': carta.tipo_dorso,
                 'id_player_turno': id_player_turno}
@@ -134,6 +140,31 @@ def check_la_cosa_eliminada(juego: Juego) -> bool:
     print(f'la_cosa_eliminada:{la_cosa_eliminada}')
     return la_cosa_eliminada
 
+async def mostrar_cartas_cuarentena(jugador: JugadorPartida, card_id: int, juego: Juego ,etapa : int):
+    if jugador.get_cuartena():
+        if etapa == 1: #robar
+            await juego.broadcast_global({"carta_id": 84,
+                                          "jugador_obj": get_name(jugador.id),
+                                          "mensaje": "El jugador " + jugador.name + " que está en cuarentena robó una carta.",
+                                          "cartaMostrar": [{"id": card_id}]})
+        elif etapa == 2: #descartar
+            await juego.broadcast_global({"carta_id": 84,
+                                          "jugador_obj": get_name(jugador.id),
+                                          "mensaje": "El jugador " + jugador.name + " que está en cuarentena descarto una carta.",
+                                          "cartaMostrar": [{"id": card_id}]})
+        elif etapa == 3: #intercambio
+            await juego.broadcast_global({"carta_id": 84,
+                                          "jugador_obj": get_name(jugador.id),
+                                          "mensaje": "El jugador " + jugador.name + " que está en cuarentena intercambio una carta.",
+                                          "cartaMostrar": [{"id": card_id}]})
+
+async def mostrar_cartas_cuarentena_ambos(jugador: JugadorPartida, card_id: int, jugador_obj: JugadorPartida, card_id_obj: int, juego: Juego ):
+    if jugador.get_cuartena() and jugador_obj.get_cuartena():
+        await juego.broadcast_global({"carta_id": 84,
+                                          "jugador_obj":"Los jugadores "+ get_name(jugador.id) + " y " + get_name(jugador_obj.id),
+                                          "mensaje": jugador.name + " y "+ jugador_obj.name +" que estan en cuarentena intercambiaron cartas.",
+                                          "cartaMostrar": [{"id": card_id}, {"id": card_id_obj} ]})
+             
 
 def check_no_humanos(juego: Juego) -> bool:
     no_humanos = True
@@ -247,6 +278,12 @@ async def jugar_la_carta(
         msg = play_seduccion(juego, player_orig, player_objective)
         await juego.broadcast_global({"carta_id": card_id,
                                      "mensaje": msg["mensaje"]})
+        
+    elif card_id in [84, 85]:
+        msg = play_cuarentena(player_orig, player_objective, juego)
+        await juego.broadcast_global({"carta_id": card_id,
+                                     "mensaje": msg["mensaje"]})
+        await juego.broadcast_global("C")
 
     elif card_id in [86, 87, 88]:
         msg = play_puerta_atrancada(juego, player_orig, player_objective)
@@ -410,8 +447,16 @@ def check_objetive_is_next(proximo_jugador: JugadorPartida, juego: Juego):
 
 def check_obstaculo(atacante_id: int, objetivo_id: int, juego: Juego):
     indice_posicion_intermedia = juego.get_posicion_intermedia(objetivo_id, atacante_id)
-
     validar_obstaculo(indice_posicion_intermedia, juego)
+
+def is_obstaculo(atacante_id, objetivo_id, juego: Juego):
+    indice_posicion_intermedia = juego.get_posicion_intermedia( objetivo_id, atacante_id)
+    objetivo = get_jugador(objetivo_id, juego)
+    hay_obstaculo = False
+    if juego.posiciones[indice_posicion_intermedia] != 0 or objetivo.get_cuartena():
+        hay_obstaculo = True
+
+    return hay_obstaculo
 
 
 def is_card_defense(card_id):
@@ -421,6 +466,14 @@ def is_card_defense(card_id):
 def is_fallaste(card_id):
     is_fallaste = card_id in [78,79,80]
     return is_fallaste
+
+def is_lanzallama(card_id : int):
+    lanzallama = card_id in [22, 23, 24, 25, 26]
+    return lanzallama
+
+def is_hacha(card_id : int):
+    hacha = card_id in [30, 31]
+    return hacha
 
 def is_seduccion(card_id):
     is_seduccion = card_id in [60,61,62,63,64,65,66]
@@ -435,38 +488,21 @@ def check_carta_habilitada(
         raise HTTPException(
             status_code=400, detail="No puedes descartar la carta la cosa.")
     mano = jugador_orig.get_cartas()
+    cantidad_cartas_infectados = 0
     for c in mano:
-        if c["id"] in [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]:
-            cantidad_cartas_infectados = +1
-    if jugador_orig.get_infectado() and cantidad_cartas_infectados < 2 and card_id in [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]:
+        if  is_infectado(c["id"]):
+            cantidad_cartas_infectados = cantidad_cartas_infectados+1
+    if jugador_orig.get_infectado() and cantidad_cartas_infectados < 2 and is_infectado(card_id):
         raise HTTPException(
             status_code=400, detail="No puedes descartar la unica carta de infectado que tienes.")
 
-    if not jugador_orig.get_la_cosa() and card_id in [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]:
+    if not jugador_orig.get_la_cosa() and not jugador_orig.get_infectado() and is_infectado(card_id):
         raise HTTPException(
             status_code=400, detail="No puedes intercambiar una carta de infectado si no eres la cosa ni infectado.")
 
-    if jugador_orig.get_infectado() and not jugador_objetivo.get_la_cosa() and card_id in [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]:
+    if jugador_orig.get_infectado() and not jugador_objetivo.get_la_cosa() and is_infectado(card_id):
         raise HTTPException(
             status_code=400, detail="No puedes intercambiar una carta de infectado si no eres la cosa.")
-
-    if jugador_orig.get_infectado() and cantidad_cartas_infectados < 2 and card_id in [
-            2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]:
-        raise HTTPException(
-            status_code=400,
-            detail="No puedes descartar la unica carta de infectado que tienes.")
-
-    if not jugador_orig.get_la_cosa() and card_id in [
-            2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]:
-        raise HTTPException(
-            status_code=400,
-            detail="No puedes intercambiar una carta de infectado si no eres la cosa ni infectado.")
-
-    if jugador_orig.get_infectado() and not jugador_objetivo.get_la_cosa() and card_id in [
-            2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]:
-        raise HTTPException(
-            status_code=400,
-            detail="No puedes intercambiar una carta de infectado si no eres la cosa.")
 
 
 def check_posibilidad_defensa(card_id: int, juego: Juego):
@@ -514,6 +550,11 @@ def check_puedo_defender(
         return True
     else:
         return False
+    
+def is_infectado(card_id):
+    infectado = card_id in [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,
+                            17,18,19,20,21]
+    return infectado
 
 
 def crear_mensaje_de_ataque(jugador: JugadorPartida, card_id: int):

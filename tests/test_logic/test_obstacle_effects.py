@@ -2,7 +2,7 @@ from fastapi.testclient import TestClient
 from unittest.mock import Mock
 
 import pytest
-from logic.obstacle_effects import play_puerta_atrancada
+from logic.obstacle_effects import play_cuarentena, play_puerta_atrancada
 from models.game import Juego
 from logic.action_effects import *
 
@@ -54,10 +54,10 @@ def test_play_puerta_atrancada_ok(mocker, mock_juego, mock_atacante, mock_objeti
                  side_effect={mock_atacante, mock_objetivo})
     expected_posiciones = [1, 0, 2, 0, 3, 0, 4, "p"]
     expected_msg = {
-        "mensaje": "pepe jugó carta puerta atrancada contra pedro"
+        "mensaje": "pepe jugó carta Puerta atrancada contra pedro"
     }
     expected_msg_2 = {
-        "mensaje": "pedro jugó carta puerta atrancada contra pepe"
+        "mensaje": "pedro jugó carta Puerta atrancada contra pepe"
     }
     msg = play_puerta_atrancada(juego, mock_atacante.id, mock_objetivo.id)
     assert msg == expected_msg or msg == expected_msg_2
@@ -77,3 +77,28 @@ def test_play_puerta_atrancada__http_exception_no_vecino(mocker, mock_juego, moc
                               mock_objetivo_no_vecino.id)
     assert excinfo.value.status_code == 400
     assert excinfo.value.detail == "Los jugadores no son vecinos"
+
+# Test 1: cuarentena aplicada correctamente
+def test_play_cuarentena_succes(mocker, mock_juego,mock_atacante, mock_objetivo):
+    juego:Juego = mock_juego
+    jugador_objetivo: JugadorPartida = mock_objetivo
+    jugador_atacanate: JugadorPartida = mock_atacante
+    print(jugador_objetivo.name)
+    mocker.patch("logic.obstacle_effects.Juego.get_jugador", side_effect=[jugador_atacanate, jugador_objetivo])
+    expected_msg = {
+        "mensaje": "pepe jugó carta Cuarentena contra pedro"
+    }
+    msg = play_cuarentena(mock_atacante.id, mock_objetivo.id, juego)
+    assert msg == expected_msg 
+    assert jugador_objetivo.get_cuartena() == True 
+    assert juego.get_logs()[-1] == "pedro esta en cuarentena gracias a pepe"
+
+# Test 2: cuarentena falla por no ser vecinos
+def test_play_cuarentena_no_vecino(mocker, mock_juego,mock_atacante, mock_objetivo_no_vecino):
+    juego = mock_juego
+    mocker.patch("logic.obstacle_effects.get_jugador", side_effect=[mock_atacante, mock_objetivo_no_vecino]) 
+    with pytest.raises(HTTPException) as excinfo:
+        play_cuarentena(mock_atacante.id, mock_objetivo_no_vecino.id, juego)
+    assert excinfo.value.status_code == 400
+    assert excinfo.value.detail == "Los jugadores no son vecinos"
+
