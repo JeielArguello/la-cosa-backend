@@ -31,13 +31,17 @@ def mock_intercambio(mock_j1, mock_j2):
     return swap_card
 
 
+def test_sawp_check_receptor_ok(mock_j1, mock_j2):
+    player_orig = mock_j1
+    player_objetive = mock_j2
+    swap_card = IntercambiarCarta(player_orig, 1, player_objetive)
+    swap_card.check_receptor(2)
 
-def test_check_receptor_success( mock_intercambio):
-    mock_intercambio.check_receptor(2)
 
-
-def test_check_receptor_fail(mock_intercambio):
-    swap_card = mock_intercambio
+def test_swap_check_receptor_http_exception_no_eres_receptor(mock_intercambio,mock_j1, mock_j2):
+    player_orig = mock_j1
+    player_objetive = mock_j2
+    swap_card = IntercambiarCarta(player_orig, 1, player_objetive)
     try:
         swap_card.check_receptor(3)
     except HTTPException as e:
@@ -45,7 +49,8 @@ def test_check_receptor_fail(mock_intercambio):
         assert e.detail == "No eres el receptor del intercambio"
 
 
-def test_completar_intercambio_success(mock_j1, mock_j2, mock_intercambio):
+
+def test_swap_completar_intercambio_ok(mock_j1, mock_j2):
     player_orig = mock_j1
     player_objetive = mock_j2
     player_orig.agregar_carta(22)
@@ -58,7 +63,8 @@ def test_completar_intercambio_success(mock_j1, mock_j2, mock_intercambio):
     assert player_objetive.get_cartas() == [{'id': 22}]
 
 
-def test_completar_intercambio_infectado(mock_j1, mock_j2, mock_intercambio):
+
+def test_completar_intercambio_y_ser_infectado_ok(mock_intercambio, mock_j1, mock_j2):
     player_orig = mock_j1
     player_objetive = mock_j2
     player_orig.agregar_carta(2)

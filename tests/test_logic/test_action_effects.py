@@ -63,8 +63,7 @@ def test_lanzallamas_simple(mocker, mock_juego, mock_atacante, mock_objetivo):
     assert response == {'jugadores': 2, 'posiciones': [1, 0]}
 
 
-def test_lanzallamas(mocker, mock_juego, mock_atacante, mock_objetivo):
-
+def test_lanzallamas_varios_ataques_en_todos_sentidos(mocker, mock_juego, mock_atacante, mock_objetivo):
     mock_j1 = mock_atacante
     mock_j2 = mock_objetivo
     mock_j3 = mock_atacante
@@ -83,7 +82,6 @@ def test_lanzallamas(mocker, mock_juego, mock_atacante, mock_objetivo):
     mock_j9.id = 9
     mock_j10 = mock_atacante
     mock_j10.id = 10
-
     mock_juego.cantidad_jugadores = 10,
     mock_juego.jugadores_id = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     mock_juego.jugadores_en_partida = [
@@ -148,7 +146,6 @@ def test_lanzallamas(mocker, mock_juego, mock_atacante, mock_objetivo):
     play_lanzallamas(9, 8, mock_juego)
     response2 = {'jugadores': len(mock_juego.jugadores_en_partida),
                  'posiciones': mock_juego.posiciones}
-
     assert response2 == {'jugadores': 10, 'posiciones': [
         1, 0, 2, 0, 3, 0, 4, 0, 6, 0, 7, 0, 9, 0, 10, 0]}
     play_lanzallamas(10, 1, mock_juego)
@@ -164,7 +161,7 @@ def test_lanzallamas(mocker, mock_juego, mock_atacante, mock_objetivo):
                          'posiciones': [2, 0, 3, 0, 4, 0, 6, 0, 7, 0, 9, 0]}
 
 
-def test_lanzallamas_no_vecinos(
+def test_lanzallamas_http_exception_no_vecinos(
         mocker,
         mock_juego,
         mock_atacante,
@@ -177,7 +174,7 @@ def test_lanzallamas_no_vecinos(
     assert error_msg == {"Los jugadores no son vecinos"}
 
 
-def test_vigila_tus_espaldas(mocker, mock_juego):
+def test_vigila_tus_espaldas_ok(mocker, mock_juego):
     mock_juego.cantidad_jugadores = 2
     mock_juego.jugadores_id = [1, 2]
     antes_cambio = mock_juego.sentido
@@ -186,16 +183,16 @@ def test_vigila_tus_espaldas(mocker, mock_juego):
     assert antes_cambio == despues_cambio * (-1)
 
 
-def test_hacha( mock_juego):
-    juego: Juego = mock_juego
-    juego.cantidad_jugadores = 2
-    juego.jugadores_id = [1, 2]
-    juego.posiciones = [1, 0, 2, "p"]
+
+def test_hacha_ok(mocker, mock_juego):
+    mock_juego.cantidad_jugadores = 2
+    mock_juego.jugadores_id = [1, 2]
+    mock_juego.posiciones = [1, 0, 2, "p"]
     play_hacha(1, 2, mock_juego)
     assert mock_juego.posiciones == [1, 0, 2, 0]
 
 
-def test_hacha_no_vecinos(mocker, mock_juego, mock_atacante, mock_objetivo):
+def test_hacha_http_exception_no_vecinos(mocker, mock_juego, mock_atacante, mock_objetivo):
 
     mock_juego.cantidad_jugadores = 4,
     mock_juego.jugadores_id = [1, 3, 2, 4]
@@ -207,7 +204,7 @@ def test_hacha_no_vecinos(mocker, mock_juego, mock_atacante, mock_objetivo):
     assert error_msg == {"Los jugadores no son vecinos"}
 
 
-def test_hacha_no_puerta(mocker, mock_juego):
+def test_hacha_http_exception_no_hay_puerta(mocker, mock_juego):
     mock_atacante = 1
     mock_objetivo = 2
     mock_juego.cantidad_jugadores = 4,
@@ -219,14 +216,14 @@ def test_hacha_no_puerta(mocker, mock_juego):
     assert error_msg == {"No hay una puerta atrancada"}
 
 
-def test_mas_vale_que_corras_succes(mock_juego, mock_atacante, mock_objetivo):
+def test_mas_vale_que_corras_ok(mock_juego, mock_atacante, mock_objetivo):
     play_mas_vale_que_corras(mock_atacante.id, mock_objetivo.id, mock_juego)
     response = {'jugadores': len(mock_juego.jugadores_en_partida),
                 'posiciones': mock_juego.posiciones}
     assert response == {'jugadores': 4, 'posiciones': [2, 0, 1, 0, 3, 0, 4, 0]}
 
 
-def test_sospecha_success(mocker, mock_juego, mock_atacante, mock_objetivo):
+def test_sospecha_ok(mocker, mock_juego, mock_atacante, mock_objetivo):
     mock_juego.jugadores_en_partida = [mock_atacante, mock_objetivo]
     mock_objetivo.cartas = [1, 2, 3, 4]
     mocker.patch(
@@ -237,8 +234,10 @@ def test_sospecha_success(mocker, mock_juego, mock_atacante, mock_objetivo):
     assert msg["cartaMostrar"][0] in [
         {"id": 1}, {"id": 2}, {"id": 3}, {"id": 4}]
 
+# revisar mensaje error
 
-def test_sospecha_fail(mock_juego, mocker):
+
+def test_sospecha_http_exception_no_se_puede_obtener_carta(mock_juego, mocker):
     mock_atacante = 1
     mock_objetivo = 2
     mocker.patch("logic.action_effects.random.choice", return_value=4)
@@ -252,102 +251,91 @@ def test_sospecha_fail(mock_juego, mocker):
     assert error_msg == {"No se pudo obtener una carta del jugador objetivo"}
 
 
-def test_cambio_de_lugar_2Jugadores_cambio_entre_id1_id2(
+def test_cambio_de_lugar_ok_2_jugadores(
         mocker, mock_juego, mock_atacante, mock_objetivo):
-
     j1 = mock_atacante
     j2 = mock_objetivo
-
     mock_juego.posiciones = [1, 0, 2, 0]
     mock_juego.jugadores_en_partida = [j1, j2]
     mock_juego.jugadores_id = [1, 2]
-
     j1.posicion = 0
     j2.posicion = 2
-
     play_cambio_de_lugar(mock_juego, j1.id, j2.id)
+    assert (j1.posicion == 2)
+    assert (j2.posicion == 0)
+    assert (mock_juego.posiciones == [2, 0, 1, 0])
 
-    assert(j1.posicion == 2)
-    assert(j2.posicion == 0)
-    assert(mock_juego.posiciones == [2, 0, 1, 0])
 
-
-def test_cambio_de_lugar_4Jugadores_cambio_entre_id1_id2(
+def test_cambio_de_lugar_ok_4_jugadores(
         mocker,
         mock_juego,
         mock_atacante,
         mock_objetivo,
         mock_jugador_extra1,
         mock_jugador_extra2):
-
     j1 = mock_atacante
     j2 = mock_objetivo
     j3 = mock_jugador_extra1
     j4 = mock_jugador_extra2
-
     mock_juego.jugadores_en_partida = [j1, j2, j3, j4]
-
     j1.posicion = 0
     j2.posicion = 2
     j3.posicion = 4
     j4.posicion = 6
-
     play_cambio_de_lugar(mock_juego, j1.id, j4.id)
+    assert (j1.posicion == 6)
+    assert (j4.posicion == 0)
+    assert (mock_juego.posiciones == [4, 0, 2, 0, 3, 0, 1, 0])
 
-    assert(j1.posicion == 6)
-    assert(j4.posicion == 0)
-    assert(mock_juego.posiciones == [4, 0, 2, 0, 3, 0, 1, 0])
 
-
-def test_play_analisis(mocker, mock_juego, mock_atacante, mock_objetivo):
-
+def test_play_analisis_ok(mocker, mock_juego, mock_atacante, mock_objetivo):
     mock_juego.jugadores_en_partida = [mock_atacante, mock_objetivo]
     mock_juego.posiciones = [1, 0, 2, 0]
-
     mock_objetivo.cartas = [10, 2, 3, 4]
-
     msg = play_analisis(mock_juego, mock_atacante.id, mock_objetivo.id)
+    assert (msg["mensaje"] == "pepe jugó carta analisis contra pedro.")
+    assert (msg["cartaMostrar"] == [
+        {'id': 10}, {'id': 2}, {'id': 3}, {'id': 4}])
 
-    assert(msg["mensaje"] == "pepe jugó carta analisis contra pedro.")
-    assert(msg["cartaMostrar"] == [
-           {'id': 10}, {'id': 2}, {'id': 3}, {'id': 4}])
 
-
-def test_play_whisky_succes(mocker, mock_juego, mock_atacante):
+def test_play_whisky_ok(mocker, mock_juego, mock_atacante):
     mock_juego.jugadores_en_partida = [mock_atacante]
     mock_atacante.cartas = [1, 10, 2, 3, 4]
     mock_card_id = 1
     msg = play_whisky(mock_atacante.id, mock_juego, mock_card_id)
-    assert(msg["mensaje"] == "pepe jugó carta whisky.")
-    assert(msg["cartaMostrar"] == [
-           {'id': 10}, {'id': 2}, {'id': 3}, {'id': 4}])
+    assert (msg["mensaje"] == "pepe jugó carta whisky.")
+    assert (msg["cartaMostrar"] == [
+        {'id': 10}, {'id': 2}, {'id': 3}, {'id': 4}])
 
 
-def test_play_whisky_fail(mocker, mock_juego):
+def test_play_whisky_error_no_se_pudo_mostrar_cartas(mocker, mock_juego):
     mock_card_id = 1
     mocker.patch("logic.action_effects.get_jugador", return_value=None)
     msg = play_whisky(4000, mock_juego, mock_card_id)
     assert msg == {"error": "no se pudieron mostrar cartas."}
 
-def test_play_seduccion_1(mocker, mock_juego, mock_atacante, mock_objetivo):
+
+def test_play_seduccion_ok(mocker, mock_juego, mock_atacante, mock_objetivo):
     mock_juego.jugadores_en_partida = [mock_atacante, mock_objetivo]
     mocker.patch("logic.action_effects.is_cuarentena", return_value = False)
     msg = play_seduccion(mock_juego, mock_atacante.id, mock_objetivo.id)
     assert msg == {"mensaje": "pepe" + " jugó carta seducción contra "
-               + "pedro" + "."}
+                   + "pedro" + "."}
 
-def test_play_seduccion_2(mocker, mock_juego, mock_atacante, mock_objetivo):
+
+def test_play_seduccion_error_objetivo_en_cuarentena(mocker, mock_juego, mock_atacante, mock_objetivo):
     mock_juego.jugadores_en_partida = [mock_atacante, mock_objetivo]
     mocker.patch("logic.action_effects.is_cuarentena", return_value = True)
     msg = play_seduccion(mock_juego, mock_atacante.id, mock_objetivo.id)
     assert msg == {"mensaje": "error "
-                + "pedro" + "en cuarentena."}
+                   + "pedro" + "en cuarentena."}
 
-def test_play_determinacion__succes(mocker, mock_juego, mock_atacante):
+
+def test_play_determinacion_ok(mocker, mock_juego, mock_atacante):
     mock_juego.jugadores_en_partida = [mock_atacante]
     mock_atacante.cartas = [1, 44, 2, 3, 4]
     mock_juego.mazo = [23, 22, 21, 4, 5, 6, 7, 8]
     msg = play_determinacion(mock_juego, mock_atacante.id)
-    assert(msg["mensaje"] == "pepe jugó carta Determinacion.")
-    assert(msg["cartas"] == [{'id': 8}, {'id': 7}, {'id': 6}])
-    assert(mock_juego.cartas_determinacion == [8, 7, 6])
+    assert (msg["mensaje"] == "pepe jugó carta Determinacion.")
+    assert (msg["cartas"] == [{'id': 8}, {'id': 7}, {'id': 6}])
+    assert (mock_juego.cartas_determinacion == [8, 7, 6])

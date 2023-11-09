@@ -146,26 +146,7 @@ def construir_mazo(num_jugadores: int):
         except Exception as e:
             return {"error al construir el mazo"}
     else:
-        return{"error": "numero de jugadores incorrecto"}
-
-#            raise HTTPException(
-#                status_code=400, detail="La partida ya esta inicializada.")
-#
-#        try:
-#            partida.iniciado = True
-#        except:
-#            raise HTTPException(
-#                status_code=400, detail="No se le pudo inicializar la ")
-
-
-# @db_session
-# def descartar_carta(card_id: int, player_orig: int, match_id: int):
-#     juego = select(j for j in Partida if j.id == match_id).first()
-#     if juego:
-#         juego.mazo_descarte.append(card_id)
-#         juego.jugadores_en_partida[player_orig].cartas.pop(card_id)
-#         return True
-#     return False
+        return {"error": "numero de jugadores incorrecto"}
 
 
 @db_session
@@ -175,22 +156,22 @@ def get_jugadores_en_juego(partida: Partida):
             jugadores = partida.jugadores
             return jugadores
     except Exception as e:
-        return{"error al obtener jugadores en la partida"}
+        return {"error al obtener jugadores en la partida"}
 
 
-@db_session
-def finalizar_partida(partida: Partida):
-    assert partida is not None
-    jugadores_vivos = get_jugadores_en_juego(partida)
+# @db_session
+# def finalizar_partida(partida: Partida):
+#     assert partida is not None
+#     jugadores_vivos = get_jugadores_en_juego(partida)
 
-    if len(jugadores_vivos) == 1:
-        ganador = jugadores_vivos.pop()
-        id_ganador = ganador.id
-        return {"mensaje": "La partida ha finalizado", "ganador": id_ganador}
-    if len(jugadores_vivos) == 0:
-        return {"mensaje": "partida sin jugadores"}
-    elif len(jugadores_vivos) > 1:
-        return {"mensaje": "La partida aún no ha finalizado"}
+#     if len(jugadores_vivos) == 1:
+#         ganador = jugadores_vivos.pop()
+#         id_ganador = ganador.id
+#         return {"mensaje": "La partida ha finalizado", "ganador": id_ganador}
+#     if len(jugadores_vivos) == 0:
+#         return {"mensaje": "partida sin jugadores"}
+#     elif len(jugadores_vivos) > 1:
+#         return {"mensaje": "La partida aún no ha finalizado"}
 
 
 @db_session

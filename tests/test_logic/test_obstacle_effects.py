@@ -24,6 +24,7 @@ def mock_juego(mocker):
     juego.posiciones = [1, 0, 2, 0, 3, 0, 4, 0]
     return juego
 
+
 @pytest.fixture
 def mock_atacante(mocker):
     mocker.patch("models.player.get_name", return_value="pepe")
@@ -37,6 +38,7 @@ def mock_objetivo(mocker):
     jugador = JugadorPartida(id=4)
     return jugador
 
+
 @pytest.fixture
 def mock_objetivo_no_vecino(mocker):
     mocker.patch("models.player.get_name", return_value="jasinto")
@@ -44,9 +46,12 @@ def mock_objetivo_no_vecino(mocker):
     return jugador
 
 # Test 1: puerta atrancada aplicada correctamente
-def test_play_puerta_atrancada_succes(mocker, mock_juego,mock_atacante, mock_objetivo):
+
+
+def test_play_puerta_atrancada_ok(mocker, mock_juego, mock_atacante, mock_objetivo):
     juego = mock_juego
-    mocker.patch("logic.obstacle_effects.get_jugador", side_effect={mock_atacante, mock_objetivo})
+    mocker.patch("logic.obstacle_effects.get_jugador",
+                 side_effect={mock_atacante, mock_objetivo})
     expected_posiciones = [1, 0, 2, 0, 3, 0, 4, "p"]
     expected_msg = {
         "mensaje": "pepe jugó carta puerta atrancada contra pedro"
@@ -59,16 +64,19 @@ def test_play_puerta_atrancada_succes(mocker, mock_juego,mock_atacante, mock_obj
     assert juego.posiciones == expected_posiciones
 
 # Test 2: puerta atrancada falla por no ser vecinos
-def test_play_puerta_atrancada_no_vecino(mocker, mock_juego,mock_atacante, mock_objetivo_no_vecino):
+
+
+def test_play_puerta_atrancada__http_exception_no_vecino(mocker, mock_juego, mock_atacante, mock_objetivo_no_vecino):
     juego = mock_juego
-    mocker.patch("logic.obstacle_effects.get_jugador", side_effect={mock_atacante, mock_objetivo_no_vecino})
-    mocker.patch("logic.obstacle_effects.Juego.validar_posiciones_vecinas", side_effect=HTTPException(status_code=400, detail="Los jugadores no son vecinos"))
-    
+    mocker.patch("logic.obstacle_effects.get_jugador", side_effect={
+                 mock_atacante, mock_objetivo_no_vecino})
+    mocker.patch("logic.obstacle_effects.Juego.validar_posiciones_vecinas",
+                 side_effect=HTTPException(status_code=400, detail="Los jugadores no son vecinos"))
     with pytest.raises(HTTPException) as excinfo:
-        play_puerta_atrancada(juego, mock_atacante.id, mock_objetivo_no_vecino.id)
+        play_puerta_atrancada(juego, mock_atacante.id,
+                              mock_objetivo_no_vecino.id)
     assert excinfo.value.status_code == 400
     assert excinfo.value.detail == "Los jugadores no son vecinos"
-
 
 # Test 1: cuarentena aplicada correctamente
 def test_play_cuarentena_succes(mocker, mock_juego,mock_atacante, mock_objetivo):
@@ -93,3 +101,4 @@ def test_play_cuarentena_no_vecino(mocker, mock_juego,mock_atacante, mock_objeti
         play_cuarentena(mock_atacante.id, mock_objetivo_no_vecino.id, juego)
     assert excinfo.value.status_code == 400
     assert excinfo.value.detail == "Los jugadores no son vecinos"
+
