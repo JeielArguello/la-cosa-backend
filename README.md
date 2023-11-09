@@ -15,8 +15,8 @@ $ source ./venv/bin/activate
 
 ```
 $ pip install -r requirements.txt
-export PYTHONPATH=$PYTHONPATH:home/<usuario>/<directorio_del_proyecto>/Back
 ```
+
 ## Correr el servidor
 
 ```
@@ -36,7 +36,20 @@ $ deactivate
 ```
 
 # Correr test
+
 ```
-$ export PYTHONPATH=$PYTHONPATH:home/<usuario>/<directorio_del_proyecto>/Back
+$ export PYTHONPATH=~/<directorio_del_proyecto>/Back
 $ pytest -vv
+```
+
+## Coverage por consola 
+
+```
+$ pytest --cov-report term-missing --cov=. tests/
+```
+
+## Coverage por html
+
+```
+$ pytest --cov-report html --cov=. tests/
 ```

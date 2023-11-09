@@ -12,3 +12,6 @@ venv
 *.sqlite
 database.sqlite
 
+# coverage
+.coverage
+
