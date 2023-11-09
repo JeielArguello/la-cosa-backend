@@ -35,35 +35,33 @@ def mock_j1(mocker):
 def mock_j2(mocker):
     mocker.patch("models.player.get_name", return_value="pedro")
     jugador = JugadorPartida(id=2)
-    return jugador 
+    return jugador
 
 
-def test_play_ups_succes(mocker, mock_juego, mock_j1):
+def test_play_ups_ok(mocker, mock_juego, mock_j1):
     mock_juego.jugadores_en_partida = [mock_j1]
     mock_j1.cartas = [1, 2, 3, 4]
     mock_card_id = 105
     msg = play_ups(mock_j1.id, mock_juego, mock_card_id)
-    assert(msg["mensaje"] == "pepe jugó la carta Ups.")
-    assert(msg["cartaMostrar"] == [
-           {'id': 1}, {'id': 2}, {'id': 3}, {'id': 4}])
+    assert (msg["mensaje"] == "pepe jugó la carta Ups.")
+    assert (msg["cartaMostrar"] == [
+        {'id': 1}, {'id': 2}, {'id': 3}, {'id': 4}])
 
 
-def test_play_tres_cuatro(mocker, mock_juego, mock_j1):
+def test_play_tres_cuatro_ok(mocker, mock_juego, mock_j1):
     mock_juego.jugadores_en_partida = [mock_j1]
     mock_juego.posiciones = [1, "p", 2, 0, 3, "p", 4, "p"]
     mock_card_id = 93
     msg = play_tres_cuatro(mock_j1.id, mock_juego, mock_card_id)
-    assert(msg["mensaje"] == "pepe jugó la carta Tres,Cuatro...")
-    assert(mock_juego.posiciones == [1, 0, 2, 0, 3, 0, 4, 0])
+    assert (msg["mensaje"] == "pepe jugó la carta Tres,Cuatro...")
+    assert (mock_juego.posiciones == [1, 0, 2, 0, 3, 0, 4, 0])
 
 
-def test_play_que_qude_entre_nosotros(mocker, mock_juego, mock_j1, mock_j2):
-    mock_juego.jugadores_en_partida =[mock_j1, mock_j2]
+def test_play_que_qude_entre_nosotros_ok(mocker, mock_juego, mock_j1, mock_j2):
+    mock_juego.jugadores_en_partida = [mock_j1, mock_j2]
     mock_j1.cartas = [1, 2, 3, 4]
-    mock_card_id = 106
-    msg = play_que_quede_entre_nosotros(mock_j1.id, mock_j2.id, mock_juego, mock_card_id)
-    assert(msg["mensaje"] == "pepe jugó la carta Que quede entre nosotros.")
-    assert(msg["cartaMostrar"] == [
-           {'id': 1}, {'id': 2}, {'id': 3}, {'id': 4}])
-
-    
+    msg = play_que_quede_entre_nosotros(
+        mock_j1.id, mock_j2.id, mock_juego)
+    assert (msg["mensaje"] == "pepe jugó la carta Que quede entre nosotros.")
+    assert (msg["cartaMostrar"] == [
+        {'id': 1}, {'id': 2}, {'id': 3}, {'id': 4}])

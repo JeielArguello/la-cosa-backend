@@ -34,7 +34,7 @@ def play_ups(atacante_in: int, juego: Juego, card_id: int):
         return {"error": "no se pudieron mostrar cartas."}
 
 
-def play_que_quede_entre_nosotros(player_at:int, player_obj:int, juego:Juego):
+def play_que_quede_entre_nosotros(player_at: int, player_obj: int, juego: Juego):
     jugador_atacante = get_jugador(player_at, juego)
     jugador_objetivo = get_jugador(player_obj, juego)
     if jugador_atacante and jugador_objetivo:
@@ -45,7 +45,7 @@ def play_que_quede_entre_nosotros(player_at:int, player_obj:int, juego:Juego):
         }
         juego.agregar_log(msg["mensaje"])
         juego.agregar_log(
-            jugador_atacante.name +" mostró su mano de cartas a "+jugador_objetivo.name+".")
+            jugador_atacante.name + " mostró su mano de cartas a "+jugador_objetivo.name+".")
         return (msg)
     else:
-        return{"error": "no se pudieron mostrar cartas"}  
+        return {"error": "no se pudieron mostrar cartas"}
