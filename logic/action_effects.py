@@ -48,7 +48,8 @@ def play_lanzallamas(atacante_in: int, objetivo_in: int, juego: Juego):
 def play_hacha(atacante_in: int, objetivo_in: int, juego: Juego):
     
     indice_posicion_intermedia = juego.get_posicion_intermedia(atacante_in, objetivo_in)
-    if atacante_in != objetivo_in:
+    iguales = atacante_in == objetivo_in
+    if not iguales:
         juego.validar_posiciones_vecinas(atacante_in, objetivo_in)
     jugador_orig = get_jugador(atacante_in, juego)
     jugador_objetivo = get_jugador(objetivo_in, juego)
@@ -68,7 +69,10 @@ def play_hacha(atacante_in: int, objetivo_in: int, juego: Juego):
         jugador_objetivo.name}
     juego.agregar_log(msg["mensaje"])
     if saco_cuarentena:
-        juego.agregar_log(jugador_orig.name + " elimino la cuarentena de " + jugador_objetivo.name)
+        if iguales:
+            juego.agregar_log(jugador_orig.name + " rompió su propia cuarentena")
+        else:
+            juego.agregar_log(jugador_orig.name + " elimino la cuarentena de " + jugador_objetivo.name)
     if saco_puerta:
         juego.agregar_log(jugador_orig.name + " rompió la puerta atrancada con una hacha" )
     return msg
@@ -86,6 +90,7 @@ def play_sospecha(atacante_in: int, objetivo_in: int, juego: Juego):
            " jugó carta sospecha contra " +
            jugador_objetivo.name, "cartaMostrar": [{"id": carta_id}]}
     juego.agregar_log(msg["mensaje"])
+    juego.agregar_log(jugador_atacante.name + " miro una carta de " + jugador_objetivo.name)
     return msg
 
 
@@ -114,7 +119,7 @@ def play_mas_vale_que_corras(atacante_in: int, objetivo_in: int, juego: Juego):
     jugador_objetivo = get_jugador(objetivo_in, juego)
     msg = {
         "mensaje": jugador_orig.name +
-        " jugó carta mas vale que corras contra " +
+        " jugó carta ¡Más vale que corras! contra " +
         jugador_objetivo.name}
     juego.agregar_log(msg["mensaje"])
     juego.agregar_log(jugador_objetivo.name + " cambió de lugar con " + jugador_atacante.name)
@@ -171,7 +176,7 @@ def play_cambio_de_lugar(
     jugador_objetivo = get_jugador(player_objective, juego)
     msg = {
         "mensaje": jugador_orig.name +
-        " jugó carta cambio de lugar contra " +
+        " jugó carta ¡Cambio de lugar! contra " +
         jugador_objetivo.name}
     juego.agregar_log(msg["mensaje"])
     juego.agregar_log(jugador_objetivo.name + " cambió de lugar con " + jugador_orig.name )
@@ -186,11 +191,12 @@ def play_analisis(juego: Juego, player_orig: int, player_objective: int):
     manoPlayerObj = playerObj.get_cartas()
     msg = {
         "mensaje": playerOrig.name +
-        " jugó carta analisis contra " +
+        " jugó carta Análisis contra " +
         playerObj.name +
         ".",
         "cartaMostrar": manoPlayerObj}
     juego.agregar_log(msg["mensaje"])
+    juego.agregar_log(playerOrig.name + " analizo la mano de " + playerObj.name)
     return msg
 
 def play_seduccion(juego: Juego, player_orig : int, player_objective: int):
@@ -200,19 +206,20 @@ def play_seduccion(juego: Juego, player_orig : int, player_objective: int):
     validar_cuarentena(player_objective, juego)
     if not is_cuarentena(player_objective, juego):
         jugador_objetivo.set_efecto_seduccion()
-        msg = {"mensaje": jugador_atacante.name + " jugó carta seducción contra "
+        msg = {"mensaje": jugador_atacante.name + " jugó carta Seducción contra "
                 + jugador_objetivo.name + "."}
     else:
         msg = {"mensaje": "error "
                 + jugador_objetivo.name + "en cuarentena."}
     juego.agregar_log(msg["mensaje"])
+    juego.agregar_log(jugador_atacante.name + " sedujo a " + jugador_objetivo.name +" para relizar un intercambio de cartas")
     return msg
 
 def play_determinacion(juego: Juego, player_orig: int):
     playerOrig = get_jugador(player_orig, juego)
     cartas_determinacion = juego.robar_carta_determinacion()
     msg = {"mensaje": playerOrig.name +
-           " jugó carta Determinacion.", "cartas": cartas_determinacion}
+           " jugó carta Determinación.", "cartas": cartas_determinacion}
     juego.agregar_log(msg["mensaje"])
     return msg
 

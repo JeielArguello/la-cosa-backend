@@ -56,6 +56,8 @@ class Juego:
             if j.id == self.posiciones[self.turno]:
                 if j.get_cuartena():
                     j.pop_cuarentena()
+                    if not j.get_cuartena():
+                        self.agregar_log(j.name + " termino su cuarentena")
                 j.cambiar_turno()
 
     def repartir_cartas(self, players_num: int):

@@ -23,7 +23,7 @@ def play_ups(atacante_in: int, juego: Juego, card_id: int):
     if jugador:
         cartas = jugador.get_cartas()
         msg = {
-            "mensaje": jugador.name + " jugó la carta Ups.",
+            "mensaje": jugador.name + " jugó la carta ¡Ups!",
             "cartaMostrar": cartas
         }
         juego.agregar_log(msg["mensaje"])
@@ -40,7 +40,7 @@ def play_que_quede_entre_nosotros(player_at: int, player_obj: int, juego: Juego)
     if jugador_atacante and jugador_objetivo:
         cartas = jugador_atacante.get_cartas()
         msg = {
-            "mensaje": jugador_atacante.name + " jugó la carta Que quede entre nosotros.",
+            "mensaje": jugador_atacante.name + " jugó la carta Que quede entre nosotros...",
             "cartaMostrar": cartas
         }
         juego.agregar_log(msg["mensaje"])

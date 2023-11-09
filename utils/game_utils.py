@@ -488,38 +488,21 @@ def check_carta_habilitada(
         raise HTTPException(
             status_code=400, detail="No puedes descartar la carta la cosa.")
     mano = jugador_orig.get_cartas()
+    cantidad_cartas_infectados = 0
     for c in mano:
-        if c["id"] in [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]:
-            cantidad_cartas_infectados = +1
-    if jugador_orig.get_infectado() and cantidad_cartas_infectados < 2 and card_id in [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]:
+        if  is_infectado(c["id"]):
+            cantidad_cartas_infectados = cantidad_cartas_infectados+1
+    if jugador_orig.get_infectado() and cantidad_cartas_infectados < 2 and is_infectado(card_id):
         raise HTTPException(
             status_code=400, detail="No puedes descartar la unica carta de infectado que tienes.")
 
-    if not jugador_orig.get_la_cosa() and card_id in [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]:
+    if not jugador_orig.get_la_cosa() and not jugador_orig.get_infectado() and is_infectado(card_id):
         raise HTTPException(
             status_code=400, detail="No puedes intercambiar una carta de infectado si no eres la cosa ni infectado.")
 
-    if jugador_orig.get_infectado() and not jugador_objetivo.get_la_cosa() and card_id in [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]:
+    if jugador_orig.get_infectado() and not jugador_objetivo.get_la_cosa() and is_infectado(card_id):
         raise HTTPException(
             status_code=400, detail="No puedes intercambiar una carta de infectado si no eres la cosa.")
-
-    if jugador_orig.get_infectado() and cantidad_cartas_infectados < 2 and card_id in [
-            2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]:
-        raise HTTPException(
-            status_code=400,
-            detail="No puedes descartar la unica carta de infectado que tienes.")
-
-    if not jugador_orig.get_la_cosa() and card_id in [
-            2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]:
-        raise HTTPException(
-            status_code=400,
-            detail="No puedes intercambiar una carta de infectado si no eres la cosa ni infectado.")
-
-    if jugador_orig.get_infectado() and not jugador_objetivo.get_la_cosa() and card_id in [
-            2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]:
-        raise HTTPException(
-            status_code=400,
-            detail="No puedes intercambiar una carta de infectado si no eres la cosa.")
 
 
 def check_posibilidad_defensa(card_id: int, juego: Juego):
@@ -567,6 +550,11 @@ def check_puedo_defender(
         return True
     else:
         return False
+    
+def is_infectado(card_id):
+    infectado = card_id in [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,
+                            17,18,19,20,21]
+    return infectado
 
 
 def crear_mensaje_de_ataque(jugador: JugadorPartida, card_id: int):

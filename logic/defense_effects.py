@@ -16,12 +16,12 @@ def defense_aterrador(juego: Juego,jOrig: JugadorPartida,jObj:JugadorPartida, ca
     juego.solicitud_intercambio = None    
     msg = {
         "mensaje": jOrig.name +
-        " jugó carta aterrador contra " +
+        " jugó carta Aterrador contra " +
         jObj.name, 
         "cartaMostrar":[{"id": intercambio.carta_solicitante}]}
     del intercambio
     juego.agregar_log(msg["mensaje"])
-    juego.agregar_log(jOrig.name + " cancelo intercambio con " + jObj.name )
+    juego.agregar_log(jOrig.name + " miro la carta de " + jObj.name +" y cancelo el intercambio")
     return msg
 
 
@@ -38,7 +38,7 @@ def defensa_no_gracias(juego: Juego, jugador_no_gracias: JugadorPartida,
     juego.solicitud_intercambio = None
     msg = {
         "mensaje": jugador_no_gracias.name +
-        " jugó carta no gracias contra "+
+        " jugó carta ¡No, gracias! contra "+
         jugador_atacante.name
     }
     juego.agregar_log(msg["mensaje"])
@@ -79,7 +79,7 @@ async def defensa_fallaste(juego: Juego, jugador_defensor: JugadorPartida,
     
     msg = {
         "mensaje": jugador_defensor.name +
-        " jugó carta fallaste contra "+
+        " jugó carta ¡Fallaste! contra "+
         jugador_atacante.name 
     }
     juego.agregar_log(msg["mensaje"])
@@ -100,7 +100,7 @@ def defensa_nada_de_barbacoas(juego: Juego, jugador_defensor: JugadorPartida,
         "mensaje": jugador_atacante.name +
         " jugó Lanzallama contra " +
         jugador_defensor.name +
-        ", pero se defendió con Nada de barbacoas"}
+        ", pero se defendió con ¡Nada de barbacoas!"}
     juego.agregar_log(msg["mensaje"])
     return msg
 
@@ -113,6 +113,6 @@ def defensa_aqui_estoy_bien(juego: Juego, jugador_defensor: JugadorPartida,
         "mensaje": jugador_atacante.name +
         " jugó "+nombre_ataque+" contra " +
         jugador_defensor.name +
-        ", pero se defendió con Aqui estoy bien"}
+        ", pero se defendió con Aquí estoy bien"}
     juego.agregar_log(msg["mensaje"])
     return msg

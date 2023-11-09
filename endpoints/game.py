@@ -220,7 +220,7 @@ async def swap_request(match_id: int = Form(), card_id: int = Form(), player_ori
         if jugador_objetivo.check_puede_anular_el_intercambio():
             await juego.mensaje_personal(jugador_objetivo.id, "N")
 
-        if not jugador_objetivo.efecto_seduccion:
+        if not jugador_objetivo.get_efecto_seduccion():
             check_obstaculo(player_orig, jugador_objetivo.id, juego)
 
         return {"message": "se creo la solicitud de intercambio"}
