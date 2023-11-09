@@ -66,6 +66,22 @@ def test_play_cuerdas_podridas_ok(mock_juego, mock_j1):
         assert (jugador.get_cuartena() == False)
 
 
+def test_play_es_aqui_la_fiesta_ok_pares(mock_juego, mock_j1):
+    mock_juego.posiciones = [1, 0, 2, 0, 3, 0, 4, 0]
+    mock_id_inicio = 3
+    msg = play_es_aqui_la_fiesta(mock_id_inicio, mock_juego)
+    assert (msg["mensaje"] == "pepe jugó la carta Es Aqui la Fiesta?.")
+    assert mock_juego.posiciones == [4, 0, 3, 0, 2, 0, 1, 0]
+
+
+def test_play_es_aqui_la_fiesta_ok_impares(mock_juego, mock_j1):
+    mock_juego.posiciones = [1, 0, 2, 0, 3, 0, 4, 0, 5, 0]
+    mock_id_inicio = 3
+    msg = play_es_aqui_la_fiesta(mock_id_inicio, mock_juego)
+    assert (msg["mensaje"] == "pepe jugó la carta Es Aqui la Fiesta?.")
+    assert mock_juego.posiciones == [5, 0, 3, 0, 2, 0, 4, 0, 1, 0]
+
+
 def test_play_que_qude_entre_nosotros_ok(mocker, mock_juego, mock_j1, mock_j2):
     mock_juego.jugadores_en_partida = [mock_j1, mock_j2]
     mock_j1.cartas = [1, 2, 3, 4]

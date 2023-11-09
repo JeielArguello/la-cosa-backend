@@ -303,6 +303,11 @@ async def jugar_la_carta(
         await juego.broadcast_global({"carta_id": card_id,
                                      "mensaje": msg["mensaje"]})
 
+    elif card_id in [95, 96]:
+        msg = play_es_aqui_la_fiesta(player_orig, juego)
+        await juego.broadcast_global({"carta_id": card_id,
+                                     "mensaje": msg["mensaje"]})
+
     elif card_id in [105]:
         msg = play_ups(player_orig, juego)
         await juego.broadcast_global({"carta_id": card_id,
