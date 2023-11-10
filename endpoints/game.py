@@ -35,17 +35,17 @@ async def pick_a_card_from_deck(match_id: int = Form(), player_id: int = Form())
                     juego.terminar_turno()
                     juego.avanzar_turno()
                     await juego.mensaje_personal(jugador_proximo.id, HABILITADO_ROBAR_CARTA)
-                 else:
+                else:
                     if not is_superinfeccion(jugador):
-                      await juego.mensaje_personal(jugador.id, HABILITADO_INTERCAMBIO)
+                        await juego.mensaje_personal(jugador.id, HABILITADO_INTERCAMBIO)
                     else: 
-                      juego.terminar_turno()
-                      juego.avanzar_turno()
-                      ganador = check_ganador(juego)
-                      if ganador:
-                         await juego.broadcast_global(PARTIDA_FINALIZADA)
-                      await eliminar_jugador_superinfeccion(jugador, juego)
-                      await juego.mensaje_personal(jugador_proximo.id, HABILITADO_ROBAR_CARTA)
+                        juego.terminar_turno()
+                        juego.avanzar_turno()
+                        await eliminar_jugador_superinfeccion(jugador, juego)
+                        ganador = check_ganador(juego)
+                        if ganador:
+                            await juego.broadcast_global(PARTIDA_FINALIZADA)
+                        await juego.mensaje_personal(jugador_proximo.id, HABILITADO_ROBAR_CARTA)
             return {'card_id': carta}
         else:
             carta = robar_carta(juego, jugador)
@@ -478,14 +478,14 @@ async def endpoint_vuelta_y_vuelta(match_id: int = Form(),
             mensaje = "El jugador " + jugador.name + " selecciono una carta correctamente." 
         if intercambio_vyv.is_complete_vuelta_y_vuelta():
             msg = play_vuelta_y_vuelta(player_orig,juego)
-            await juego.broadcast_global("D")
+            await juego.broadcast_global(CAMBIO_ESTADO_JUGADOR)
             await juego.broadcast_global({"carta_id": 99,
                                           "mensaje": msg["mensaje"]})
             juego.terminar_turno()
             juego.avanzar_turno()
             jugador_proximo_turno = juego.get_jugador_en_turno()
-            await juego.mensaje_personal(jugador_proximo_turno.id, "E")
-            await juego.broadcast_global("C")
+            await juego.mensaje_personal(jugador_proximo_turno.id, HABILITADO_ROBAR_CARTA)
+            await juego.broadcast_global(CAMBIO_ESTADO_JUEGO)
             mensaje = "Se completo el intercambio vuelta y vuelta correctamente"
         
         return {"resultado": mensaje}

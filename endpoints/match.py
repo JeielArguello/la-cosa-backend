@@ -132,7 +132,7 @@ async def iniciar_partida(user_id: int = Form(), match_id: int = Form()):
         # broadcast a los jugadores para que listen las partidas
         await broadcast(CAMBIO_LISTAR_PARTIDA)
         # broadcast a los jugadores del lobby para que inicien el juego
-        await lobby.broadcast_lobby("L")
+        await lobby.broadcast_lobby(PARTIDA_INICIADA)
         return {"message": "Se inició con éxito la partida."}
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
