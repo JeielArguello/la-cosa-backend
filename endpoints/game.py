@@ -413,7 +413,8 @@ async def endpoint_vuelta_y_vuelta(match_id: int = Form(),
         juego = get_global_juego(match_id)
         jugador = get_jugador(player_orig, juego)
         intercambio_vyv = juego.solicitud_intercambio_vyv
-        check_turno(jugador)
+        if jugador == intercambio_vyv.primer_jugador:
+            check_turno(jugador)
         jugador_proximo = juego.get_jugador_siguiente(jugador)
         check_carta_habilitada(card_id, jugador, jugador_proximo)
         if not intercambio_vyv.is_complete_vuelta_y_vuelta():
@@ -436,11 +437,10 @@ async def endpoint_vuelta_y_vuelta(match_id: int = Form(),
             juego.avanzar_turno()
             jugador_proximo_turno = juego.get_jugador_en_turno()
             await juego.mensaje_personal(jugador_proximo_turno.id, "E")
+            await juego.broadcast_global("C")
             mensaje = "Se completo el intercambio vuelta y vuelta correctamente"
         
         return {"resultado": mensaje}
-
-        
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
         raise HTTPException(

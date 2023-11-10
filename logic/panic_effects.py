@@ -102,15 +102,16 @@ def play_vuelta_y_vuelta(player_orig : int , juego : Juego):
 
     juego.finalizar_vuelta_y_vuelta(jugador)
     
+    jugador_turno = juego.get_jugador_en_turno()
     msg = {
-        "mensaje": jugador.name + " jugó la carta Vuelta y Vuelta",
+        "mensaje": jugador_turno.name + " jugó la carta Vuelta y Vuelta",
     }
     if juego.sentido == -1:
-        sentido = "izquierda"
+        sentido_juego = "izquierda"
     else:
-        sentido = "derecha"
+        sentido_juego = "derecha"
 
     juego.agregar_log(msg["mensaje"])
-    juego.agregar_log("Todos los jugadores le dieron una carta al jugaador de su " + sentido)
+    juego.agregar_log("Todos los jugadores le dieron una carta al jugaador de su " + sentido_juego)
     return (msg)
     

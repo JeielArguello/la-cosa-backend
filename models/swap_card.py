@@ -59,5 +59,5 @@ class IntercambiarCartaVyv:
     def realizar_intercambios(self):
         for i in range(0, len(self.list_jugadores)):
             self.list_jugadores[i].descartar_carta(self.cartas_intercambio[i])
-            self.list_jugadores[i].agregar_carta(self.cartas_intercambio[(i+1)%len(self.list_jugadores)])
+            self.list_jugadores[i].agregar_carta(self.cartas_intercambio[(i-1)%len(self.list_jugadores)])
         
