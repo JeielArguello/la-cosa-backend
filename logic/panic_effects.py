@@ -101,6 +101,7 @@ def play_que_quede_entre_nosotros(player_at: int, player_obj: int, juego: Juego)
 
 def play_cita_a_siegas(jugador:JugadorPartida, card_id:int, juego:Juego):
     jugador.descartar_carta(card_id)
+    juego.mazo_descarte.append(card_id)
     juego.robar_carta_no_panico(jugador)
     msg = { "mensaje": jugador.name + " Robo carta, cita a ciegas, y por se der panico se jugo inmediatamente.",}
     return msg

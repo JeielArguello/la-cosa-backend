@@ -597,7 +597,7 @@ async def jugar_panico(carta: int, juego: Juego):
         jugador_en_turno_id = juego.posiciones[juego.turno]
         await jugar_la_carta(juego, carta, jugador_en_turno_id, jugador_en_turno_id)
     # seleccionar carta
-    elif carta in [99, 100, 103, 104]:
+    elif carta in [99, 100]:
         pass
     # seleccionar jugador
     elif carta in [91, 92, 97, 106, 107]:
@@ -631,7 +631,7 @@ async def jugar_panico(carta: int, juego: Juego):
                         "jugadores":[]
                     }
                 }
-            await juego.mensaje_personal(jugador_turno_id, msg)
+            await juego.mensaje_personal(jugador_en_turno_id, msg)
 
     # seleccionar intercambio
     elif carta in [99, 100, 101, 102]:
