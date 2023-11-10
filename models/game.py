@@ -1,5 +1,6 @@
 import random
 from logic.deck import deck_es_carta_alejate
+from models.constants import *
 from models.database_utils import construir_mazo
 from models.player import JugadorPartida
 from fastapi import HTTPException, WebSocket
@@ -246,12 +247,12 @@ class Juego:
                     jugador = p
             jugador.ws_player = websocket
             if jugador.get_turno():
-                await self.mensaje_personal(jugador.id, "E")
+                await self.mensaje_personal(jugador.id, HABILITADO_ROBAR_CARTA)
         else:
             print("error al conectar jugador")
         self.ws_players_game.append(websocket)
-        await self.broadcast_global("C")
-        await self.broadcast_global("D")
+        await self.broadcast_global(CAMBIO_ESTADO_JUEGO)
+        await self.broadcast_global(CAMBIO_ESTADO_JUGADOR)
 
     async def disconnect_game(self, websocket: WebSocket):
         self.ws_players_game.remove(websocket)

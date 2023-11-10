@@ -3,6 +3,8 @@ from utils.game_utils import get_global_juego
 from utils.match_utils import *
 from typing import List
 import json
+from models.constants import *
+
 
 router = APIRouter()
 
@@ -19,7 +21,7 @@ async def websocket_endpoint_list(websocket: WebSocket):
         await broadcast({"message": "Usuario viendo lista de partida"})
         # le envio el mensaje para que el cliente pida la lista de partias
         # actualizadas
-        await broadcast("A")
+        await broadcast(CAMBIO_LISTAR_PARTIDA)
         while True:
             # espero hasta recibir un mensaje
             msg = await websocket.receive()

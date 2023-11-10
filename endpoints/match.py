@@ -6,6 +6,8 @@ from models.database_utils import *
 from utils.game_utils import get_global_juego, get_status_game, get_status_player
 from utils.match_utils import *
 from models.lobby_models import Lobby, delete_lobby
+from models.constants import *
+
 
 
 router = APIRouter()
@@ -38,7 +40,7 @@ async def match_create(id_usuario_creador: int = Form(),
             num_min_jugadores,
             partida["id_partida"])
         all_lobby.append(lobby)
-        await broadcast("A")
+        await broadcast(CAMBIO_LISTAR_PARTIDA)
         return partida
     except ValueError as ve:
         error_msg = f"Error: {ve}"
@@ -71,7 +73,7 @@ async def match_join(match_id: int = Form(),
         # actualizo el lobby
         lobby = get_lobby(match_id)
         lobby.add_player(user_id)
-        await broadcast("A")
+        await broadcast(CAMBIO_LISTAR_PARTIDA)
         return estado
 
     except ValueError as ve:
@@ -98,16 +100,16 @@ async def abandonar_partida(id_jugador: int = Form(), match_id: int = Form()):
         lobby = get_lobby(match_id)
         if (id_jugador == lobby.id_usuario_creador):
             delete_match(match_id)
-            await broadcast("A")
+            await broadcast(CAMBIO_LISTAR_PARTIDA)
             if (lobby.cantidad_jugadores > 1):
-                await lobby.broadcast_lobby("I")
+                await lobby.broadcast_lobby(ABANDONO_CREADOR)
             delete_lobby(match_id)
         else:
             models_crud_eliminar_jugador_no_creador_de_pratida_sin_inicializar(
                 id_jugador, match_id)
             lobby.remove_player(id_jugador)
-            await lobby.broadcast_lobby("B")
-            await broadcast("A")
+            await lobby.broadcast_lobby(CAMBIO_ESTADO_LOBBY)
+            await broadcast(CAMBIO_LISTAR_PARTIDA)
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
         raise HTTPException(
@@ -128,7 +130,7 @@ async def iniciar_partida(user_id: int = Form(), match_id: int = Form()):
         lobby = get_lobby(match_id)
         await lobby.init_game()
         # broadcast a los jugadores para que listen las partidas
-        await broadcast("A")
+        await broadcast(CAMBIO_LISTAR_PARTIDA)
         # broadcast a los jugadores del lobby para que inicien el juego
         await lobby.broadcast_lobby("L")
         return {"message": "Se inició con éxito la partida."}

@@ -9,6 +9,8 @@ from models.database_utils import get_jugadores_match
 from models.game import Juego, mazo_vacio
 from models.player import JugadorPartida
 from logic.action_effects import *
+from models.constants import *
+
 
 
 global_juegos: list[Juego] = []
@@ -78,8 +80,7 @@ def get_status_player(juego: Juego, player_id: int):
 def check_ganador(juego: Juego) -> bool:
     first = check_la_cosa_eliminada(juego)
     second = check_la_cosa_sola_viva(juego)
-    third = check_no_humanos_no_eliminados(juego)
-    result = first or second or third
+    result = first or second 
     return result
 
 
@@ -124,7 +125,7 @@ def finalizar_juego(juego: Juego):
             'losers': la_cosa + infectados_vivos + humanos_muertos + infectados_muertos}
     elif check_la_cosa_sola_viva(juego):
         return {
-            'message': 'La cosa la ultima en pie, Gana la Cosa.',
+            'message': 'La cosa es la ultima en pie, Gana la Cosa.',
             'winners': la_cosa,
             'losers': humanos_vivos + infectados_vivos + humanos_muertos + infectados_muertos}
     else:
@@ -209,7 +210,7 @@ async def jugar_la_carta(
         msg = play_lanzallamas(player_orig, player_objective, juego)
         await juego.broadcast_global({"carta_id": card_id,
                                      "mensaje": msg["mensaje"]})
-        await juego.mensaje_personal(player_objective, "D")
+        await juego.mensaje_personal(player_objective, CAMBIO_ESTADO_JUGADOR)
 
     elif card_id in [27, 28, 29]:
         msg = play_analisis(juego, player_orig, player_objective)
@@ -225,7 +226,7 @@ async def jugar_la_carta(
         msg = play_hacha(player_orig, player_objective, juego)
         await juego.broadcast_global({"carta_id": card_id,
                                       "mensaje": msg["mensaje"]})
-        await juego.broadcast_global("C")
+        await juego.broadcast_global(CAMBIO_ESTADO_JUEGO)
 
     elif card_id in [32, 33, 34, 35, 36, 37, 38, 39]:
         msg = play_sospecha(player_orig, player_objective, juego)
@@ -263,7 +264,7 @@ async def jugar_la_carta(
         name_player = get_name(player_orig)
         await juego.broadcast_global({"carta_id": card_id,
                                       "mensaje": name_player + " jugó carta vigila tus espaldas."})
-        await juego.broadcast_global("C")
+        await juego.broadcast_global(CAMBIO_ESTADO_JUEGO)
 
     elif card_id in [50, 51, 52, 53, 54]:
         msg = play_cambio_de_lugar(juego, player_orig, player_objective)
@@ -274,7 +275,7 @@ async def jugar_la_carta(
         msg = play_mas_vale_que_corras(player_orig, player_objective, juego)
         await juego.broadcast_global({"carta_id": card_id,
                                       "mensaje": msg["mensaje"]})
-        await juego.broadcast_global("C")
+        await juego.broadcast_global(CAMBIO_ESTADO_JUEGO)
 
     elif card_id in [60, 61, 62, 63, 64, 65, 66]:
         msg = play_seduccion(juego, player_orig, player_objective)
@@ -285,13 +286,13 @@ async def jugar_la_carta(
         msg = play_cuarentena(player_orig, player_objective, juego)
         await juego.broadcast_global({"carta_id": card_id,
                                      "mensaje": msg["mensaje"]})
-        await juego.broadcast_global("C")
+        await juego.broadcast_global(CAMBIO_ESTADO_JUEGO)
 
     elif card_id in [86, 87, 88]:
         msg = play_puerta_atrancada(juego, player_orig, player_objective)
         await juego.broadcast_global({"carta_id": card_id,
                                      "mensaje": msg["mensaje"]})
-        await juego.broadcast_global("C")
+        await juego.broadcast_global(CAMBIO_ESTADO_JUEGO)
 
     elif card_id in [89, 90]:
         msg = play_cuerdas_podridas(player_orig, juego)
@@ -493,11 +494,12 @@ async def eliminar_jugador_superinfeccion(jugador: JugadorPartida, juego: Juego)
     del juego.posiciones[indice_jugador]
     if juego.posiciones[indice_jugador] == "p":
         indiceaux = (indice_jugador - 1) % len(juego.posiciones)
-        del juego.posiciones[indiceaux]
+        juego.posiciones[indiceaux] = "p"
+        del juego.posiciones[indice_jugador]
     else: 
         del juego.posiciones[indice_jugador]
     juego.agregar_log("El jugador " + jugador.name + " murió por una superinfeccion.")
-    await juego.broadcast_global("C")
+    await juego.broadcast_global(CAMBIO_ESTADO_JUEGO)
     await juego.broadcast_global({"carta_id": 2,
                                           "jugador_obj": jugador.name,
                                           "mensaje": "El jugador " + jugador.name + " murió por una superinfeccion.",

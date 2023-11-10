@@ -1,11 +1,11 @@
-from fastapi import HTTPException, Body
+from fastapi import HTTPException
 from fastapi import APIRouter, Form, HTTPException, status
-from logic.defense_effects import defense_aterrador, defensa_no_gracias
 from models.crud import *
 from models.database_utils import *
 from utils.match_utils import *
 from models.lobby_models import *
 from models.game import robar_carta
+from models.constants import *
 ##########
 from utils.game_utils import *
 ##########
@@ -27,28 +27,33 @@ async def pick_a_card_from_deck(match_id: int = Form(), player_id: int = Form())
             carta = juego.mazo.pop()
             await jugar_panico(carta, juego)
             juego.mazo_descarte.append(carta)
-            await juego.broadcast_global("C")
+            await juego.broadcast_global(CAMBIO_ESTADO_JUEGO)
 
             jugador_proximo = juego.get_jugador_siguiente_turno()
             if (not jugador_proximo.get_muerto() and juego.is_obstaculo(jugador.id, jugador_proximo.id)):
                 juego.terminar_turno()
                 juego.avanzar_turno()
 
-                await juego.mensaje_personal(jugador_proximo.id, "E")
+                await juego.mensaje_personal(jugador_proximo.id, HABILITADO_ROBAR_CARTA)
+                await juego.mensaje_personal(jugador_proximo.id,{"carta_id": 109,
+                                     "mensaje": "Es tu turno de robar una carta."})
             else:
                 if not is_superinfeccion(jugador):
-                    await juego.mensaje_personal(jugador.id, "G")
+                    await juego.mensaje_personal(jugador.id, HABILITADO_INTERCAMBIO)
                 else: 
                     juego.terminar_turno()
                     juego.avanzar_turno()
+                    ganador = check_ganador(juego)
+                    if ganador:
+                        await juego.broadcast_global(PARTIDA_FINALIZADA)
                     await eliminar_jugador_superinfeccion(jugador, juego)
-                    await juego.mensaje_personal(jugador_proximo.id, "E")
+                    await juego.mensaje_personal(jugador_proximo.id, HABILITADO_ROBAR_CARTA)
             return {'card_id': carta}
         else:
             carta = robar_carta(juego, jugador)
-            await juego.broadcast_global("C")
-            await juego.mensaje_personal(player_id, "D")
-            await juego.mensaje_personal(player_id, "F")
+            await juego.broadcast_global(CAMBIO_ESTADO_JUEGO)
+            await juego.mensaje_personal(player_id, CAMBIO_ESTADO_JUGADOR)
+            await juego.mensaje_personal(player_id, HABILITADO_JUGAR_DESCARTADO)
             await mostrar_cartas_cuarentena(jugador, carta, juego, 1)
 
             return {'card_id': carta}
@@ -80,16 +85,16 @@ async def jugar_ataque(match_id: int = Form(), card_id: int = Form(),
         if check_puedo_defender(juego, card_id, player_objective, player_orig) and not is_seduccion(card_id):
             msg = crear_mensaje_de_ataque(jugador, card_id)
             juego.crear_ataque(player_orig, card_id, player_objective)
-            await juego.mensaje_personal(player_objective, "J")
+            await juego.mensaje_personal(player_objective, HABILITA_JUGAR_DEFENSA)
             await juego.mensaje_personal_dict(player_objective, {"mensaje_ataque": msg})
             return {"message": "Se creó la solicitud de ataque."}
         else:
             await jugar_la_carta(juego, card_id, player_objective, player_orig)
-            await juego.broadcast_global("C")
+            await juego.broadcast_global(CAMBIO_ESTADO_JUEGO)
             descartar_carta(card_id, player_orig, juego)
             if check_ganador(juego):
-                await juego.broadcast_global("K")
-            await juego.mensaje_personal(player_orig, "D")
+                await juego.broadcast_global(PARTIDA_FINALIZADA)
+            await juego.mensaje_personal(player_orig, CAMBIO_ESTADO_JUGADOR)
             if not juego.cartas_determinacion:
                 if (player_orig == player_objective or card_id in [50, 51, 52, 53, 54, 55, 56, 57, 58, 59]):
                     jugador_proximo = juego.get_jugador_siguiente_turno()
@@ -98,15 +103,21 @@ async def jugar_ataque(match_id: int = Form(), card_id: int = Form(),
                     juego.terminar_turno()
                     juego.avanzar_turno()
 
-                    await juego.mensaje_personal(jugador_proximo.id, "E")
+                    await juego.mensaje_personal(jugador_proximo.id, HABILITADO_ROBAR_CARTA)
+                    await juego.mensaje_personal(jugador_proximo.id,{"carta_id": 109,
+                                     "mensaje": "Es tu turno de robar una carta."})
+                    await juego.broadcast_global(CAMBIO_ESTADO_JUEGO)
                 else:
                     if not is_superinfeccion(jugador):
-                        await juego.mensaje_personal(jugador.id, "G")
+                        await juego.mensaje_personal(jugador.id, HABILITADO_INTERCAMBIO)
                     else: 
                         juego.terminar_turno()
                         juego.avanzar_turno()
+                        ganador = check_ganador(juego)
+                        if ganador:
+                            await juego.broadcast_global(PARTIDA_FINALIZADA)
                         await eliminar_jugador_superinfeccion(jugador, juego)
-                        await juego.mensaje_personal(jugador_proximo.id, "E")
+                        await juego.mensaje_personal(jugador_proximo.id, HABILITADO_ROBAR_CARTA)
                         
 
             return {"message": "Se jugó el ataque."}
@@ -136,7 +147,7 @@ async def jugar_defensa(match_id: int = Form(), card_id: int = Form(),
             await jugar_la_carta(juego, carta_ataque,
                                  jugador_defensa.id, jugador_ataque.id)
             juego.responder_ataque(player_orig, card_id)
-            await juego.broadcast_global("C")
+            await juego.broadcast_global(CAMBIO_ESTADO_JUEGO)
         else:
             if is_card_defense(card_id) and not is_seduccion(carta_ataque):
                 await defenderse_de_intercambio(juego, card_id, jugador_defensa, jugador_ataque)
@@ -147,28 +158,33 @@ async def jugar_defensa(match_id: int = Form(), card_id: int = Form(),
         ###
         ganador = check_ganador(juego)
         if ganador:
-            await juego.broadcast_global("K")
-        await juego.mensaje_personal(player_orig, "D")
-        await juego.mensaje_personal(jugador_ataque.id, "D")
+            await juego.broadcast_global(PARTIDA_FINALIZADA)
+        await juego.mensaje_personal(player_orig, CAMBIO_ESTADO_JUGADOR)
+        await juego.mensaje_personal(jugador_ataque.id, CAMBIO_ESTADO_JUGADOR)
 
         jugador_proximo = juego.get_jugador_siguiente_turno()
         if (juego.is_obstaculo(jugador_ataque.id, jugador_proximo.id) and not is_fallaste(card_id)):
             juego.terminar_turno()
             juego.avanzar_turno()
-            await juego.mensaje_personal(jugador_proximo.id, "E")
+            await juego.mensaje_personal(jugador_proximo.id, HABILITADO_ROBAR_CARTA)
+            await juego.mensaje_personal(jugador_proximo.id,{"carta_id": 109,
+                                     "mensaje": "Es tu turno de robar una carta."})
         else:
             if not is_superinfeccion(jugador_ataque):
-                await juego.mensaje_personal(jugador_ataque.id, "G")
+                await juego.mensaje_personal(jugador_ataque.id, HABILITADO_INTERCAMBIO)
             else: 
                 juego.terminar_turno()
                 juego.avanzar_turno()
+                ganador = check_ganador(juego)
+                if ganador:
+                    await juego.broadcast_global(PARTIDA_FINALIZADA)
                 await eliminar_jugador_superinfeccion(jugador_ataque, juego)
-                await juego.mensaje_personal(jugador_proximo.id, "E")
+                await juego.mensaje_personal(jugador_proximo.id, HABILITADO_ROBAR_CARTA)
         if card_id == 0:
             return {"message": "Se completó el ataque."}
         else:
             return {"message": "Se completó la defensa."}
-        # await juego.mensaje_personal(player_orig,"D")
+        # await juego.mensaje_personal(player_orig,CAMBIO_ESTADO_JUGADOR)
         # return {
         #     "carta": card_id,
         #     "jugada contra": player_objective,
@@ -194,20 +210,25 @@ async def endpoint_descartar_carta(match_id: int = Form(),
         jugador = get_jugador(player_id, juego)
         check_turno(jugador)
         descartar_carta(card_id, player_id, juego)
-        await juego.mensaje_personal(player_id, "D")
+        await juego.mensaje_personal(player_id, CAMBIO_ESTADO_JUGADOR)
         jugador_objetivo = juego.get_jugador_siguiente_turno()
         if (juego.is_obstaculo(jugador.id, jugador_objetivo.id)):
             juego.terminar_turno()
             juego.avanzar_turno()
-            await juego.mensaje_personal(jugador_objetivo.id, "E")
+            await juego.mensaje_personal(jugador_objetivo.id, HABILITADO_ROBAR_CARTA)
+            await juego.mensaje_personal(jugador_objetivo.id,{"carta_id": 109,
+                                     "mensaje": "Es tu turno de robar una carta."})
         else:
             if not is_superinfeccion(jugador):
-                await juego.mensaje_personal(jugador.id, "G")
+                await juego.mensaje_personal(jugador.id, HABILITADO_INTERCAMBIO)
             else: 
                 juego.terminar_turno()
                 juego.avanzar_turno()
                 await eliminar_jugador_superinfeccion(jugador, juego)
-                await juego.mensaje_personal(jugador_objetivo.id, "E")
+                ganador = check_ganador(juego)
+                if ganador:
+                    await juego.broadcast_global(PARTIDA_FINALIZADA)
+                await juego.mensaje_personal(jugador_objetivo.id, HABILITADO_ROBAR_CARTA)
         await mostrar_cartas_cuarentena(jugador, card_id, juego, 2)
         return {"carta descartada": card_id}
     except HTTPException as e:
@@ -240,9 +261,9 @@ async def swap_request(match_id: int = Form(), card_id: int = Form(), player_ori
             check_obstaculo(player_orig, jugador_objetivo.id, juego)
 
         juego.crear_intercambio(player_orig, card_id, jugador_objetivo.id)
-        await juego.mensaje_personal(jugador_objetivo.id, "H")
+        await juego.mensaje_personal(jugador_objetivo.id, HABILITADO_R_INTERCAMBIO)
         if jugador_objetivo.check_puede_anular_el_intercambio():
-            await juego.mensaje_personal(jugador_objetivo.id, "N")
+            await juego.mensaje_personal(jugador_objetivo.id, HABILITADO_D_INTERCAMBIO)
 
         if not jugador_objetivo.get_efecto_seduccion():
             check_obstaculo(player_orig, jugador_objetivo.id, juego)
@@ -278,11 +299,11 @@ async def swap_response(match_id: int = Form(), card_id: int = Form(), player_or
         if not fallaste_card:
             juego.terminar_turno()
             juego.avanzar_turno()
-        await juego.mensaje_personal(player_orig, "D")
-        await juego.mensaje_personal(jugador_objetivo.id, "D")
+        await juego.mensaje_personal(player_orig, CAMBIO_ESTADO_JUGADOR)
+        await juego.mensaje_personal(jugador_objetivo.id, CAMBIO_ESTADO_JUGADOR)
         ganador = check_ganador(juego)
         if ganador:
-            await juego.broadcast_global("K")
+            await juego.broadcast_global(PARTIDA_FINALIZADA)
         if jugador_orig.get_efecto_seduccion():
             if fallaste_card:
                 jugador_orig.remove_efecto_seduccion()
@@ -292,17 +313,23 @@ async def swap_response(match_id: int = Form(), card_id: int = Form(), player_or
                 proximo.set_efecto_seduccion()
             else:
                 jugador = juego.get_jugador_en_turno()
-                await juego.mensaje_personal(jugador.id, "E")
+                await juego.mensaje_personal(jugador.id, HABILITADO_ROBAR_CARTA)
+                await juego.mensaje_personal(jugador.id,{"carta_id": 109,
+                                     "mensaje": "Es tu turno de robar una carta."})
                 jugador_orig.remove_efecto_seduccion()
 
         else:
             if not fallaste_card and not jugador_orig.get_efecto_fallaste():
-                await juego.mensaje_personal(jugador_orig.id, "E")
+                await juego.mensaje_personal(jugador_orig.id, HABILITADO_ROBAR_CARTA)
+                await juego.mensaje_personal(jugador_orig.id,{"carta_id": 109,
+                                     "mensaje": "Es tu turno de robar una carta."})
             elif not fallaste_card and jugador_orig.get_efecto_fallaste():
                 jugador_orig.remove_efecto_fallaste()
                 jugador_turno = juego.get_jugador_en_turno()
-                await juego.mensaje_personal(jugador_turno.id, "E")
-        await juego.broadcast_global("C")
+                await juego.mensaje_personal(jugador_turno.id, HABILITADO_ROBAR_CARTA)
+                await juego.mensaje_personal(jugador_turno.id,{"carta_id": 109,
+                                     "mensaje": "Es tu turno de robar una carta."})
+        await juego.broadcast_global(CAMBIO_ESTADO_JUEGO)
         return {"message": "se completo el intercambio"}
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
@@ -368,8 +395,8 @@ async def seleccionar_carta_determinacion(match_id: int = Form(),
         jugador = juego.get_jugador(player_id)
         check_turno(jugador)
         agregar_carta_determinacion(card_id, player_id, juego)
-        await juego.mensaje_personal(player_id, "D")
-        await juego.mensaje_personal(player_id, "F")
+        await juego.mensaje_personal(player_id, CAMBIO_ESTADO_JUGADOR)
+        await juego.mensaje_personal(player_id, HABILITADO_JUGAR_DESCARTADO)
         return {"carta elegida": card_id}
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
