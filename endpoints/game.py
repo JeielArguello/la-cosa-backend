@@ -405,7 +405,7 @@ async def cita_a_ciegas(match_id: int = Form(),  card_id: int = Form(), player: 
             juego   = get_global_juego(match_id)
             jugador = get_jugador(player, juego)
             check_turno(jugador)    
-            msg = play_cita_a_siegas(jugador,card_id, juego)
+            msg = play_cita_a_ciegas(jugador,card_id, juego)
             await juego.mensaje_personal(player, "D")
             #tiene que ser global
             await juego.broadcast_global(   { "carta_id": 104, # ese indece corresponde a una carta, cita a iegas. 

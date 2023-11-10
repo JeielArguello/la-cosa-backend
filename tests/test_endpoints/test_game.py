@@ -628,3 +628,5 @@ def test_get_logs_400_no_juego(mocker, mock_juego):
     response = client.get('/game/log/1')
     assert response.status_code == 400
     assert response.json() == {'detail': 'Error: No se pudo acceder al juego'}
+
+

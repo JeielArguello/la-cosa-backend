@@ -1,3 +1,8 @@
+from curses import A_ALTCHARSET
+from re import A
+from tokenize import endpats
+from urllib import response
+from defer import return_value
 from fastapi.testclient import TestClient
 from unittest.mock import Mock
 
@@ -90,3 +95,28 @@ def test_play_que_qude_entre_nosotros_ok(mocker, mock_juego, mock_j1, mock_j2):
     assert (msg["mensaje"] == "pepe jugó la carta Que quede entre nosotros...")
     assert (msg["cartaMostrar"] == [
         {'id': 1}, {'id': 2}, {'id': 3}, {'id': 4}])
+
+def test_citaACiegas_CheckSeProduceElIntercambio(mock_juego, mock_j1):
+    
+    mock_j1.turno_actual             = True
+    mock_j1.cartas                  = [ 22,  39,  64,  66]
+    mock_juego.jugadores_en_partida = [mock_j1]
+    mock_juego.mazo                 = [21,21,21]
+    mock_juego.mazo_descarte        = []    
+    
+    play_cita_a_ciegas(mock_j1,64,mock_juego)
+
+    assert mock_juego.mazo_descarte == [64]
+
+def test_citaACiegas_CheckSeAgregaAlMazoDeDescarteLaCartaSelecionadaParaElIntercamvbio(mock_juego, mock_j1):
+
+    mock_j1.turno_actual             = True
+    mock_j1.cartas                  = [ 22,  39,  64,  66]
+    mock_juego.jugadores_en_partida = [mock_j1]
+    mock_juego.mazo                 = [21,21,21]
+    mock_juego.mazo_descarte        = []    
+    
+    play_cita_a_ciegas(mock_j1,64,mock_juego)
+
+    assert mock_j1.cartas == [22,39,66,21]
+    assert mock_juego.mazo_descarte == [64]

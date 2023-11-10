@@ -99,7 +99,7 @@ def play_que_quede_entre_nosotros(player_at: int, player_obj: int, juego: Juego)
     else:
         return {"error": "no se pudieron mostrar cartas"}
 
-def play_cita_a_siegas(jugador:JugadorPartida, card_id:int, juego:Juego):
+def play_cita_a_ciegas(jugador:JugadorPartida, card_id:int, juego:Juego):
     jugador.descartar_carta(card_id)
     juego.mazo_descarte.append(card_id)
     juego.robar_carta_no_panico(jugador)
