@@ -699,3 +699,37 @@ def test_endpoint_vuelta_y_vuelta_carta_no_habilitada(mocker, mock_juego, mock_j
                                                                "player_orig": 1})
     assert response.status_code == 400
     assert response.json() == {'detail': 'Error: No puedes descartar la carta la cosa.'}
+
+
+def test_endpoint_olvidadizo_200_ok(mocker, mock_juego, mock_j1):
+    juego: Juego = mock_juego
+    jugador1: JugadorPartida = mock_j1
+    jugador1.cartas = [1, 10, 20, 30]
+    mocker.patch("endpoints.game.get_global_juego", return_value = juego, autospec = True)
+    mocker.patch("endpoints.game.check_turno", return_value = True, autospec = True)
+    mocker.patch("endpoints.game.Juego.mensaje_personal", return_value = None, autospec = True)
+    juego.jugadores_en_partida= [jugador1]
+    
+    response = client.post("game/play/olvidadizo",data ={"match_id":1, 
+                                                     "card_id_elegida":30, 
+                                                     "player_id": 1})
+    assert response.status_code == 200
+    assert response.json() == {"mensaje":"carta olvidadizo jugada"}
+
+
+def test_olvidadizo_endpoint_jugador_no_en_turno(mocker, mock_juego, mock_j1): 
+    juego: Juego = mock_juego
+    jugador1: JugadorPartida = mock_j1
+    jugador1.cartas = [1, 10, 20, 30]
+    mocker.patch("endpoints.game.get_global_juego", return_value = juego, autospec = True)
+    mocker.patch("endpoints.game.check_turno", side_effect=HTTPException(status_code=400, detail="No es el turno del jugador"),
+                 autospec=True,)
+    mocker.patch("endpoints.game.Juego.mensaje_personal", return_value = None, autospec = True)
+    juego.jugadores_en_partida= [jugador1]
+    
+    response = client.post("game/play/olvidadizo",data ={"match_id":1, 
+                                                     "card_id_elegida":30, 
+                                                     "player_id": 1})
+    assert response.status_code == 400
+    assert response.json() == {"detail": "Error: No es el turno del jugador"}
+    
