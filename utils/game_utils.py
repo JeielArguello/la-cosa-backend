@@ -475,6 +475,34 @@ def is_obstaculo(atacante_id, objetivo_id, juego: Juego):
 
     return hay_obstaculo
 
+def is_superinfeccion(jugador: JugadorPartida):
+    cartas = jugador.get_cartas()
+
+    superinfeccion = not jugador.get_infectado()
+    for c in cartas:
+        if c["id"] in range(2, 21):
+            superinfeccion = True and superinfeccion
+        else:
+            superinfeccion = False
+    return superinfeccion
+
+async def eliminar_jugador_superinfeccion(jugador: JugadorPartida, juego: Juego):
+    cartas = jugador.get_cartas()
+    jugador.set_muerto()
+    indice_jugador = juego.posiciones.index(jugador.id)
+    del juego.posiciones[indice_jugador]
+    if juego.posiciones[indice_jugador] == "p":
+        indiceaux = (indice_jugador - 1) % len(juego.posiciones)
+        del juego.posiciones[indiceaux]
+    else: 
+        del juego.posiciones[indice_jugador]
+    juego.agregar_log("El jugador " + jugador.name + " murió por una superinfeccion.")
+    await juego.broadcast_global("C")
+    await juego.broadcast_global({"carta_id": 2,
+                                          "jugador_obj": jugador.name,
+                                          "mensaje": "El jugador " + jugador.name + " murió por una superinfeccion.",
+                                          "cartaMostrar": cartas})
+                                  
 
 def is_card_defense(card_id):
     is_card_defense = card_id in range(67, 83)
