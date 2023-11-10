@@ -8,7 +8,7 @@ from models.game import Juego
 
 from main import app
 from models.player import JugadorPartida
-from models.swap_card import IntercambiarCarta
+from models.swap_card import IntercambiarCarta, IntercambiarCartaVyv
 client = TestClient(app)
 
 mocker = Mock()
@@ -628,3 +628,74 @@ def test_get_logs_400_no_juego(mocker, mock_juego):
     response = client.get('/game/log/1')
     assert response.status_code == 400
     assert response.json() == {'detail': 'Error: No se pudo acceder al juego'}
+
+
+def test_endpoint_vuelta_y_vuelta_200_ok_no_completo(mocker, mock_juego, mock_j1,mock_j2):
+    juego = mock_juego
+    juego.solicitud_intercambio_vyv = IntercambiarCartaVyv(mock_j1, 2)
+    mocker.patch("endpoints.game.get_global_juego", return_value=juego,
+                 autospec=True,)
+    mocker.patch("endpoints.game.get_jugador", return_value=mock_j1,
+                 autospec=True,)
+    mocker.patch("endpoints.game.check_turno", return_value=None,
+                 autospec=True,)
+    mocker.patch("endpoints.game.Juego.get_jugador_siguiente_turno", return_value=mock_j2,
+                 autospec=True,)
+    mocker.patch("endpoints.game.Juego.mensaje_personal", return_value=None,
+                 autospec=True,)
+    response = client.post("/game/play/vuelta_y_vuelta", data={"match_id": 1,
+                                                                "card_id": 22,
+                                                                "player_orig": 1})
+    assert response.status_code == 200
+    assert response.json() == {"resultado": "El jugador pepe selecciono una carta correctamente."}
+
+def test_endpoint_vuelta_y_vuelta_200_ok_completo(mocker, mock_juego, mock_j1,mock_j2):
+    juego: Juego = mock_juego
+    jugador1: JugadorPartida = mock_j1
+    jugador2: JugadorPartida = mock_j2
+    jugador1.cartas = [10, 22, 30, 40]
+    jugador2.cartas = [11, 12, 23, 14]
+    juego.solicitud_intercambio_vyv = IntercambiarCartaVyv(jugador1, 2)
+    juego.solicitud_intercambio_vyv.completar_vuelta_y_vuelta(jugador1, 22)
+    juego.jugadores_en_partida = [jugador1, jugador2]
+    mocker.patch("endpoints.game.get_global_juego", return_value=juego,
+                 autospec=True,)
+    mocker.patch("endpoints.game.check_turno", return_value=None,
+                 autospec=True,)
+    mocker.patch("endpoints.game.check_carta_habilitada", return_value=None,
+                 autospec=True,)
+    mocker.patch("endpoints.game.Juego.get_jugador_siguiente", return_value=mock_j1,
+                 autospec=True,)
+    mocker.patch("endpoints.game.Juego.get_jugador_siguiente_turno", return_value=mock_j1,
+                 autospec=True,)
+    mocker.patch("endpoints.game.Juego.terminar_turno", return_value=None,
+                 autospec=True,)
+    mocker.patch("endpoints.game.Juego.avanzar_turno", return_value=None,
+                 autospec=True,)
+    mocker.patch("endpoints.game.Juego.broadcast_global", return_value=None,
+                 autospec=True,)
+    mocker.patch("endpoints.game.Juego.mensaje_personal", return_value=None,
+                 autospec=True,)
+    response = client.post("/game/play/vuelta_y_vuelta", data={"match_id": 1,
+                                                               "card_id": 23,
+                                                               "player_orig": 2})
+    assert response.json() == {"resultado": "Se completo el intercambio vuelta y vuelta correctamente"}
+    assert response.status_code == 200
+
+def test_endpoint_vuelta_y_vuelta_carta_no_habilitada(mocker, mock_juego, mock_j1):
+    mock_juego.solicitud_intercambio_vyv = IntercambiarCartaVyv(mock_j1, 1)
+    mocker.patch("endpoints.game.get_global_juego", return_value=mock_juego,
+                 autospec=True,)
+    mocker.patch("endpoints.game.get_jugador", return_value=mock_j1,
+                 autospec=True,)
+    mocker.patch("endpoints.game.check_turno", return_value=None,
+                 autospec=True,)
+    mocker.patch("endpoints.game.check_carta_habilitada", side_effect=HTTPException(
+            status_code=400,
+            detail="No puedes descartar la carta la cosa."),
+                 autospec=True,)
+    response = client.post("/game/play/vuelta_y_vuelta", data={"match_id": 1,
+                                                               "card_id": 10,
+                                                               "player_orig": 1})
+    assert response.status_code == 400
+    assert response.json() == {'detail': 'Error: No puedes descartar la carta la cosa.'}

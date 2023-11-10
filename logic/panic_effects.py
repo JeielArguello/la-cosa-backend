@@ -96,3 +96,21 @@ def play_que_quede_entre_nosotros(player_at: int, player_obj: int, juego: Juego)
         return (msg)
     else:
         return {"error": "no se pudieron mostrar cartas"}
+
+def play_vuelta_y_vuelta(player_orig : int , juego : Juego):
+    jugador = juego.get_jugador(player_orig)
+
+    juego.finalizar_vuelta_y_vuelta(jugador)
+    
+    msg = {
+        "mensaje": jugador.name + " jugó la carta Vuelta y Vuelta",
+    }
+    if juego.sentido == -1:
+        sentido = "izquierda"
+    else:
+        sentido = "derecha"
+
+    juego.agregar_log(msg["mensaje"])
+    juego.agregar_log("Todos los jugadores le dieron una carta al jugaador de su " + sentido)
+    return (msg)
+    
