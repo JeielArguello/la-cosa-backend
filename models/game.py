@@ -7,7 +7,7 @@ from fastapi import HTTPException, WebSocket
 from typing import List
 from pony.orm import *
 from models.database import *
-from models.swap_card import IntercambiarCarta
+from models.swap_card import IntercambiarCarta, IntercambiarCartaVyv
 from models.defense_card import Defensa
 
 
@@ -33,6 +33,8 @@ class Juego:
         self.ws_players_game: List[WebSocket] = []
         self.solicitud_intercambio: IntercambiarCarta = None
         self.solicitud_ataque: Defensa = None
+        self.solicitud_intercambio_vyv: IntercambiarCartaVyv = None
+
         # spawnear jugadores
         crear_jugadores_partida(self)
         # otorgar posiciones
@@ -200,6 +202,28 @@ class Juego:
         intercambio.completar_intercambio(card_id)
         self.solicitud_intercambio = None
         del intercambio
+
+    def iniciar_vuelta_y_vuelta(self, player_orig: int):
+        if self.solicitud_intercambio_vyv is not None:
+            raise HTTPException(
+                status_code=400,
+                detail="Ya hay una solicitud de intercambio")
+        jugador_orig = self.get_jugador(player_orig)
+        self.solicitud_intercambio_vyv = IntercambiarCartaVyv(
+            jugador_orig, len(self.posiciones)/2)
+    
+    def finalizar_vuelta_y_vuelta(self,jugador : JugadorPartida):
+        if self.solicitud_intercambio_vyv is  None:
+            raise HTTPException(
+                status_code=400,
+                detail="No hay una solicitud de intercambio")
+        if self.solicitud_intercambio_vyv.ultimo_jugador != jugador:
+            raise HTTPException(
+                status_code=400,
+                detail="No eres el jugador que termina el intercambio")
+        self.solicitud_intercambio_vyv.realizar_intercambios()
+        self.solicitud_intercambio_vyv = None
+        del self.solicitud_intercambio_vyv
 
     # Funciones para defensa
     def crear_ataque(

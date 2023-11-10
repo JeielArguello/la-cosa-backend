@@ -578,6 +578,9 @@ def is_infectado(card_id):
                             17, 18, 19, 20, 21]
     return infectado
 
+def is_vuelta_y_vuelta(card_id):
+    vuelta_y_vuelta = card_id in [99, 100]
+    return vuelta_y_vuelta
 
 def crear_mensaje_de_ataque(jugador: JugadorPartida, card_id: int):
     carta_name = get_name_carta(card_id)
@@ -597,7 +600,7 @@ async def jugar_panico(carta: int, juego: Juego):
         jugador_en_turno_id = juego.posiciones[juego.turno]
         await jugar_la_carta(juego, carta, jugador_en_turno_id, jugador_en_turno_id)
     # seleccionar carta
-    elif carta in [99, 100, 103, 104]:
+    elif carta in [103, 104]:
         pass
     # seleccionar jugador
     elif carta in [91, 92, 97, 106, 107]:
@@ -621,7 +624,19 @@ async def jugar_panico(carta: int, juego: Juego):
         await juego.mensaje_personal(jugador_turno_id, msg)
 
     # seleccionar intercambio
-    elif carta in [99, 100, 101, 102]:
+    elif is_vuelta_y_vuelta(carta):
+
+        jugador_turno = juego.get_jugador_en_turno()
+        juego.iniciar_vuelta_y_vuelta( jugador_turno )
+        msg = {
+            "carta_especial": {
+                "tipo_carta": "Vuelta y vuelta",
+                "cartas": [],
+                "jugadores": []
+            }
+        }
+        await juego.mensaje_personal(jugador_turno.id, msg)
+    elif carta in [101, 102]:
         pass
     # revelaciones
     elif carta in [108]:

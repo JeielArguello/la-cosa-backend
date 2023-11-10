@@ -31,6 +31,33 @@ class IntercambiarCarta:
         self.soliciatante.agregar_carta(self.carta_receptor)
         self.receptor.agregar_carta(self.carta_solicitante)
 
-    # Esta funcion deberia cambiar el receptor del intercambio al siguiente jugador en el sentido del juego
+    # Esta funcion deberia cambiar el receptor del intercambio al jugador pasado por parametro
     def cambiar_receptor(self, nuevo_receptor: JugadorPartida):
         self.receptor = nuevo_receptor
+
+
+
+class IntercambiarCartaVyv:
+    def __init__(self, player_orig: JugadorPartida, cant_jugadores : int) -> None:
+        self.primer_jugador = player_orig
+        self.cartas_intercambio = [] 
+        self.list_jugadores = []
+        self.is_complete = False
+        self.total_jugadores = cant_jugadores
+        self.ultimo_jugador: JugadorPartida = None
+
+    def is_complete_vuelta_y_vuelta(self):
+        return self.is_complete
+    
+    def completar_vuelta_y_vuelta(self,jugador: JugadorPartida, card_id: int):
+        self.list_jugadores.append(jugador)
+        self.cartas_intercambio.append(card_id)
+        if len(self.cartas_intercambio) == self.total_jugadores:
+            self.is_complete = True
+            self.ultimo_jugador = jugador
+
+    def realizar_intercambios(self):
+        for i in range(0, len(self.list_jugadores)):
+            self.list_jugadores[i].descartar_carta(self.cartas_intercambio[i])
+            self.list_jugadores[i].agregar_carta(self.cartas_intercambio[(i-1)%len(self.list_jugadores)])
+        
