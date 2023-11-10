@@ -416,7 +416,7 @@ async def cita_a_ciegas(match_id: int = Form(),  card_id: int = Form(), player: 
             juego.agregar_log(msg["mensaje"])
             #se deberia avisar por un boadcast global que cambio el estado de la partida para quue se vea inmediatamente el nuevo log.
     except HTTPException as e:
-        error_msg = f"Error:{e.detail}"
+        error_msg = "No se pudo, jugar cita a ciegas."
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=error_msg
