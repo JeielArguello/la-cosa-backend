@@ -1,5 +1,7 @@
 # from fastapi import HTTPException
+from sys import call_tracing
 from models.game import Juego
+from models.player import JugadorPartida
 from utils.action_utils import *
 from models.crud import get_name
 
@@ -96,3 +98,9 @@ def play_que_quede_entre_nosotros(player_at: int, player_obj: int, juego: Juego)
         return (msg)
     else:
         return {"error": "no se pudieron mostrar cartas"}
+
+def play_cita_a_siegas(jugador:JugadorPartida, card_id:int, juego:Juego):
+    jugador.descartar_carta(card_id)
+    juego.robar_carta_no_panico(jugador)
+    msg = { "mensaje": jugador.name + " Robo carta, cita a ciegas, y por se der panico se jugo inmediatamente.",}
+    return msg
