@@ -64,7 +64,7 @@ def test_swap_completar_intercambio_ok(mock_intercambio, mock_j1, mock_j2):
 
 
 
-def test_completar_intercambio_y_ser_infectado_ok(mock_intercambio, mock_j1, mock_j2):
+def test_completar_intercambio_y_objetivo_infectado_ok(mock_intercambio, mock_j1, mock_j2):
     player_orig = mock_j1
     player_objetive = mock_j2
     player_orig.agregar_carta(2)
@@ -78,3 +78,18 @@ def test_completar_intercambio_y_ser_infectado_ok(mock_intercambio, mock_j1, moc
     assert player_objetive.get_cartas() == [{'id': 2}]
     assert player_orig.get_la_cosa()
     assert player_objetive.get_infectado()
+
+def test_completar_intercambio_y_origen_infectado_ok(mock_intercambio, mock_j1, mock_j2):
+    player_orig = mock_j1
+    player_objetive = mock_j2
+    player_objetive.agregar_carta(2)
+    player_orig.agregar_carta(23)
+    player_objetive.set_la_cosa()
+    swap_card: IntercambiarCarta = mock_intercambio
+    swap_card.carta_solicitante = 23
+    swap_card.completar_intercambio(2)
+    assert swap_card.carta_receptor == 2
+    assert player_orig.get_cartas() == [{'id': 2}]
+    assert player_objetive.get_cartas() == [{'id': 23}]
+    assert player_objetive.get_la_cosa()
+    assert player_orig.get_infectado()

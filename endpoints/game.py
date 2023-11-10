@@ -29,25 +29,23 @@ async def pick_a_card_from_deck(match_id: int = Form(), player_id: int = Form())
             juego.mazo_descarte.append(carta)
             await juego.broadcast_global(CAMBIO_ESTADO_JUEGO)
 
-            jugador_proximo = juego.get_jugador_siguiente_turno()
-            if (not jugador_proximo.get_muerto() and juego.is_obstaculo(jugador.id, jugador_proximo.id)):
-                juego.terminar_turno()
-                juego.avanzar_turno()
-
-                await juego.mensaje_personal(jugador_proximo.id, HABILITADO_ROBAR_CARTA)
-                await juego.mensaje_personal(jugador_proximo.id,{"carta_id": 109,
-                                     "mensaje": "Es tu turno de robar una carta."})
-            else:
-                if not is_superinfeccion(jugador):
-                    await juego.mensaje_personal(jugador.id, HABILITADO_INTERCAMBIO)
-                else: 
+            if not is_vuelta_y_vuelta(carta):
+                jugador_proximo = juego.get_jugador_siguiente_turno()
+                if not jugador_proximo.get_muerto() and juego.is_obstaculo(jugador.id, jugador_proximo.id) :
                     juego.terminar_turno()
                     juego.avanzar_turno()
-                    ganador = check_ganador(juego)
-                    if ganador:
-                        await juego.broadcast_global(PARTIDA_FINALIZADA)
-                    await eliminar_jugador_superinfeccion(jugador, juego)
                     await juego.mensaje_personal(jugador_proximo.id, HABILITADO_ROBAR_CARTA)
+                 else:
+                    if not is_superinfeccion(jugador):
+                      await juego.mensaje_personal(jugador.id, HABILITADO_INTERCAMBIO)
+                    else: 
+                      juego.terminar_turno()
+                      juego.avanzar_turno()
+                      ganador = check_ganador(juego)
+                      if ganador:
+                         await juego.broadcast_global(PARTIDA_FINALIZADA)
+                      await eliminar_jugador_superinfeccion(jugador, juego)
+                      await juego.mensaje_personal(jugador_proximo.id, HABILITADO_ROBAR_CARTA)
             return {'card_id': carta}
         else:
             carta = robar_carta(juego, jugador)
@@ -445,6 +443,54 @@ async def que_quede_entre_nostros(match_id: int = Form(),
                                                         "cartaMostrar": msg["cartaMostrar"]})
     except HTTPException as e:
         error_msg = f"Error:{e.detail}"
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_msg
+        )
+
+######
+# Panico, Que quede entre nosotros.
+######
+
+
+@router.post("/play/vuelta_y_vuelta")
+async def endpoint_vuelta_y_vuelta(match_id: int = Form(),
+                                  card_id: int = Form(),
+                                  player_orig: int = Form()):
+    try:
+        juego = get_global_juego(match_id)
+        jugador = get_jugador(player_orig, juego)
+        intercambio_vyv = juego.solicitud_intercambio_vyv
+        if jugador == intercambio_vyv.primer_jugador:
+            check_turno(jugador)
+        jugador_proximo = juego.get_jugador_siguiente(jugador)
+        check_carta_habilitada(card_id, jugador, jugador_proximo)
+        if not intercambio_vyv.is_complete_vuelta_y_vuelta():
+            intercambio_vyv.completar_vuelta_y_vuelta(jugador,card_id)
+            proximo = juego.get_jugador_siguiente(jugador)
+            if proximo != intercambio_vyv.primer_jugador:
+                await juego.mensaje_personal(proximo.id,{"carta_especial": {
+                                                        "tipo_carta": "Vuelta y vuelta",
+                                                        "cartas": [],
+                                                        "jugadores": []
+                                                        }   
+                                                    })
+            mensaje = "El jugador " + jugador.name + " selecciono una carta correctamente." 
+        if intercambio_vyv.is_complete_vuelta_y_vuelta():
+            msg = play_vuelta_y_vuelta(player_orig,juego)
+            await juego.broadcast_global("D")
+            await juego.broadcast_global({"carta_id": 99,
+                                          "mensaje": msg["mensaje"]})
+            juego.terminar_turno()
+            juego.avanzar_turno()
+            jugador_proximo_turno = juego.get_jugador_en_turno()
+            await juego.mensaje_personal(jugador_proximo_turno.id, "E")
+            await juego.broadcast_global("C")
+            mensaje = "Se completo el intercambio vuelta y vuelta correctamente"
+        
+        return {"resultado": mensaje}
+    except HTTPException as e:
+        error_msg = f"Error: {e.detail}"
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=error_msg
