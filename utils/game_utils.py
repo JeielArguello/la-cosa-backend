@@ -638,6 +638,26 @@ async def jugar_panico(carta: int, juego: Juego):
         await juego.mensaje_personal(jugador_turno.id, msg)
     elif carta in [101, 102]:
         pass
+    # olvidadizo 
+    elif carta in [98]:
+        jug_turno = juego.get_jugador_en_turno()
+        jug_turno_id = jug_turno.id
+        if jug_turno.get_la_cosa():
+            msg = {
+                "mensaje": jug_turno.name + " robó carta de Pánico Olvidadizo."
+            }
+            play_olvidadizo(juego, jug_turno_id, 1)
+            await juego.mensaje_personal(jug_turno_id, msg)
+        else:
+            cartas = jug_turno.get_cartas()
+            msg = {
+                "carta_especial": {
+		            "tipo_carta":"Olvidadizo",
+		            "cartas":cartas,
+		            "jugadores": []
+                }   
+            }
+            await juego.mensaje_personal(jug_turno_id, msg)
     # revelaciones
     elif carta in [108]:
         pass

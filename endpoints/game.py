@@ -447,3 +447,20 @@ async def endpoint_vuelta_y_vuelta(match_id: int = Form(),
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=error_msg
         )
+
+
+@router.post("/play/olvidadizo")
+async def olvidadizo(match_id: int = Form(), card_id_elegida: int=Form(), player_id: int = Form()):
+    try:
+        juego = get_global_juego(match_id)
+        jugador = juego.get_jugador(player_id)
+        check_turno(jugador)
+        msg = play_olvidadizo(juego, player_id, card_id_elegida)
+        await juego.mensaje_personal(player_id, "D")
+        return{"mensaje":"carta olvidadizo jugada"}
+    except HTTPException as e:
+        error_msg = f"Error: {e.detail}"
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_msg
+        )
