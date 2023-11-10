@@ -50,6 +50,10 @@ class IntercambiarCartaVyv:
         return self.is_complete
     
     def completar_vuelta_y_vuelta(self,jugador: JugadorPartida, card_id: int):
+        if card_id not in jugador.cartas:
+            raise HTTPException(
+                status_code=400,
+                detail="No tienes la carta que quieres intercambiar")
         self.list_jugadores.append(jugador)
         self.cartas_intercambio.append(card_id)
         if len(self.cartas_intercambio) == self.total_jugadores:

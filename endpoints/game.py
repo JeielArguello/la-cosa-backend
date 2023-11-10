@@ -102,8 +102,6 @@ async def jugar_ataque(match_id: int = Form(), card_id: int = Form(),
                     juego.avanzar_turno()
 
                     await juego.mensaje_personal(jugador_proximo.id, HABILITADO_ROBAR_CARTA)
-                    await juego.mensaje_personal(jugador_proximo.id,{"carta_id": 109,
-                                     "mensaje": "Es tu turno de robar una carta."})
                     await juego.broadcast_global(CAMBIO_ESTADO_JUEGO)
                 else:
                     if not is_superinfeccion(jugador):
@@ -165,8 +163,6 @@ async def jugar_defensa(match_id: int = Form(), card_id: int = Form(),
             juego.terminar_turno()
             juego.avanzar_turno()
             await juego.mensaje_personal(jugador_proximo.id, HABILITADO_ROBAR_CARTA)
-            await juego.mensaje_personal(jugador_proximo.id,{"carta_id": 109,
-                                     "mensaje": "Es tu turno de robar una carta."})
         else:
             if not is_superinfeccion(jugador_ataque):
                 await juego.mensaje_personal(jugador_ataque.id, HABILITADO_INTERCAMBIO)
@@ -214,8 +210,6 @@ async def endpoint_descartar_carta(match_id: int = Form(),
             juego.terminar_turno()
             juego.avanzar_turno()
             await juego.mensaje_personal(jugador_objetivo.id, HABILITADO_ROBAR_CARTA)
-            await juego.mensaje_personal(jugador_objetivo.id,{"carta_id": 109,
-                                     "mensaje": "Es tu turno de robar una carta."})
         else:
             if not is_superinfeccion(jugador):
                 await juego.mensaje_personal(jugador.id, HABILITADO_INTERCAMBIO)
@@ -282,8 +276,8 @@ async def swap_response(match_id: int = Form(), card_id: int = Form(), player_or
         jugador_orig = juego.get_jugador(player_orig)  # j4
         jugador_objetivo = juego.get_jugador_en_turno()  # j3
         check_carta_habilitada(card_id, jugador_orig, jugador_objetivo)
-        '''si el jugador que glopea este endpoint (el objetivo del intercambio), pasa un card_id correspondiente a aterrador.
-           significa que se niega al mismo. '''
+        # si el jugador que glopea este endpoint (el objetivo del intercambio), pasa un card_id correspondiente a aterrador.
+        # significa que se niega al mismo. 
         if is_card_defense(card_id) and se_defiende:
             await defenderse_de_intercambio(juego, card_id, jugador_orig, jugador_objetivo)
         else:
@@ -312,21 +306,16 @@ async def swap_response(match_id: int = Form(), card_id: int = Form(), player_or
             else:
                 jugador = juego.get_jugador_en_turno()
                 await juego.mensaje_personal(jugador.id, HABILITADO_ROBAR_CARTA)
-                await juego.mensaje_personal(jugador.id,{"carta_id": 109,
-                                     "mensaje": "Es tu turno de robar una carta."})
+                
                 jugador_orig.remove_efecto_seduccion()
 
         else:
             if not fallaste_card and not jugador_orig.get_efecto_fallaste():
                 await juego.mensaje_personal(jugador_orig.id, HABILITADO_ROBAR_CARTA)
-                await juego.mensaje_personal(jugador_orig.id,{"carta_id": 109,
-                                     "mensaje": "Es tu turno de robar una carta."})
             elif not fallaste_card and jugador_orig.get_efecto_fallaste():
                 jugador_orig.remove_efecto_fallaste()
                 jugador_turno = juego.get_jugador_en_turno()
                 await juego.mensaje_personal(jugador_turno.id, HABILITADO_ROBAR_CARTA)
-                await juego.mensaje_personal(jugador_turno.id,{"carta_id": 109,
-                                     "mensaje": "Es tu turno de robar una carta."})
         await juego.broadcast_global(CAMBIO_ESTADO_JUEGO)
         return {"message": "se completo el intercambio"}
     except HTTPException as e:
@@ -449,7 +438,7 @@ async def que_quede_entre_nostros(match_id: int = Form(),
         )
 
 ######
-# Panico, Que quede entre nosotros.
+# Panico, Vuelta y vuelta.
 ######
 
 
