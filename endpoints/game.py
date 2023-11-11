@@ -31,7 +31,7 @@ async def pick_a_card_from_deck(match_id: int = Form(), player_id: int = Form())
 
             if not is_vuelta_y_vuelta(carta):
                 jugador_proximo = juego.get_jugador_siguiente_turno()
-                if not jugador_proximo.get_muerto() and juego.is_obstaculo(jugador.id, jugador_proximo.id) :
+                if not jugador_proximo.get_muerto() and juego.is_obstaculo(jugador.id, jugador_proximo.id):
                     juego.terminar_turno()
                     juego.avanzar_turno()
 
@@ -393,7 +393,7 @@ async def que_quede_entre_nostros(match_id: int = Form(),
         await juego.mensaje_personal(player_objective, {"carta_id": 106,
                                                         "mensaje": msg["mensaje"],
                                                         "cartaMostrar": msg["cartaMostrar"]})
-        return{"mensaje":msg}
+        return {"mensaje": msg}
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
         raise HTTPException(
@@ -401,23 +401,23 @@ async def que_quede_entre_nostros(match_id: int = Form(),
             detail=error_msg
         )
 
-    
+
 @router.post("/play/cita_a_ciegas")
 async def cita_a_ciegas(match_id: int = Form(),  card_id: int = Form(), player: int = Form()):
     try:
-            juego   = get_global_juego(match_id)
-            jugador = get_jugador(player, juego)
-            check_turno(jugador)    
-            msg = play_cita_a_ciegas(jugador,card_id, juego)
-            await juego.mensaje_personal(player, "D")
-            #tiene que ser global
-            await juego.broadcast_global(   { "carta_id": 104, # ese indece corresponde a una carta, cita a iegas. 
-                                              "mensaje": msg["mensaje"],
-                                              "cartaMostrar":[]
-                                            }
-                                        )
-            juego.agregar_log(msg["mensaje"])
-            #se deberia avisar por un boadcast global que cambio el estado de la partida para quue se vea inmediatamente el nuevo log.
+        juego = get_global_juego(match_id)
+        jugador = get_jugador(player, juego)
+        check_turno(jugador)
+        msg = play_cita_a_ciegas(jugador, card_id, juego)
+        await juego.mensaje_personal(player, "D")
+        # tiene que ser global
+        await juego.broadcast_global({"carta_id": 104,  # ese indece corresponde a una carta, cita a iegas.
+                                      "mensaje": msg["mensaje"],
+                                      "cartaMostrar": []
+                                      }
+                                     )
+        juego.agregar_log(msg["mensaje"])
+        # se deberia avisar por un boadcast global que cambio el estado de la partida para quue se vea inmediatamente el nuevo log.
     except HTTPException as e:
         error_msg = "No se pudo, jugar cita a ciegas."
 
@@ -429,8 +429,8 @@ async def cita_a_ciegas(match_id: int = Form(),  card_id: int = Form(), player: 
 
 @router.post("/play/vuelta_y_vuelta")
 async def endpoint_vuelta_y_vuelta(match_id: int = Form(),
-                                  card_id: int = Form(),
-                                  player_orig: int = Form()):
+                                   card_id: int = Form(),
+                                   player_orig: int = Form()):
     try:
         juego = get_global_juego(match_id)
         jugador = get_jugador(player_orig, juego)
@@ -440,18 +440,18 @@ async def endpoint_vuelta_y_vuelta(match_id: int = Form(),
         jugador_proximo = juego.get_jugador_siguiente(jugador)
         check_carta_habilitada(card_id, jugador, jugador_proximo)
         if not intercambio_vyv.is_complete_vuelta_y_vuelta():
-            intercambio_vyv.completar_vuelta_y_vuelta(jugador,card_id)
+            intercambio_vyv.completar_vuelta_y_vuelta(jugador, card_id)
             proximo = juego.get_jugador_siguiente(jugador)
             if proximo != intercambio_vyv.primer_jugador:
-                await juego.mensaje_personal(proximo.id,{"carta_especial": {
-                                                        "tipo_carta": "Vuelta y vuelta",
-                                                        "cartas": [],
-                                                        "jugadores": []
-                                                        }   
-                                                    })
-            mensaje = "El jugador " + jugador.name + " selecciono una carta correctamente." 
+                await juego.mensaje_personal(proximo.id, {"carta_especial": {
+                    "tipo_carta": "Vuelta y vuelta",
+                    "cartas": [],
+                    "jugadores": []
+                }
+                })
+            mensaje = "El jugador " + jugador.name + " selecciono una carta correctamente."
         if intercambio_vyv.is_complete_vuelta_y_vuelta():
-            msg = play_vuelta_y_vuelta(player_orig,juego)
+            msg = play_vuelta_y_vuelta(player_orig, juego)
             await juego.broadcast_global("D")
             await juego.broadcast_global({"carta_id": 99,
                                           "mensaje": msg["mensaje"]})
@@ -461,7 +461,7 @@ async def endpoint_vuelta_y_vuelta(match_id: int = Form(),
             await juego.mensaje_personal(jugador_proximo_turno.id, "E")
             await juego.broadcast_global("C")
             mensaje = "Se completo el intercambio vuelta y vuelta correctamente"
-        
+
         return {"resultado": mensaje}
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
@@ -472,19 +472,15 @@ async def endpoint_vuelta_y_vuelta(match_id: int = Form(),
         )
 
 
-
-
-
-
 @router.post("/play/olvidadizo")
-async def olvidadizo(match_id: int = Form(), card_id_elegida: int=Form(), player_id: int = Form()):
+async def olvidadizo(match_id: int = Form(), card_id_elegida: int = Form(), player_id: int = Form()):
     try:
         juego = get_global_juego(match_id)
         jugador = juego.get_jugador(player_id)
         check_turno(jugador)
         msg = play_olvidadizo(juego, player_id, card_id_elegida)
         await juego.mensaje_personal(player_id, "D")
-        return{"mensaje":"carta olvidadizo jugada"}
+        return {"mensaje": "carta olvidadizo jugada"}
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
         raise HTTPException(
@@ -492,3 +488,23 @@ async def olvidadizo(match_id: int = Form(), card_id_elegida: int=Form(), player
             detail=error_msg
         )
 
+
+@router.post("/play/uno_dos")
+async def que_quede_entre_nostros(match_id: int = Form(),
+                                  player_objective: int = Form(),
+                                  player_orig: int = Form()):
+    try:
+        juego = get_global_juego(match_id)
+        jugador = get_jugador(player_orig, juego)
+        check_turno(jugador)
+        msg = play_uno_dos(player_orig, player_objective, juego)
+        await juego.mensaje_personal(player_objective, {"carta_id": 91,
+                                                        "mensaje": msg["mensaje"],
+                                                        "cartaMostrar": []})
+        return msg["mensaje"]
+    except HTTPException as e:
+        error_msg = f"Error:{e.detail}"
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_msg
+        )

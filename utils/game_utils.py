@@ -24,7 +24,7 @@ def get_status_game(juego: Juego):
         list_jugadores.append({'id': j['id'],
                                'nombre': j['nombre'],
                                'cuarentena': jugador.get_cuartena(),
-                               'id_avatar':j['id_avatar']})
+                               'id_avatar': j['id_avatar']})
     carta = read_carta(juego.mazo[-1])
     id_player_turno = juego.get_jugador_en_turno().id
     response = {'posiciones': posiciones,
@@ -579,9 +579,11 @@ def is_infectado(card_id):
                             17, 18, 19, 20, 21]
     return infectado
 
+
 def is_vuelta_y_vuelta(card_id):
     vuelta_y_vuelta = card_id in [99, 100]
     return vuelta_y_vuelta
+
 
 def crear_mensaje_de_ataque(jugador: JugadorPartida, card_id: int):
     carta_name = get_name_carta(card_id)
@@ -601,23 +603,38 @@ async def jugar_panico(carta: int, juego: Juego):
         jugador_en_turno_id = juego.posiciones[juego.turno]
         await jugar_la_carta(juego, carta, jugador_en_turno_id, jugador_en_turno_id)
     # seleccionar carta
+    elif carta in [91, 92]:
+        jugador_turno = juego.get_jugador_en_turno()
+        index = juego.posiciones.index(jugador_turno.id)
+        index_izquierda = (index-6) % len(juego.posiciones)
+        index_derecha = (index+6) % len(juego.posiciones)
+        jugador_izquieda = juego.get_jugador(juego.posiciones[index_izquierda])
+        jugador_derecha = juego.get_jugador(juego.posiciones[index_derecha])
+        msg = {
+            "carta_especial": {
+                "tipo_carta": "Uno,dos",
+                "cartas": [],
+                "jugadores": [{"nombre": jugador_izquieda.name, "id": jugador_izquieda.id},
+                              {"nombre": jugador_derecha.name, "id": jugador_derecha.id}]
+            }
+        }
+        await juego.mensaje_personal(jugador_turno.id, msg)
     elif carta in [99, 100]:
-      pass  
-    elif carta in [103,104]: # cita a ciegas 
-            jugador_en_turno_id = juego.posiciones[juego.turno]
-            jugador_en_turno    = juego.get_jugador(jugador_en_turno_id)
-            mano                = jugador_en_turno.get_cartas()
-            msg = {"carta_especial":{
-                        "tipo_carta":"Cita a ciegas",
-                        "cartas":mano,
-                        "jugadores":[]
-                    }
-                }
-            await juego.mensaje_personal(jugador_en_turno_id, msg)
+        pass
+    elif carta in [103, 104]:  # cita a ciegas
+        jugador_en_turno_id = juego.posiciones[juego.turno]
+        jugador_en_turno = juego.get_jugador(jugador_en_turno_id)
+        mano = jugador_en_turno.get_cartas()
+        msg = {"carta_especial": {
+            "tipo_carta": "Cita a ciegas",
+            "cartas": mano,
+            "jugadores": []
+        }
+        }
+        await juego.mensaje_personal(jugador_en_turno_id, msg)
 
-  
     # seleccionar jugador
-    elif carta in [106, 107]: # que quede entre nosotros.
+    elif carta in [106, 107]:  # que quede entre nosotros.
         jugador_turno = juego.get_jugador_en_turno()
         jugador_turno_id = jugador_turno.id
         jug_sig_turno = juego.get_jugador_siguiente_turno()
@@ -637,24 +654,23 @@ async def jugar_panico(carta: int, juego: Juego):
         }
         await juego.mensaje_personal(jugador_turno_id, msg)
 
-
-    elif carta in [103,104]: # cita a ciegas 
+    elif carta in [103, 104]:  # cita a ciegas
         jugador_en_turno_id = juego.posiciones[juego.turno]
-        jugador_en_turno    = juego.get_jugador(jugador_en_turno_id)
-        mano                = jugador_en_turno.get_cartas()
-        msg = {"carta_especial":{
-                    "tipo_carta":"Cita a ciegas",
-                    "cartas":mano,
-                    "jugadores":[]
-                }
-            }
+        jugador_en_turno = juego.get_jugador(jugador_en_turno_id)
+        mano = jugador_en_turno.get_cartas()
+        msg = {"carta_especial": {
+            "tipo_carta": "Cita a ciegas",
+            "cartas": mano,
+            "jugadores": []
+        }
+        }
         await juego.mensaje_personal(jugador_en_turno_id, msg)
 
     # seleccionar intercambio
     elif is_vuelta_y_vuelta(carta):
 
         jugador_turno = juego.get_jugador_en_turno()
-        juego.iniciar_vuelta_y_vuelta( jugador_turno )
+        juego.iniciar_vuelta_y_vuelta(jugador_turno)
         msg = {
             "carta_especial": {
                 "tipo_carta": "Vuelta y vuelta",
@@ -665,8 +681,8 @@ async def jugar_panico(carta: int, juego: Juego):
         await juego.mensaje_personal(jugador_turno.id, msg)
     elif carta in [101, 102]:
         pass
-    
-    # olvidadizo 
+
+    # olvidadizo
     elif carta in [98]:
         jug_turno = juego.get_jugador_en_turno()
         jug_turno_id = jug_turno.id
@@ -680,10 +696,10 @@ async def jugar_panico(carta: int, juego: Juego):
             cartas = jug_turno.get_cartas()
             msg = {
                 "carta_especial": {
-		            "tipo_carta":"Olvidadizo",
-		            "cartas":cartas,
-		            "jugadores": []
-                }   
+                    "tipo_carta": "Olvidadizo",
+                    "cartas": cartas,
+                    "jugadores": []
+                }
             }
             await juego.mensaje_personal(jug_turno_id, msg)
     # revelaciones
