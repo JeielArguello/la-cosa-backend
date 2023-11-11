@@ -19,6 +19,7 @@ mocker2 = AsyncMock()
 @pytest.fixture
 def mock_atacante(mocker):
     mocker.patch("models.player.get_name", return_value="pepe")
+    mocker.patch("models.player.get_id_avatar", return_value=1)
     jugador = JugadorPartida(id=1)
     jugador.cartas = [3, 70, 75, 80]
     return jugador
@@ -27,6 +28,7 @@ def mock_atacante(mocker):
 @pytest.fixture
 def mock_objetivo(mocker):
     mocker.patch("models.player.get_name", return_value="pedro")
+    mocker.patch("models.player.get_id_avatar", return_value=1)
     jugador = JugadorPartida(id=2)
     jugador.cartas = [5, 6, 77, 78]
     return jugador
@@ -35,6 +37,7 @@ def mock_objetivo(mocker):
 @pytest.fixture
 def mock_proximo(mocker):
     mocker.patch("models.player.get_name", return_value="pedro")
+    mocker.patch("models.player.get_id_avatar", return_value=1)
     jugador = JugadorPartida(id=3)
     jugador.cartas = [53, 61, 7, 71]
     return jugador
@@ -43,6 +46,7 @@ def mock_proximo(mocker):
 @pytest.fixture
 def mock_proximo2(mocker):
     mocker.patch("models.player.get_name", return_value="pedro")
+    mocker.patch("models.player.get_id_avatar", return_value=1)
     jugador = JugadorPartida(id=4)
     jugador.cartas = [53, 61, 7, 71]
     return jugador
@@ -51,6 +55,7 @@ def mock_proximo2(mocker):
 @pytest.fixture
 def mock_juego(mocker):
     mocker.patch("models.player.get_name", return_value="pepe")
+    mocker.patch("models.player.get_id_avatar", return_value=1)
     juego = Juego(partida_id=1, cantidad_jugadores=4,
                   creador=1, jugadores_id=[1, 3, 2, 4])
     juego.name = "test"
@@ -61,6 +66,7 @@ def mock_juego(mocker):
 @pytest.fixture
 def mock_juego_async(mocker):
     mocker.patch("models.player.get_name", return_value="pepe")
+    mocker.patch("models.player.get_id_avatar", return_value=1)
     juego = Juego(partida_id=1, cantidad_jugadores=4,
                   creador=1, jugadores_id=[1, 3, 2, 4])
     juego.name = "test"

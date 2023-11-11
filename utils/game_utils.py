@@ -23,7 +23,8 @@ def get_status_game(juego: Juego):
         jugador = juego.get_jugador(j['id'])
         list_jugadores.append({'id': j['id'],
                                'nombre': j['nombre'],
-                               'cuarentena': jugador.get_cuartena()})
+                               'cuarentena': jugador.get_cuartena(),
+                               'id_avatar':j['id_avatar']})
     carta = read_carta(juego.mazo[-1])
     id_player_turno = juego.get_jugador_en_turno().id
     response = {'posiciones': posiciones,

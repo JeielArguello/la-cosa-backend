@@ -70,6 +70,7 @@ async def test_init_game_ok(mocker, lobby):
         return_value=None,
         autospec=True)
     mocker.patch("models.player.get_name", return_value="pepe")
+    mocker.patch("models.player.get_id_avatar", return_value=1)
     await lobby.init_game()
     assert len(global_juegos) == 1
     assert lobby.iniciada

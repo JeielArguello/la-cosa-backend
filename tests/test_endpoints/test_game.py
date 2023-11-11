@@ -17,6 +17,7 @@ mocker = Mock()
 @pytest.fixture
 def mock_j1(mocker):
     mocker.patch("models.player.get_name", return_value="pepe")
+    mocker.patch("models.player.get_id_avatar", return_value=1)
     jugador = JugadorPartida(id=1)
     jugador.turno_actual = True
     jugador.cartas = [1, 2, 3, 4]
@@ -25,6 +26,7 @@ def mock_j1(mocker):
 @pytest.fixture
 def mock_j2(mocker):
     mocker.patch("models.player.get_name", return_value="pedro")
+    mocker.patch("models.player.get_id_avatar", return_value=2)
     jugador = JugadorPartida(id=2)
     return jugador
 
