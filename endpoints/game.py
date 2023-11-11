@@ -19,7 +19,6 @@ router = APIRouter()
 async def pick_a_card_from_deck(match_id: int = Form(), player_id: int = Form()):
     try:
         juego = get_global_juego(match_id)
-        await check_superinfeccion(juego)
         jugador = get_jugador(player_id, juego)
         check_turno(jugador)
         check_cantidad_cartas(jugador)
@@ -36,6 +35,8 @@ async def pick_a_card_from_deck(match_id: int = Form(), player_id: int = Form())
                     juego.avanzar_turno()
 
                     await juego.mensaje_personal(jugador_proximo.id, HABILITADO_ROBAR_CARTA)
+                    await check_superinfeccion(juego)
+
                 else:
                     await juego.mensaje_personal(player_id, HABILITADO_INTERCAMBIO)
             return {'card_id': carta}
@@ -93,6 +94,8 @@ async def jugar_ataque(match_id: int = Form(), card_id: int = Form(),
                     juego.avanzar_turno()
 
                     await juego.mensaje_personal(jugador_proximo.id, HABILITADO_ROBAR_CARTA)
+                    await check_superinfeccion(juego)
+
                 else:
                     await juego.mensaje_personal(jugador.id, HABILITADO_INTERCAMBIO)
 
@@ -143,7 +146,10 @@ async def jugar_defensa(match_id: int = Form(), card_id: int = Form(),
             juego.terminar_turno()
             juego.avanzar_turno()
             await juego.mensaje_personal(jugador_proximo.id, HABILITADO_ROBAR_CARTA)
+            await check_superinfeccion(juego)
+
         else:
+            await check_superinfeccion(juego)
             await juego.mensaje_personal(jugador_ataque.id, HABILITADO_INTERCAMBIO)
         if card_id == 0:
             return {"message": "Se completó el ataque."}
@@ -182,6 +188,8 @@ async def endpoint_descartar_carta(match_id: int = Form(),
             juego.avanzar_turno()
             await juego.mensaje_personal(jugador_objetivo.id, HABILITADO_ROBAR_CARTA)
             await juego.broadcast_global(CAMBIO_ESTADO_JUEGO)
+            await check_superinfeccion(juego)
+
         else:
             await juego.mensaje_personal(player_id, HABILITADO_INTERCAMBIO)
         await mostrar_cartas_cuarentena(jugador, card_id, juego, 2)

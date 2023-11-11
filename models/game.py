@@ -129,8 +129,12 @@ class Juego:
     def is_obstaculo(self, atacante_id:int, objetivo_id: int):
         indice_posicion_intermedia = self.get_posicion_intermedia( objetivo_id, atacante_id)
         hay_obstaculo = False
-        if self.posiciones[indice_posicion_intermedia] != 0 :
-            hay_obstaculo = True
+        if len(self.posiciones) > 4:
+            if self.posiciones[indice_posicion_intermedia] != 0 :
+                hay_obstaculo = True
+        else:
+            if self.posiciones[indice_posicion_intermedia] != 0 or self.posiciones[indice_posicion_intermedia+2] != 0:
+                hay_obstaculo = True
         return hay_obstaculo
     
     def get_posicion_intermedia(self, jugador1: int, jugador2: int):
@@ -138,9 +142,9 @@ class Juego:
         indice_jugador1 = self.get_posicion_de_jugador(jugador1)
         indice_jugador2 = self.get_posicion_de_jugador(jugador2)
         border_one = (indice_jugador1 == 0 and indice_jugador2 ==
-                    len_posiciones - 2)
+                    len_posiciones - 2) and len_posiciones > 4
         border_two = (indice_jugador2 == 0 and indice_jugador1 ==
-                    len_posiciones - 2)
+                    len_posiciones - 2) and len_posiciones > 4
         if (border_one or border_two):
             posicion = len_posiciones - 1
         else:
