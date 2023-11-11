@@ -24,6 +24,7 @@ mocker = Mock()
 @pytest.fixture
 def mock_j1(mocker):
     mocker.patch("models.player.get_name", return_value="pepe")
+    mocker.patch("models.player.get_id_avatar", return_value=1)
     jugador = JugadorPartida(id=1)
     return jugador
 
@@ -31,6 +32,7 @@ def mock_j1(mocker):
 @pytest.fixture
 def mock_j2(mocker):
     mocker.patch("models.player.get_name", return_value="pedro")
+    mocker.patch("models.player.get_id_avatar", return_value=1)
     jugador = JugadorPartida(id=2)
     return jugador
 
@@ -38,6 +40,7 @@ def mock_j2(mocker):
 @pytest.fixture
 def mock_j3(mocker):
     mocker.patch("models.player.get_name", return_value="jose")
+    mocker.patch("models.player.get_id_avatar", return_value=1)
     jugador = JugadorPartida(id=3)
     return jugador
 
@@ -45,6 +48,7 @@ def mock_j3(mocker):
 @pytest.fixture
 def mock_j4(mocker):
     mocker.patch("models.player.get_name", return_value="juanito")
+    mocker.patch("models.player.get_id_avatar", return_value=1)
     jugador = JugadorPartida(id=4)
     return jugador
 

@@ -18,6 +18,7 @@ mocker = Mock()
 @pytest.fixture
 def mock_juego(mocker):
     mocker.patch("models.player.get_name", return_value="pepe")
+    mocker.patch("models.player.get_id_avatar", return_value=1)
     juego = Juego(partida_id=1, cantidad_jugadores=4,
                   creador=1, jugadores_id=[1, 3, 2, 4])
     juego.name = "test"
@@ -28,6 +29,7 @@ def mock_juego(mocker):
 @pytest.fixture
 def mock_atacante(mocker):
     mocker.patch("models.player.get_name", return_value="pepe")
+    mocker.patch("models.player.get_id_avatar", return_value=1)
     jugador = JugadorPartida(id=1)
     return jugador
 
@@ -35,6 +37,7 @@ def mock_atacante(mocker):
 @pytest.fixture
 def mock_objetivo(mocker):
     mocker.patch("models.player.get_name", return_value="pedro")
+    mocker.patch("models.player.get_id_avatar", return_value=1)
     jugador = JugadorPartida(id=4)
     return jugador
 
@@ -42,6 +45,7 @@ def mock_objetivo(mocker):
 @pytest.fixture
 def mock_objetivo_no_vecino(mocker):
     mocker.patch("models.player.get_name", return_value="jasinto")
+    mocker.patch("models.player.get_id_avatar", return_value=1)
     jugador = JugadorPartida(id=3)
     return jugador
 
