@@ -401,6 +401,10 @@ async def que_quede_entre_nostros(match_id: int = Form(),
             detail=error_msg
         )
 
+######
+# Panico, Cita a Ciegas.
+######
+
 
 @router.post("/play/cita_a_ciegas")
 async def cita_a_ciegas(match_id: int = Form(),  card_id: int = Form(), player: int = Form()):
@@ -423,7 +427,7 @@ async def cita_a_ciegas(match_id: int = Form(),  card_id: int = Form(), player: 
 
 
 ######
-# Panico, Que quede entre nosotros.
+# Panico, Vuelta y Vuelta.
 ######
 
 
@@ -471,6 +475,10 @@ async def endpoint_vuelta_y_vuelta(match_id: int = Form(),
             detail=error_msg
         )
 
+######
+# Panico, Olvidadizo.
+######
+
 
 @router.post("/play/olvidadizo")
 async def olvidadizo(match_id: int = Form(), card_id_elegida: int = Form(), player_id: int = Form()):
@@ -487,6 +495,10 @@ async def olvidadizo(match_id: int = Form(), card_id_elegida: int = Form(), play
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=error_msg
         )
+
+######
+# Panico, Uno, Dos ...
+######
 
 
 @router.post("/play/uno_dos")

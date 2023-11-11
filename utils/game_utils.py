@@ -617,8 +617,8 @@ async def jugar_panico(carta: int, juego: Juego):
                 "carta_especial": {
                     "tipo_carta": "Uno,dos",
                     "cartas": [],
-                    "jugadores": [{"nombre": jugador_izquieda.name, "id": jugador_izquieda.id},
-                                  {"nombre": jugador_derecha.name, "id": jugador_derecha.id}]
+                    "jugadores": [{"nombre": jugador_izquieda.name, "id": jugador_izquieda.id, "avatar": jugador_izquieda.id_avatar},
+                                  {"nombre": jugador_derecha.name, "id": jugador_derecha.id, "avatar": jugador_derecha.id_avatar}]
                 }
             }
             await juego.mensaje_personal(jugador_turno.id, msg)
@@ -627,10 +627,10 @@ async def jugar_panico(carta: int, juego: Juego):
                 "mensaje": jugador_turno.name + " jugó la carta Uno,Dos..., pero como hay menos de 4 jugadores no tiene efecto."}
             msg2 = {"mensaje": "Se jugó una carta de panico, pero no tuvo efecto."}
             juego.agregar_log(msg2["mensaje"])
-        await juego.broadcast_global(
-            {"carta_id": carta,
-                "mensaje": msg1["mensaje"]
-             })
+            await juego.broadcast_global(
+                {"carta_id": carta,
+                    "mensaje": msg1["mensaje"]
+                 })
     elif carta in [99, 100]:
         pass
     elif carta in [103, 104]:  # cita a ciegas
