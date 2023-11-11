@@ -630,6 +630,8 @@ def test_get_logs_400_no_juego(mocker, mock_juego):
     assert response.json() == {'detail': 'Error: No se pudo acceder al juego'}
 
 
+
+
 def test_endpoint_vuelta_y_vuelta_200_ok_no_completo(mocker, mock_juego, mock_j1,mock_j2):
     juego = mock_juego
     juego.solicitud_intercambio_vyv = IntercambiarCartaVyv(mock_j1, 2)

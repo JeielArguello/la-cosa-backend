@@ -1,5 +1,7 @@
 # from fastapi import HTTPException
+from sys import call_tracing
 from models.game import Juego
+from models.player import JugadorPartida
 from utils.action_utils import *
 from models.crud import get_name
 
@@ -97,6 +99,14 @@ def play_que_quede_entre_nosotros(player_at: int, player_obj: int, juego: Juego)
     else:
         return {"error": "no se pudieron mostrar cartas"}
 
+
+def play_cita_a_ciegas(jugador:JugadorPartida, card_id:int, juego:Juego):
+    jugador.descartar_carta(card_id)
+    juego.mazo_descarte.append(card_id)
+    juego.robar_carta_no_panico(jugador)
+    msg = { "mensaje": jugador.name + " robo carta, cita a ciegas;por ser de pánico, sé jugo inmediatamente. ",}
+    return msg
+
 def play_vuelta_y_vuelta(player_orig : int , juego : Juego):
     jugador = juego.get_jugador(player_orig)
 
@@ -147,3 +157,4 @@ def play_olvidadizo(juego: Juego, player_orig: int, card_id: int):
         return(msg)
     else:
         return {"error": "no se pudo descartar o robar cartas."}
+

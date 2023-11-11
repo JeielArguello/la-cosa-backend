@@ -400,6 +400,27 @@ async def que_quede_entre_nostros(match_id: int = Form(),
             detail=error_msg
         )
 
+    
+@router.post("/play/cita_a_ciegas")
+async def cita_a_ciegas(match_id: int = Form(),  card_id: int = Form(), player: int = Form()):
+    try:
+            juego   = get_global_juego(match_id)
+            jugador = get_jugador(player, juego)
+            check_turno(jugador)    
+            msg = play_cita_a_ciegas(jugador,card_id, juego)
+            await juego.mensaje_personal(player, "D")
+            #tiene que ser global
+            await juego.broadcast_global(   { "carta_id": 104, # ese indece corresponde a una carta, cita a iegas. 
+                                              "mensaje": msg["mensaje"],
+                                              "cartaMostrar":[]
+                                            }
+                                        )
+            juego.agregar_log(msg["mensaje"])
+            #se deberia avisar por un boadcast global que cambio el estado de la partida para quue se vea inmediatamente el nuevo log.
+    except HTTPException as e:
+        error_msg = "No se pudo, jugar cita a ciegas."
+
+
 ######
 # Panico, Que quede entre nosotros.
 ######
@@ -443,10 +464,15 @@ async def endpoint_vuelta_y_vuelta(match_id: int = Form(),
         return {"resultado": mensaje}
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
+
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=error_msg
         )
+
+
+
+
 
 
 @router.post("/play/olvidadizo")
@@ -464,3 +490,4 @@ async def olvidadizo(match_id: int = Form(), card_id_elegida: int=Form(), player
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=error_msg
         )
+
