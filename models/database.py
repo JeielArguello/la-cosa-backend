@@ -8,7 +8,9 @@ class Jugador(db.Entity):
     id = PrimaryKey(int, auto=True)
     # _table_ = 'Partida'
     nombre = Required(str)
+    id_avatar = Required(int)
     partida = Optional('Partida')
+    
 
 
 class Partida(db.Entity):

@@ -89,10 +89,15 @@ def get_jugadores_match(posiciones: list):
         if j != 0 and j != "p":
             id = j
             nombre = get_name(id)
-            jugador = {'id': id, 'nombre': nombre}
+            id_avatar = get_id_avatar(id)
+            jugador = {'id': id, 'nombre': nombre,'id_avatar':id_avatar}
             jugadores.append(jugador)
     return jugadores
 
+@db_session
+def get_id_avatar(user_id: int) -> str:
+    user = get(u for u in Jugador if u.id == user_id)
+    return user.id_avatar
 
 @db_session
 def get_name(user_id: int) -> str:

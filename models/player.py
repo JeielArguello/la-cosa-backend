@@ -1,13 +1,14 @@
 from typing import Tuple
 from fastapi import WebSocket
 from pony.orm import *
-from models.crud import get_name
+from models.crud import get_name ,get_id_avatar
 from models.database import *
 
 
 class JugadorPartida:
     def __init__(self, id: int):
         self.id = id
+        self.id_avatar = get_id_avatar(id)
         self.muerto = False
         self.la_cosa = False
         self.infectado = False
@@ -20,7 +21,6 @@ class JugadorPartida:
         self.name = get_name(id)
         self.efecto_seduccion = False
         self.efecto_fallaste = False
-
 
     def get_muerto(self):
         return self.muerto

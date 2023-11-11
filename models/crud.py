@@ -139,9 +139,14 @@ def delete_match(match_id: int):
 
 
 @db_session
-def db_create_user(nombre: str) -> Dict[str, int]:
-    jugador = Jugador(nombre=nombre)
+def db_create_user(nombre: str,id_avatar:int) -> Dict[str, int]:
+    print("database")
+    print(nombre,id_avatar)
+    jugador = Jugador(
+                    nombre=nombre,
+                    id_avatar = id_avatar)
     jugador.flush()
+    
     result = {"user_name": jugador.nombre, "id": jugador.id}
     return result
 
@@ -152,6 +157,11 @@ def db_create_user(nombre: str) -> Dict[str, int]:
 def get_name(user_id: int) -> str:
     user = get(u for u in Jugador if u.id == user_id)
     return user.nombre
+
+@db_session
+def get_id_avatar(user_id: int) -> str:
+    user = get(u for u in Jugador if u.id == user_id)
+    return user.id_avatar
 
 
 # Update
