@@ -617,7 +617,7 @@ async def jugar_panico(carta: int, juego: Juego):
 
   
     # seleccionar jugador
-    elif carta in [91, 92, 97, 106, 107]:
+    elif carta in [106, 107]: # que quede entre nosotros.
         jugador_turno = juego.get_jugador_en_turno()
         jugador_turno_id = jugador_turno.id
         jug_sig_turno = juego.get_jugador_siguiente_turno()
@@ -665,6 +665,7 @@ async def jugar_panico(carta: int, juego: Juego):
         await juego.mensaje_personal(jugador_turno.id, msg)
     elif carta in [101, 102]:
         pass
+    
     # olvidadizo 
     elif carta in [98]:
         jug_turno = juego.get_jugador_en_turno()
