@@ -1,3 +1,8 @@
+from curses import A_ALTCHARSET
+from re import A
+from tokenize import endpats
+from urllib import response
+from defer import return_value
 from fastapi.testclient import TestClient
 from unittest.mock import Mock
 
@@ -17,6 +22,7 @@ mocker = Mock()
 @pytest.fixture
 def mock_juego(mocker):
     mocker.patch("models.player.get_name", return_value="pepe")
+    mocker.patch("models.player.get_id_avatar", return_value=1)
     juego = Juego(partida_id=1, cantidad_jugadores=4,
                   creador=1, jugadores_id=[1, 3, 2, 4])
     juego.name = "test"
@@ -27,6 +33,7 @@ def mock_juego(mocker):
 @pytest.fixture
 def mock_j1(mocker):
     mocker.patch("models.player.get_name", return_value="pepe")
+    mocker.patch("models.player.get_id_avatar", return_value=1)
     jugador = JugadorPartida(id=1)
     return jugador
 
@@ -34,6 +41,7 @@ def mock_j1(mocker):
 @pytest.fixture
 def mock_j2(mocker):
     mocker.patch("models.player.get_name", return_value="pedro")
+    mocker.patch("models.player.get_id_avatar", return_value=1)
     jugador = JugadorPartida(id=2)
     return jugador
 
@@ -90,3 +98,44 @@ def test_play_que_qude_entre_nosotros_ok(mocker, mock_juego, mock_j1, mock_j2):
     assert (msg["mensaje"] == "pepe jugó la carta Que quede entre nosotros...")
     assert (msg["cartaMostrar"] == [
         {'id': 1}, {'id': 2}, {'id': 3}, {'id': 4}])
+
+
+def test_citaACiegas_CheckSeProduceElIntercambio(mock_juego, mock_j1):
+    
+    mock_j1.turno_actual             = True
+    mock_j1.cartas                  = [ 22,  39,  64,  66]
+    mock_juego.jugadores_en_partida = [mock_j1]
+    mock_juego.mazo                 = [21,21,21]
+    mock_juego.mazo_descarte        = []    
+    
+    play_cita_a_ciegas(mock_j1,64,mock_juego)
+
+    assert mock_juego.mazo_descarte == [64]
+
+def test_citaACiegas_CheckSeAgregaAlMazoDeDescarteLaCartaSelecionadaParaElIntercamvbio(mock_juego, mock_j1):
+
+    mock_j1.turno_actual             = True
+    mock_j1.cartas                  = [ 22,  39,  64,  66]
+    mock_juego.jugadores_en_partida = [mock_j1]
+    mock_juego.mazo                 = [21,21,21]
+    mock_juego.mazo_descarte        = []    
+    
+    play_cita_a_ciegas(mock_j1,64,mock_juego)
+
+    assert mock_j1.cartas == [22,39,66,21]
+    assert mock_juego.mazo_descarte == [64]
+
+def test_play_olvidadizo_ok(mock_juego, mock_j1):
+    mock_juego.jugadores_en_partida = [mock_j1]
+    mock_j1.cartas = [1, 2, 3, 4]
+    msg = play_olvidadizo(mock_juego, mock_j1.id, 1)
+    assert(msg["mensaje"] == "pepe jugó carta Olvidadizo")
+    assert(1 in mock_j1.cartas)
+    assert(mock_j1.cartas!= [1,2,3,4])
+
+def test_play_olvidadizo_no_tiene_carta_a_descartar(mock_juego, mock_j1):
+    mock_juego.jugadores_en_partida = [mock_j1]
+    mock_j1.cartas = [1, 2, 3, 4]
+    msg = play_olvidadizo(mock_juego, mock_j1.id, 10)
+    assert(msg == {"error": "no se pudo descartar o robar cartas."})
+    assert(mock_j1.cartas == [1,2,3,4])

@@ -421,7 +421,7 @@ async def cita_a_ciegas(match_id: int = Form(),  card_id: int = Form(), player: 
 
 
 ######
-# Panico, Que quede entre nosotros.
+# Panico, Vuelta y vuelta.
 ######
 
 
@@ -464,15 +464,6 @@ async def endpoint_vuelta_y_vuelta(match_id: int = Form(),
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
 
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=error_msg
-        )
-
-
-
-
-
 
 @router.post("/play/olvidadizo")
 async def olvidadizo(match_id: int = Form(), card_id_elegida: int=Form(), player_id: int = Form()):
@@ -489,3 +480,5 @@ async def olvidadizo(match_id: int = Form(), card_id_elegida: int=Form(), player
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=error_msg
         )
+
+

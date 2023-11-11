@@ -17,6 +17,7 @@ mocker = Mock()
 @pytest.fixture
 def mock_j1(mocker):
     mocker.patch("models.player.get_name", return_value="pepe")
+    mocker.patch("models.player.get_id_avatar", return_value=1)
     jugador = JugadorPartida(id=1)
     jugador.turno_actual = True
     jugador.cartas = [1, 2, 3, 4]
@@ -25,6 +26,7 @@ def mock_j1(mocker):
 @pytest.fixture
 def mock_j2(mocker):
     mocker.patch("models.player.get_name", return_value="pedro")
+    mocker.patch("models.player.get_id_avatar", return_value=2)
     jugador = JugadorPartida(id=2)
     return jugador
 
@@ -630,6 +632,8 @@ def test_get_logs_400_no_juego(mocker, mock_juego):
     assert response.json() == {'detail': 'Error: No se pudo acceder al juego'}
 
 
+
+
 def test_endpoint_vuelta_y_vuelta_200_ok_no_completo(mocker, mock_juego, mock_j1,mock_j2):
     juego = mock_juego
     juego.solicitud_intercambio_vyv = IntercambiarCartaVyv(mock_j1, 2)
@@ -701,3 +705,67 @@ def test_endpoint_vuelta_y_vuelta_carta_no_habilitada(mocker, mock_juego, mock_j
                                                                "player_orig": 1})
     assert response.status_code == 400
     assert response.json() == {'detail': 'Error: No puedes descartar la carta la cosa.'}
+
+
+def test_endpoint_olvidadizo_200_ok(mocker, mock_juego, mock_j1):
+    juego: Juego = mock_juego
+    jugador1: JugadorPartida = mock_j1
+    jugador1.cartas = [1, 10, 20, 30]
+    mocker.patch("endpoints.game.get_global_juego", return_value = juego, autospec = True)
+    mocker.patch("endpoints.game.check_turno", return_value = True, autospec = True)
+    mocker.patch("endpoints.game.Juego.mensaje_personal", return_value = None, autospec = True)
+    juego.jugadores_en_partida= [jugador1]
+    
+    response = client.post("game/play/olvidadizo",data ={"match_id":1, 
+                                                     "card_id_elegida":30, 
+                                                     "player_id": 1})
+    assert response.status_code == 200
+    assert response.json() == {"mensaje":"carta olvidadizo jugada"}
+
+
+def test_olvidadizo_endpoint_jugador_no_en_turno(mocker, mock_juego, mock_j1): 
+    juego: Juego = mock_juego
+    jugador1: JugadorPartida = mock_j1
+    jugador1.cartas = [1, 10, 20, 30]
+    mocker.patch("endpoints.game.get_global_juego", return_value = juego, autospec = True)
+    mocker.patch("endpoints.game.check_turno", side_effect=HTTPException(status_code=400, detail="No es el turno del jugador"),
+                 autospec=True,)
+    mocker.patch("endpoints.game.Juego.mensaje_personal", return_value = None, autospec = True)
+    juego.jugadores_en_partida= [jugador1]
+    
+    response = client.post("game/play/olvidadizo",data ={"match_id":1, 
+                                                     "card_id_elegida":30, 
+                                                     "player_id": 1})
+    assert response.status_code == 400
+    assert response.json() == {"detail": "Error: No es el turno del jugador"}
+    
+
+
+def test_que_quede_entre_nosotros_endpoint_200_ok(mocker, mock_juego, mock_j1, mock_j2):
+    juego: Juego = mock_juego
+    jugador1: JugadorPartida = mock_j1
+    jugador2: JugadorPartida = mock_j2
+    jugador1.cartas = [10, 20, 30, 40]
+    mocker.patch("endpoints.game.get_global_juego", return_value = juego, autospec = True)
+    mocker.patch("endpoints.game.check_turno", return_value = True, autospec = True,)
+    mocker.patch("endpoints.game.Juego.mensaje_personal", return_value = None, autospec = True)
+    juego.jugadores_en_partida= [jugador1, jugador2]
+    response = client.post("game/play/que_quede_entre_nosotros", data ={"match_id": 1, "player_objective":2, "player_orig": 1})
+    assert response.status_code == 200
+    assert response.json()["mensaje"]["cartaMostrar"] == [{"id": 10},{"id": 20},{"id": 30},{"id":40}]
+        
+   
+   
+def test_que_quede_entre_nosotros_endpoint_jugador_no_en_turno(mocker, mock_juego, mock_j1, mock_j2):
+    juego: Juego = mock_juego
+    jugador1: JugadorPartida = mock_j1
+    jugador2: JugadorPartida = mock_j2
+    jugador1.cartas = [10, 20, 30, 40]
+    mocker.patch("endpoints.game.get_global_juego", return_value = juego, autospec = True)
+    mocker.patch("endpoints.game.check_turno", side_effect=HTTPException(status_code=400, detail="No es el turno del jugador"),
+                 autospec=True,)
+    mocker.patch("endpoints.game.Juego.mensaje_personal", return_value = None, autospec = True)
+    juego.jugadores_en_partida= [jugador1, jugador2]
+    response = client.post("game/play/que_quede_entre_nosotros", data ={"match_id": 1, "player_objective":2, "player_orig": 1})
+    assert response.status_code == 400
+    assert response.json() == {"detail": "Error: No es el turno del jugador"}
