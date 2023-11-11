@@ -633,9 +633,11 @@ def test_get_logs_400_no_juego(mocker, mock_juego):
 def test_endpoint_vuelta_y_vuelta_200_ok_no_completo(mocker, mock_juego, mock_j1,mock_j2):
     juego = mock_juego
     juego.solicitud_intercambio_vyv = IntercambiarCartaVyv(mock_j1, 2)
+    jugador1 = mock_j1
+    jugador1.cartas = [10, 23, 30, 40]
     mocker.patch("endpoints.game.get_global_juego", return_value=juego,
                  autospec=True,)
-    mocker.patch("endpoints.game.get_jugador", return_value=mock_j1,
+    mocker.patch("endpoints.game.get_jugador", return_value=jugador1,
                  autospec=True,)
     mocker.patch("endpoints.game.check_turno", return_value=None,
                  autospec=True,)
@@ -644,10 +646,10 @@ def test_endpoint_vuelta_y_vuelta_200_ok_no_completo(mocker, mock_juego, mock_j1
     mocker.patch("endpoints.game.Juego.mensaje_personal", return_value=None,
                  autospec=True,)
     response = client.post("/game/play/vuelta_y_vuelta", data={"match_id": 1,
-                                                                "card_id": 22,
+                                                                "card_id": 23,
                                                                 "player_orig": 1})
-    assert response.status_code == 200
     assert response.json() == {"resultado": "El jugador pepe selecciono una carta correctamente."}
+    assert response.status_code == 200
 
 def test_endpoint_vuelta_y_vuelta_200_ok_completo(mocker, mock_juego, mock_j1,mock_j2):
     juego: Juego = mock_juego

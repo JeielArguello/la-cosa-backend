@@ -490,6 +490,8 @@ def is_superinfeccion(jugador: JugadorPartida):
 async def eliminar_jugador_superinfeccion(jugador: JugadorPartida, juego: Juego):
     cartas = jugador.get_cartas()
     jugador.set_muerto()
+    jugador.remove_efecto_seduccion()
+    jugador.remove_efecto_fallaste()
     indice_jugador = juego.posiciones.index(jugador.id)
     del juego.posiciones[indice_jugador]
     if juego.posiciones[indice_jugador] == "p":
