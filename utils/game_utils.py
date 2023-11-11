@@ -638,16 +638,16 @@ async def jugar_panico(carta: int, juego: Juego):
 
 
     elif carta in [103,104]: # cita a ciegas 
-            jugador_en_turno_id = juego.posiciones[juego.turno]
-            jugador_en_turno    = juego.get_jugador(jugador_en_turno_id)
-            mano                = jugador_en_turno.get_cartas()
-            msg = {"carta_especial":{
-                        "tipo_carta":"Cita a ciegas",
-                        "cartas":mano,
-                        "jugadores":[]
-                    }
+        jugador_en_turno_id = juego.posiciones[juego.turno]
+        jugador_en_turno    = juego.get_jugador(jugador_en_turno_id)
+        mano                = jugador_en_turno.get_cartas()
+        msg = {"carta_especial":{
+                    "tipo_carta":"Cita a ciegas",
+                    "cartas":mano,
+                    "jugadores":[]
                 }
-            await juego.mensaje_personal(jugador_en_turno_id, msg)
+            }
+        await juego.mensaje_personal(jugador_en_turno_id, msg)
 
     # seleccionar intercambio
     elif is_vuelta_y_vuelta(carta):
