@@ -625,7 +625,7 @@ async def jugar_panico(carta: int, juego: Juego):
         else:
             msg1 = {
                 "mensaje": jugador_turno.name + " jugó la carta Uno,Dos..., pero como hay menos de 4 jugadores no tiene efecto."}
-            msg2 = {"mensaje": "Se jugó una carta de panico, pero no tuvo efecto"}
+            msg2 = {"mensaje": "Se jugó una carta de panico, pero no tuvo efecto."}
             juego.agregar_log(msg2["mensaje"])
         await juego.broadcast_global(
             {"carta_id": carta,
