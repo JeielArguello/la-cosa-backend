@@ -502,14 +502,14 @@ async def olvidadizo(match_id: int = Form(), card_id_elegida: int = Form(), play
 
 
 @router.post("/play/uno_dos")
-async def que_quede_entre_nostros(match_id: int = Form(),
-                                  player_objective: int = Form(),
-                                  player_orig: int = Form()):
+async def uno_dos(match_id: int = Form(),
+                  player_objective: int = Form(),
+                  player_orig: int = Form()):
     try:
         juego = get_global_juego(match_id)
         jugador_origen = get_jugador(player_orig, juego)
         check_turno(jugador_origen)
-        validar_cuarentena(player_objective)
+        validar_cuarentena(player_objective, juego)
         msg = play_uno_dos(player_orig, player_objective, juego)
         await juego.mensaje_personal(player_objective, {"carta_id": 91,
                                                         "mensaje": msg["mensaje"],
