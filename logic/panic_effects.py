@@ -104,7 +104,7 @@ def play_cita_a_ciegas(jugador:JugadorPartida, card_id:int, juego:Juego):
     jugador.descartar_carta(card_id)
     juego.mazo_descarte.append(card_id)
     juego.robar_carta_no_panico(jugador)
-    msg = { "mensaje": jugador.name + " robo carta, cita a ciegas;por ser de pánico, sé jugo inmediatamente. ",}
+    msg = { "mensaje": jugador.name + " jugó la carta Cita a ciegas."}
     return msg
 
 def play_vuelta_y_vuelta(player_orig : int , juego : Juego):

@@ -506,15 +506,19 @@ async def eliminar_jugador_superinfeccion(jugador: JugadorPartida, juego: Juego)
         del juego.posiciones[indice_jugador]
     juego.agregar_log("El jugador " + jugador.name + " murió por una superinfeccion.")
     await juego.broadcast_global(CAMBIO_ESTADO_JUEGO)
+    await juego.mensaje_personal(jugador.id ,CAMBIO_ESTADO_JUGADOR)
     await juego.broadcast_global({"carta_id": 2,
                                           "jugador_obj": jugador.name,
                                           "mensaje": "El jugador " + jugador.name + " murió por una superinfeccion.",
                                           "cartaMostrar": cartas})
+    ganador = check_ganador(juego)
+    if ganador:
+        await juego.broadcast_global(PARTIDA_FINALIZADA)
                                   
 
 async def check_superinfeccion(juego: Juego):
     for j in juego.jugadores_en_partida:
-        if is_superinfeccion(j):
+        if j.id in juego.posiciones and is_superinfeccion(j):
             await eliminar_jugador_superinfeccion(j, juego)
         
 
@@ -642,22 +646,6 @@ async def jugar_panico(carta: int, juego: Juego):
     if carta in [89, 90, 93, 94, 95, 96, 105]:
         jugador_en_turno_id = juego.posiciones[juego.turno]
         await jugar_la_carta(juego, carta, jugador_en_turno_id, jugador_en_turno_id)
-    # seleccionar carta
-    elif carta in [99, 100]:
-      pass  
-    elif carta in [103,104]: # cita a ciegas 
-            jugador_en_turno_id = juego.posiciones[juego.turno]
-            jugador_en_turno    = juego.get_jugador(jugador_en_turno_id)
-            mano                = jugador_en_turno.get_cartas()
-            msg = {"carta_especial":{
-                        "tipo_carta":"Cita a ciegas",
-                        "cartas":mano,
-                        "jugadores":[]
-                    }
-                }
-            await juego.mensaje_personal(jugador_en_turno_id, msg)
-
-  
     # seleccionar jugador
     elif carta in [106, 107]: # que quede entre nosotros.
         jugador_turno = juego.get_jugador_en_turno()
@@ -713,7 +701,7 @@ async def jugar_panico(carta: int, juego: Juego):
         jug_turno = juego.get_jugador_en_turno()
         jug_turno_id = jug_turno.id
         if jug_turno.get_la_cosa():
-            msg = {
+            msg = { "carta_id": 98,
                 "mensaje": jug_turno.name + " robó carta de Pánico Olvidadizo."
             }
             play_olvidadizo(juego, jug_turno_id, 1)

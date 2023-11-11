@@ -55,6 +55,7 @@ class Juego:
                 j.cambiar_turno()
 
     def terminar_turno(self):
+        print("terminando turno",self.turno)
         for j in self.jugadores_en_partida:
             if j.id == self.posiciones[self.turno]:
                 if j.get_cuartena():
