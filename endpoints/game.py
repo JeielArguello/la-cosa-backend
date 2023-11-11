@@ -393,8 +393,9 @@ async def que_quede_entre_nostros(match_id: int = Form(),
         await juego.mensaje_personal(player_objective, {"carta_id": 106,
                                                         "mensaje": msg["mensaje"],
                                                         "cartaMostrar": msg["cartaMostrar"]})
+        return{"mensaje":msg}
     except HTTPException as e:
-        error_msg = f"Error:{e.detail}"
+        error_msg = f"Error: {e.detail}"
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=error_msg
