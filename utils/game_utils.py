@@ -605,20 +605,32 @@ async def jugar_panico(carta: int, juego: Juego):
     # seleccionar carta
     elif carta in [91, 92]:
         jugador_turno = juego.get_jugador_en_turno()
-        index = juego.posiciones.index(jugador_turno.id)
-        index_izquierda = (index-6) % len(juego.posiciones)
-        index_derecha = (index+6) % len(juego.posiciones)
-        jugador_izquieda = juego.get_jugador(juego.posiciones[index_izquierda])
-        jugador_derecha = juego.get_jugador(juego.posiciones[index_derecha])
-        msg = {
-            "carta_especial": {
-                "tipo_carta": "Uno,dos",
-                "cartas": [],
-                "jugadores": [{"nombre": jugador_izquieda.name, "id": jugador_izquieda.id},
-                              {"nombre": jugador_derecha.name, "id": jugador_derecha.id}]
+        if len(juego.posiciones) >= 8:
+            index = juego.posiciones.index(jugador_turno.id)
+            index_izquierda = (index-6) % len(juego.posiciones)
+            index_derecha = (index+6) % len(juego.posiciones)
+            jugador_izquieda = juego.get_jugador(
+                juego.posiciones[index_izquierda])
+            jugador_derecha = juego.get_jugador(
+                juego.posiciones[index_derecha])
+            msg = {
+                "carta_especial": {
+                    "tipo_carta": "Uno,dos",
+                    "cartas": [],
+                    "jugadores": [{"nombre": jugador_izquieda.name, "id": jugador_izquieda.id},
+                                  {"nombre": jugador_derecha.name, "id": jugador_derecha.id}]
+                }
             }
-        }
-        await juego.mensaje_personal(jugador_turno.id, msg)
+            await juego.mensaje_personal(jugador_turno.id, msg)
+        else:
+            msg1 = {
+                "mensaje": jugador_turno.name + " jugó la carta Uno,Dos..., pero como hay menos de 4 jugadores no tiene efecto."}
+            msg2 = {"mensaje": "Se jugó una carta de panico, pero no tuvo efecto"}
+            juego.agregar_log(msg2["mensaje"])
+        await juego.broadcast_global(
+            {"carta_id": carta,
+                "mensaje": msg1["mensaje"]
+             })
     elif carta in [99, 100]:
         pass
     elif carta in [103, 104]:  # cita a ciegas
