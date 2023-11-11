@@ -489,10 +489,13 @@ def is_superinfeccion(jugador: JugadorPartida):
 
 async def eliminar_jugador_superinfeccion(jugador: JugadorPartida, juego: Juego):
     cartas = jugador.get_cartas()
+    
     jugador.set_muerto()
     jugador.remove_efecto_seduccion()
     jugador.remove_efecto_fallaste()
     indice_jugador = juego.posiciones.index(jugador.id)
+    if  indice_jugador == juego.turno:
+        juego.avanzar_turno()
     del juego.posiciones[indice_jugador]
     if juego.posiciones[indice_jugador] == "p":
         indiceaux = (indice_jugador - 1) % len(juego.posiciones)
@@ -507,6 +510,13 @@ async def eliminar_jugador_superinfeccion(jugador: JugadorPartida, juego: Juego)
                                           "mensaje": "El jugador " + jugador.name + " murió por una superinfeccion.",
                                           "cartaMostrar": cartas})
                                   
+
+async def check_superinfeccion(juego: Juego):
+    for j in juego.jugadores_en_partida:
+        if is_superinfeccion(j):
+            await eliminar_jugador_superinfeccion(j, juego)
+        
+
 
 def is_card_defense(card_id):
     is_card_defense = card_id in range(67, 83)
