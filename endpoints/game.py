@@ -37,7 +37,8 @@ async def pick_a_card_from_deck(match_id: int = Form(), player_id: int = Form())
 
                     await juego.mensaje_personal(jugador_proximo.id, "E")
                 else:
-                    await juego.mensaje_personal(player_id, "G")
+                    # await juego.mensaje_personal(player_id, "G")
+                    pass
             return {'card_id': carta}
         else:
             carta = robar_carta(juego, jugador)
@@ -514,6 +515,8 @@ async def uno_dos(match_id: int = Form(),
         await juego.mensaje_personal(player_objective, {"carta_id": 91,
                                                         "mensaje": msg["mensaje"],
                                                         "cartaMostrar": []})
+        await juego.broadcast_global("C")
+        await juego.mensaje_personal(player_orig, "G")
         return msg["mensaje"]
     except HTTPException as e:
         error_msg = f"Error:{e.detail}"

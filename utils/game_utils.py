@@ -605,14 +605,14 @@ async def jugar_panico(carta: int, juego: Juego):
     # seleccionar carta
     elif carta in [91, 92]:
         jugador_turno = juego.get_jugador_en_turno()
-        if len(juego.posiciones) >= 8:
-            index = juego.posiciones.index(jugador_turno.id)
-            index_izquierda = (index-6) % len(juego.posiciones)
-            index_derecha = (index+6) % len(juego.posiciones)
-            jugador_izquieda = juego.get_jugador(
-                juego.posiciones[index_izquierda])
-            jugador_derecha = juego.get_jugador(
-                juego.posiciones[index_derecha])
+        index = juego.posiciones.index(jugador_turno.id)
+        index_izquierda = (index-6) % len(juego.posiciones)
+        index_derecha = (index+6) % len(juego.posiciones)
+        jugador_izquieda = juego.get_jugador(
+            juego.posiciones[index_izquierda])
+        jugador_derecha = juego.get_jugador(
+            juego.posiciones[index_derecha])
+        if len(juego.posiciones) >= 8 and not jugador_izquieda.get_cuartena() and not jugador_derecha.get_cuartena():
             msg = {
                 "carta_especial": {
                     "tipo_carta": "Uno,dos",
@@ -622,7 +622,30 @@ async def jugar_panico(carta: int, juego: Juego):
                 }
             }
             await juego.mensaje_personal(jugador_turno.id, msg)
-        else:
+        elif len(juego.posiciones) >= 8 and not jugador_izquieda.get_cuartena() and jugador_derecha.get_cuartena():
+            msg = play_uno_dos(jugador_turno.id, jugador_izquieda.id, juego)
+            await juego.mensaje_personal(jugador_izquieda.id, {"carta_id": 91,
+                                                               "mensaje": msg["mensaje"],
+                                                               "cartaMostrar": []})
+            await juego.broadcast_global("C")
+            await juego.mensaje_personal(jugador_turno.id, "G")
+        elif len(juego.posiciones) >= 8 and jugador_izquieda.get_cuartena() and not jugador_derecha.get_cuartena():
+            msg = play_uno_dos(jugador_turno.id, jugador_derecha.id, juego)
+            await juego.mensaje_personal(jugador_derecha.id, {"carta_id": 91,
+                                                              "mensaje": msg["mensaje"],
+                                                              "cartaMostrar": []})
+            await juego.broadcast_global("C")
+            await juego.mensaje_personal(jugador_turno.id, "G")
+        elif len(juego.posiciones) >= 8 and jugador_izquieda.get_cuartena() and jugador_derecha.get_cuartena():
+            msg1 = {
+                "mensaje": jugador_turno.name + " jugó la carta Uno,Dos..., pero como los posibles objetivos entan en cuarentena no tiene efecto."}
+            msg2 = {"mensaje": "Se jugó una carta de panico, pero no tuvo efecto."}
+            juego.agregar_log(msg2["mensaje"])
+            await juego.broadcast_global(
+                {"carta_id": carta,
+                    "mensaje": msg1["mensaje"]
+                 })
+        elif len(juego.posiciones) < 8:
             msg1 = {
                 "mensaje": jugador_turno.name + " jugó la carta Uno,Dos..., pero como hay menos de 4 jugadores no tiene efecto."}
             msg2 = {"mensaje": "Se jugó una carta de panico, pero no tuvo efecto."}
