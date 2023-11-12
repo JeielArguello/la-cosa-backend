@@ -209,14 +209,13 @@ class Juego:
         self.solicitud_intercambio = None
         del intercambio
 
-    def iniciar_vuelta_y_vuelta(self, player_orig: int):
+    def iniciar_vuelta_y_vuelta(self, player_orig: JugadorPartida):
         if self.solicitud_intercambio_vyv is not None:
             raise HTTPException(
                 status_code=400,
                 detail="Ya hay una solicitud de intercambio")
-        jugador_orig = self.get_jugador(player_orig)
         self.solicitud_intercambio_vyv = IntercambiarCartaVyv(
-            jugador_orig, len(self.posiciones)/2)
+            player_orig, len(self.posiciones)/2)
     
     def finalizar_vuelta_y_vuelta(self,jugador : JugadorPartida):
         if self.solicitud_intercambio_vyv is  None:
