@@ -629,6 +629,14 @@ def is_vuelta_y_vuelta(card_id):
     vuelta_y_vuelta = card_id in [99, 100]
     return vuelta_y_vuelta
 
+def is_olvidadizo(card_id):
+    olvidadizo = card_id in [98]
+    return olvidadizo
+
+def is_cita_a_ciegas(card_id):
+    cita_a_ciegas = card_id in [103, 104]
+    return cita_a_ciegas
+
 def crear_mensaje_de_ataque(jugador: JugadorPartida, card_id: int):
     carta_name = get_name_carta(card_id)
     mensaje = f"El jugador {jugador.name} jugó {carta_name} contra ti. Quieres defenderte?"

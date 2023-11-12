@@ -28,7 +28,7 @@ async def pick_a_card_from_deck(match_id: int = Form(), player_id: int = Form())
             juego.mazo_descarte.append(carta)
             await juego.broadcast_global(CAMBIO_ESTADO_JUEGO)
 
-            if not is_vuelta_y_vuelta(carta):
+            if not is_vuelta_y_vuelta(carta) and not is_olvidadizo(carta) and not is_cita_a_ciegas(carta):
                 jugador_proximo = juego.get_jugador_siguiente_turno()
                 if (not jugador_proximo.get_muerto() and juego.is_obstaculo(jugador.id, jugador_proximo.id)) or is_superinfeccion(jugador):
                     juego.terminar_turno()
@@ -146,6 +146,7 @@ async def jugar_defensa(match_id: int = Form(), card_id: int = Form(),
             juego.terminar_turno()
             juego.avanzar_turno()
             await juego.mensaje_personal(jugador_proximo.id, HABILITADO_ROBAR_CARTA)
+            await juego.broadcast_global(CAMBIO_ESTADO_JUEGO)
             await check_superinfeccion(juego)
 
         else:
@@ -422,6 +423,16 @@ async def cita_a_ciegas(match_id: int = Form(),  card_id: int = Form(), player: 
                                               "mensaje": msg["mensaje"]
                                             }
                                         )
+            jugador_proximo = juego.get_jugador_siguiente_turno()
+            if (not jugador_proximo.get_muerto() and juego.is_obstaculo(jugador.id, jugador_proximo.id)) or is_superinfeccion(jugador):
+                juego.terminar_turno()
+                juego.avanzar_turno()
+
+                await juego.mensaje_personal(jugador_proximo.id, HABILITADO_ROBAR_CARTA)
+                await check_superinfeccion(juego)
+
+            else:
+                await juego.mensaje_personal(player, HABILITADO_INTERCAMBIO)
             juego.agregar_log(msg["mensaje"])
             #se deberia avisar por un boadcast global que cambio el estado de la partida para quue se vea inmediatamente el nuevo log.
     except HTTPException as e:
@@ -481,6 +492,16 @@ async def olvidadizo(match_id: int = Form(), card_id_elegida: int=Form(), player
         check_turno(jugador)
         msg = play_olvidadizo(juego, player_id, card_id_elegida)
         await juego.mensaje_personal(player_id, CAMBIO_ESTADO_JUGADOR)
+        jugador_proximo = juego.get_jugador_siguiente_turno()
+        if (not jugador_proximo.get_muerto() and juego.is_obstaculo(jugador.id, jugador_proximo.id)) or is_superinfeccion(jugador):
+            juego.terminar_turno()
+            juego.avanzar_turno()
+
+            await juego.mensaje_personal(jugador_proximo.id, HABILITADO_ROBAR_CARTA)
+            await check_superinfeccion(juego)
+
+        else:
+            await juego.mensaje_personal(player_id, HABILITADO_INTERCAMBIO)
         return{"mensaje":"carta olvidadizo jugada"}
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
