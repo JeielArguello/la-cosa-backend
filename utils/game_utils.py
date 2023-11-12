@@ -716,6 +716,18 @@ async def jugar_panico(carta: int, juego: Juego):
             }
             play_olvidadizo(juego, jug_turno_id, 1)
             await juego.mensaje_personal(jug_turno_id, msg)
+            jugador_proximo = juego.get_jugador_siguiente_turno()
+
+            if (not jugador_proximo.get_muerto() and juego.is_obstaculo(jug_turno.id, jugador_proximo.id)) or is_superinfeccion(jug_turno):
+                juego.terminar_turno()
+                juego.avanzar_turno()
+
+                await juego.mensaje_personal(jugador_proximo.id, HABILITADO_ROBAR_CARTA)
+                await check_superinfeccion(juego)
+
+            else:
+                await juego.mensaje_personal(jug_turno.id, HABILITADO_INTERCAMBIO)
+        
         else:
             cartas = jug_turno.get_cartas()
             msg = {

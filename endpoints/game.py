@@ -24,6 +24,7 @@ async def pick_a_card_from_deck(match_id: int = Form(), player_id: int = Form())
         check_cantidad_cartas(jugador)
         if check_carta_panico(juego):
             carta = juego.mazo.pop()
+            print(carta)
             await jugar_panico(carta, juego)
             juego.mazo_descarte.append(carta)
             await juego.broadcast_global(CAMBIO_ESTADO_JUEGO)
@@ -420,7 +421,7 @@ async def cita_a_ciegas(match_id: int = Form(),  card_id: int = Form(), player: 
             msg = play_cita_a_ciegas(jugador,card_id, juego)
             await juego.mensaje_personal(player, CAMBIO_ESTADO_JUGADOR)
             #tiene que ser global
-            await juego.broadcast_global(   { "carta_id": 104, # ese indece corresponde a una carta, cita a iegas. 
+            await juego.broadcast_global(   { "carta_id": 104, # ese indice corresponde a una carta, cita a ciegas. 
                                               "mensaje": msg["mensaje"]
                                             }
                                         )

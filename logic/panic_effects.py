@@ -38,11 +38,16 @@ def play_es_aqui_la_fiesta(player_orig: int, juego: Juego):
         cantidad_intercambios = int((cantidad_jugadores-1)/2)
     index = index_inicio
     for i in range(0, cantidad_intercambios):
+        # aux = juego.posiciones[index]
+        # juego.posiciones[index] = juego.posiciones[index-2]
+        # juego.posiciones[index-2] = aux
+        # index = index-4
         aux = juego.posiciones[index]
-        juego.posiciones[index] = juego.posiciones[index-2]
-        juego.posiciones[index-2] = aux
-        index = index-4
-
+        juego.posiciones[index] = juego.posiciones[(
+            index-2) % len(juego.posiciones)]
+        juego.posiciones[(index-2) % len(juego.posiciones)] = aux
+        index = (index-4) % len(juego.posiciones)
+    juego.turno = (index_inicio-2) % len(juego.posiciones)
     jugador = get_jugador(player_orig, juego)
     msg = {
         "mensaje": jugador.name +

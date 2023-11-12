@@ -331,6 +331,7 @@ def robar_carta(juego: Juego, jugador: JugadorPartida):
 
 def mazo_vacio(juego: Juego):
     if len(juego.mazo) == 0:
+        print("mezcle el mazo porque no habia cartas")
         random.shuffle(juego.mazo_descarte)
         juego.mazo = juego.mazo_descarte
         juego.mazo_descarte = []

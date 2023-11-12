@@ -3,6 +3,7 @@ from fastapi import APIRouter, Form, HTTPException, status
 from endpoints.websocket import broadcast
 from models.crud import *
 from models.database_utils import *
+from models.game import mazo_vacio
 from utils.game_utils import get_global_juego, get_status_game, get_status_player
 from utils.match_utils import *
 from models.lobby_models import Lobby, delete_lobby
@@ -172,6 +173,7 @@ async def match_list():
 async def get_game_state(match_id: int):
     try:
         juego = get_global_juego(match_id)
+        mazo_vacio(juego)
         result = get_status_game(juego)
         return result
     except HTTPException as e:
