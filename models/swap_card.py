@@ -50,6 +50,10 @@ class IntercambiarCartaVyv:
         return self.is_complete
     
     def completar_vuelta_y_vuelta(self,jugador: JugadorPartida, card_id: int):
+        if card_id not in jugador.cartas:
+            raise HTTPException(
+                status_code=400,
+                detail="No tienes la carta que quieres intercambiar")
         self.list_jugadores.append(jugador)
         self.cartas_intercambio.append(card_id)
         if len(self.cartas_intercambio) == self.total_jugadores:
@@ -57,7 +61,14 @@ class IntercambiarCartaVyv:
             self.ultimo_jugador = jugador
 
     def realizar_intercambios(self):
+        la_cosa = None
+        for j in self.list_jugadores:
+            if j.get_la_cosa():
+                la_cosa = self.list_jugadores.index(j)
+
         for i in range(0, len(self.list_jugadores)):
             self.list_jugadores[i].descartar_carta(self.cartas_intercambio[i])
             self.list_jugadores[i].agregar_carta(self.cartas_intercambio[(i-1)%len(self.list_jugadores)])
+            if la_cosa is not None and self.list_jugadores[(i-1)%len(self.list_jugadores)] == la_cosa:
+                self.list_jugadores[i].set_infectado()
         

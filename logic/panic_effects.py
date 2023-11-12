@@ -38,11 +38,16 @@ def play_es_aqui_la_fiesta(player_orig: int, juego: Juego):
         cantidad_intercambios = int((cantidad_jugadores-1)/2)
     index = index_inicio
     for i in range(0, cantidad_intercambios):
+        # aux = juego.posiciones[index]
+        # juego.posiciones[index] = juego.posiciones[index-2]
+        # juego.posiciones[index-2] = aux
+        # index = index-4
         aux = juego.posiciones[index]
-        juego.posiciones[index] = juego.posiciones[index-2]
-        juego.posiciones[index-2] = aux
-        index = index-4
-
+        juego.posiciones[index] = juego.posiciones[(
+            index-2) % len(juego.posiciones)]
+        juego.posiciones[(index-2) % len(juego.posiciones)] = aux
+        index = (index-4) % len(juego.posiciones)
+    juego.turno = (index_inicio-2) % len(juego.posiciones)
     jugador = get_jugador(player_orig, juego)
     msg = {
         "mensaje": jugador.name +
@@ -104,7 +109,7 @@ def play_cita_a_ciegas(jugador:JugadorPartida, card_id:int, juego:Juego):
     jugador.descartar_carta(card_id)
     juego.mazo_descarte.append(card_id)
     juego.robar_carta_no_panico(jugador)
-    msg = { "mensaje": jugador.name + " robo carta, cita a ciegas;por ser de pánico, sé jugo inmediatamente. ",}
+    msg = { "mensaje": jugador.name + " jugó la carta Cita a ciegas."}
     return msg
 
 def play_vuelta_y_vuelta(player_orig : int , juego : Juego):
@@ -121,8 +126,7 @@ def play_vuelta_y_vuelta(player_orig : int , juego : Juego):
     else:
         sentido_juego = "derecha"
 
-    juego.agregar_log(msg["mensaje"])
-    juego.agregar_log("Todos los jugadores le dieron una carta al jugaador de su " + sentido_juego)
+    juego.agregar_log("Todos los jugadores le dieron una carta al jugador de su " + sentido_juego)
     return (msg)
     
 

@@ -1,5 +1,6 @@
 import random
 from logic.deck import deck_es_carta_alejate
+from models.constants import *
 from models.database_utils import construir_mazo
 from models.player import JugadorPartida
 from fastapi import HTTPException, WebSocket
@@ -54,6 +55,7 @@ class Juego:
                 j.cambiar_turno()
 
     def terminar_turno(self):
+        print("terminando turno",self.turno)
         for j in self.jugadores_en_partida:
             if j.id == self.posiciones[self.turno]:
                 if j.get_cuartena():
@@ -127,8 +129,12 @@ class Juego:
     def is_obstaculo(self, atacante_id:int, objetivo_id: int):
         indice_posicion_intermedia = self.get_posicion_intermedia( objetivo_id, atacante_id)
         hay_obstaculo = False
-        if self.posiciones[indice_posicion_intermedia] != 0 :
-            hay_obstaculo = True
+        if len(self.posiciones) > 4:
+            if self.posiciones[indice_posicion_intermedia] != 0 :
+                hay_obstaculo = True
+        else:
+            if self.posiciones[indice_posicion_intermedia] != 0 or self.posiciones[indice_posicion_intermedia+2] != 0:
+                hay_obstaculo = True
         return hay_obstaculo
     
     def get_posicion_intermedia(self, jugador1: int, jugador2: int):
@@ -136,9 +142,9 @@ class Juego:
         indice_jugador1 = self.get_posicion_de_jugador(jugador1)
         indice_jugador2 = self.get_posicion_de_jugador(jugador2)
         border_one = (indice_jugador1 == 0 and indice_jugador2 ==
-                    len_posiciones - 2)
+                    len_posiciones - 2) and len_posiciones > 4
         border_two = (indice_jugador2 == 0 and indice_jugador1 ==
-                    len_posiciones - 2)
+                    len_posiciones - 2) and len_posiciones > 4
         if (border_one or border_two):
             posicion = len_posiciones - 1
         else:
@@ -203,14 +209,13 @@ class Juego:
         self.solicitud_intercambio = None
         del intercambio
 
-    def iniciar_vuelta_y_vuelta(self, player_orig: int):
+    def iniciar_vuelta_y_vuelta(self, player_orig: JugadorPartida):
         if self.solicitud_intercambio_vyv is not None:
             raise HTTPException(
                 status_code=400,
                 detail="Ya hay una solicitud de intercambio")
-        jugador_orig = self.get_jugador(player_orig)
         self.solicitud_intercambio_vyv = IntercambiarCartaVyv(
-            jugador_orig, len(self.posiciones)/2)
+            player_orig, len(self.posiciones)/2)
     
     def finalizar_vuelta_y_vuelta(self,jugador : JugadorPartida):
         if self.solicitud_intercambio_vyv is  None:
@@ -270,12 +275,12 @@ class Juego:
                     jugador = p
             jugador.ws_player = websocket
             if jugador.get_turno():
-                await self.mensaje_personal(jugador.id, "E")
+                await self.mensaje_personal(jugador.id, HABILITADO_ROBAR_CARTA)
         else:
             print("error al conectar jugador")
         self.ws_players_game.append(websocket)
-        await self.broadcast_global("C")
-        await self.broadcast_global("D")
+        await self.broadcast_global(CAMBIO_ESTADO_JUEGO)
+        await self.broadcast_global(CAMBIO_ESTADO_JUGADOR)
 
     async def disconnect_game(self, websocket: WebSocket):
         self.ws_players_game.remove(websocket)
@@ -325,6 +330,7 @@ def robar_carta(juego: Juego, jugador: JugadorPartida):
 
 def mazo_vacio(juego: Juego):
     if len(juego.mazo) == 0:
+        print("mezcle el mazo porque no habia cartas")
         random.shuffle(juego.mazo_descarte)
         juego.mazo = juego.mazo_descarte
         juego.mazo_descarte = []
