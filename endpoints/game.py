@@ -187,6 +187,7 @@ async def endpoint_descartar_carta(match_id: int = Form(),
         jugador_objetivo = juego.get_jugador_siguiente_turno()
         print (jugador_objetivo.name)
         if (juego.is_obstaculo(jugador.id, jugador_objetivo.id)) or is_superinfeccion(jugador):
+            await mostrar_cartas_cuarentena(jugador, card_id, juego, 2)
             juego.terminar_turno()
             juego.avanzar_turno()
             await juego.mensaje_personal(jugador_objetivo.id, HABILITADO_ROBAR_CARTA)
@@ -195,7 +196,7 @@ async def endpoint_descartar_carta(match_id: int = Form(),
 
         else:
             await juego.mensaje_personal(player_id, HABILITADO_INTERCAMBIO)
-        await mostrar_cartas_cuarentena(jugador, card_id, juego, 2)
+            await mostrar_cartas_cuarentena(jugador, card_id, juego, 2)
         return {"carta descartada": card_id}
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
@@ -431,6 +432,9 @@ async def cita_a_ciegas(match_id: int = Form(),  card_id: int = Form(), player: 
                 juego.avanzar_turno()
 
                 await juego.mensaje_personal(jugador_proximo.id, HABILITADO_ROBAR_CARTA)
+                await juego.broadcast_global( CAMBIO_ESTADO_JUEGO)
+
+
                 await check_superinfeccion(juego)
 
             else:
@@ -460,10 +464,11 @@ async def endpoint_vuelta_y_vuelta(match_id: int = Form(),
         check_carta_habilitada(card_id, jugador, jugador_proximo)
         if not intercambio_vyv.is_complete_vuelta_y_vuelta():
             intercambio_vyv.completar_vuelta_y_vuelta(jugador,card_id)
-            proximo = juego.get_jugador_siguiente(jugador)
-            if proximo != intercambio_vyv.primer_jugador:
-                cartas = jugador.get_cartas()
-                await juego.mensaje_personal(proximo.id,{"carta_especial": {
+            if jugador_proximo != intercambio_vyv.primer_jugador:
+                print("jugador proximo: ", intercambio_vyv.primer_jugador.name)
+                print("jugador proximo: ", jugador_proximo.name)
+                cartas = jugador_proximo.get_cartas()
+                await juego.mensaje_personal(jugador_proximo.id,{"carta_especial": {
                                                         "tipo_carta": "Vuelta y vuelta",
                                                         "cartas": cartas,
                                                         "jugadores": []
@@ -502,6 +507,8 @@ async def olvidadizo(match_id: int = Form(), card_id_elegida: int=Form(), player
 
             await juego.mensaje_personal(jugador_proximo.id, HABILITADO_ROBAR_CARTA)
             await check_superinfeccion(juego)
+            await juego.broadcast_global( CAMBIO_ESTADO_JUEGO)
+
 
         else:
             await juego.mensaje_personal(player_id, HABILITADO_INTERCAMBIO)

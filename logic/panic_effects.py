@@ -126,8 +126,7 @@ def play_vuelta_y_vuelta(player_orig : int , juego : Juego):
     else:
         sentido_juego = "derecha"
 
-    juego.agregar_log(msg["mensaje"])
-    juego.agregar_log("Todos los jugadores le dieron una carta al jugaador de su " + sentido_juego)
+    juego.agregar_log("Todos los jugadores le dieron una carta al jugador de su " + sentido_juego)
     return (msg)
     
 

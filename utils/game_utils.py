@@ -263,9 +263,13 @@ async def jugar_la_carta(
     elif card_id in [48, 49]:
         play_vigila_tus_espaldas(juego)
         name_player = get_name(player_orig)
-        await juego.broadcast_global({"carta_id": card_id,
-                                      "mensaje": name_player + " jugó carta vigila tus espaldas."})
+        msg = {"carta_id": card_id,
+                                      "mensaje": name_player + " jugó carta vigila tus espaldas."}
+        await juego.broadcast_global()
         await juego.broadcast_global(CAMBIO_ESTADO_JUEGO)
+        jugador = juego.get_jugador(player_orig)
+        juego.agregar_log(msg["mensaje"])
+        juego.agregar_log(jugador.name + " cambió  el sentido del juego.")
 
     elif card_id in [50, 51, 52, 53, 54]:
         msg = play_cambio_de_lugar(juego, player_orig, player_objective)
@@ -703,6 +707,7 @@ async def jugar_panico(carta: int, juego: Juego):
             }
         }
         await juego.mensaje_personal(jugador_turno.id, msg)
+        juego.agregar_log(jugador_turno.name + " jugó la carta Vuelta y Vuelta")
     elif carta in [101, 102]:
         pass
     
