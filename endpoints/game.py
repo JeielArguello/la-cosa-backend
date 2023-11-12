@@ -184,6 +184,7 @@ async def endpoint_descartar_carta(match_id: int = Form(),
         descartar_carta(card_id, player_id, juego)
         await juego.mensaje_personal(player_id, CAMBIO_ESTADO_JUGADOR)
         jugador_objetivo = juego.get_jugador_siguiente_turno()
+        print (jugador_objetivo.name)
         if (juego.is_obstaculo(jugador.id, jugador_objetivo.id)) or is_superinfeccion(jugador):
             juego.terminar_turno()
             juego.avanzar_turno()
@@ -460,9 +461,10 @@ async def endpoint_vuelta_y_vuelta(match_id: int = Form(),
             intercambio_vyv.completar_vuelta_y_vuelta(jugador,card_id)
             proximo = juego.get_jugador_siguiente(jugador)
             if proximo != intercambio_vyv.primer_jugador:
+                cartas = jugador.get_cartas()
                 await juego.mensaje_personal(proximo.id,{"carta_especial": {
                                                         "tipo_carta": "Vuelta y vuelta",
-                                                        "cartas": [],
+                                                        "cartas": cartas,
                                                         "jugadores": []
                                                         }   
                                                     })

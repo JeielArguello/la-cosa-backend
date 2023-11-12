@@ -694,10 +694,11 @@ async def jugar_panico(carta: int, juego: Juego):
 
         jugador_turno = juego.get_jugador_en_turno()
         juego.iniciar_vuelta_y_vuelta( jugador_turno )
+        cartas = jugador_turno.get_cartas()
         msg = {
             "carta_especial": {
                 "tipo_carta": "Vuelta y vuelta",
-                "cartas": [],
+                "cartas": cartas,
                 "jugadores": []
             }
         }
