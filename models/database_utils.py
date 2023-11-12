@@ -147,8 +147,6 @@ def construir_mazo(num_jugadores: int):
             cartas_seleccionadas = select(
                 c.id for c in Carta if c.numero_jugadores <= num_jugadores)
             mazo = list(cartas_seleccionadas)
-            mazo.remove(99)
-            mazo.remove(93)
             return mazo
         except Exception as e:
             return {"error al construir el mazo"}

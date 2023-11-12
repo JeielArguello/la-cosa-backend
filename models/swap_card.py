@@ -61,6 +61,7 @@ class IntercambiarCartaVyv:
             self.ultimo_jugador = jugador
 
     def realizar_intercambios(self):
+        la_cosa = None
         for j in self.list_jugadores:
             if j.get_la_cosa():
                 la_cosa = self.list_jugadores.index(j)
@@ -68,6 +69,6 @@ class IntercambiarCartaVyv:
         for i in range(0, len(self.list_jugadores)):
             self.list_jugadores[i].descartar_carta(self.cartas_intercambio[i])
             self.list_jugadores[i].agregar_carta(self.cartas_intercambio[(i-1)%len(self.list_jugadores)])
-            if self.list_jugadores[(i-1)%len(self.list_jugadores)] == la_cosa:
+            if la_cosa is not None and self.list_jugadores[(i-1)%len(self.list_jugadores)] == la_cosa:
                 self.list_jugadores[i].set_infectado()
         

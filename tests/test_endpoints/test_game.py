@@ -703,18 +703,21 @@ def test_endpoint_vuelta_y_vuelta_carta_no_habilitada(mocker, mock_juego, mock_j
     response = client.post("/game/play/vuelta_y_vuelta", data={"match_id": 1,
                                                                "card_id": 10,
                                                                "player_orig": 1})
-    assert response.status_code == 400
     assert response.json() == {'detail': 'Error: No puedes descartar la carta la cosa.'}
+    assert response.status_code == 400
 
 
 def test_endpoint_olvidadizo_200_ok(mocker, mock_juego, mock_j1):
     juego: Juego = mock_juego
     jugador1: JugadorPartida = mock_j1
     jugador1.cartas = [1, 10, 20, 30]
+    jugador2: JugadorPartida = mock_j1
+    jugador2.name = "pablo"
     mocker.patch("endpoints.game.get_global_juego", return_value = juego, autospec = True)
     mocker.patch("endpoints.game.check_turno", return_value = True, autospec = True)
     mocker.patch("endpoints.game.Juego.mensaje_personal", return_value = None, autospec = True)
-    juego.jugadores_en_partida= [jugador1]
+    mocker.patch("endpoints.game.Juego.get_jugador_siguiente_turno", return_value = jugador2, autospec = True)
+    juego.jugadores_en_partida= [jugador1,jugador2]
     
     response = client.post("game/play/olvidadizo",data ={"match_id":1, 
                                                      "card_id_elegida":30, 
