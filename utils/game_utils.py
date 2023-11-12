@@ -496,6 +496,7 @@ async def eliminar_jugador_superinfeccion(jugador: JugadorPartida, juego: Juego)
     jugador.remove_efecto_fallaste()
     indice_jugador = juego.posiciones.index(jugador.id)
     if  indice_jugador == juego.turno:
+        juego.terminar_turno()
         juego.avanzar_turno()
     del juego.posiciones[indice_jugador]
     if juego.posiciones[indice_jugador] == "p":
