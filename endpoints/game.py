@@ -531,14 +531,14 @@ async def sal_de_aqui(match_id: int = Form(), player_objetivo_id: int=Form(), pl
         jugadorOrigen   = juego.get_jugador(player_origen_id)
         check_turno(jugadorOrigen)
         msg = play_sal_de_aqui(juego,player_origen_id,player_objetivo_id)
-        await juego.broadcast_global(   { "carta_id": 97, # ese indece corresponde a una carta, cita a iegas. 
+        await juego.broadcast_global(   { "carta_id": 97,               # ese id corresponde a una carta, sal de aqui. 
                                               "mensaje": msg["mensaje"],
                                               "cartaMostrar":[]
                                             }
                                         )
-        
+        await juego.broadcast_global(CAMBIO_ESTADO_JUEGO)
         juego.agregar_log(msg["mensaje"])
-        await juego.broadcast_global("CAMBIO_ESTADO_JUEGO")
+
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
         raise HTTPException(
