@@ -1,7 +1,9 @@
 from fastapi import HTTPException
-from models.game import Juego, robar_carta
+from models.game import Juego
 from models.player import JugadorPartida
 from models.swap_card import IntercambiarCarta
+from models.constants import *
+
 
 
 def defense_aterrador(juego: Juego,jOrig: JugadorPartida,jObj:JugadorPartida, card_id:int):
@@ -65,9 +67,9 @@ async def defensa_fallaste(juego: Juego, jugador_defensor: JugadorPartida,
         paso_intercambio = True
         intercambio.cambiar_receptor(jugador_siguiente_defensor)
         jugador_siguiente_defensor.set_efecto_fallaste()
-        await juego.mensaje_personal(jugador_siguiente_defensor.id,"H")
+        await juego.mensaje_personal(jugador_siguiente_defensor.id,HABILITADO_R_INTERCAMBIO)
         if jugador_siguiente_defensor.check_puede_anular_el_intercambio():
-            await juego.mensaje_personal(jugador_siguiente_defensor.id,"N")
+            await juego.mensaje_personal(jugador_siguiente_defensor.id,HABILITADO_D_INTERCAMBIO)
     else:
         paso_intercambio = False
         juego.solicitud_intercambio = None
@@ -75,7 +77,7 @@ async def defensa_fallaste(juego: Juego, jugador_defensor: JugadorPartida,
         juego.terminar_turno()
         juego.avanzar_turno()
         jugador_en_turno = juego.get_jugador_en_turno()
-        await juego.mensaje_personal(jugador_en_turno.id,"E")
+        await juego.mensaje_personal(jugador_en_turno.id,HABILITADO_ROBAR_CARTA)
     
     msg = {
         "mensaje": jugador_defensor.name +

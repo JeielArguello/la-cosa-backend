@@ -4,6 +4,7 @@ from fastapi import WebSocket
 from fastapi import HTTPException
 from utils.game_utils import global_juegos
 from models.game import Juego
+from models.constants import *
 
 
 class Lobby:
@@ -55,13 +56,13 @@ class Lobby:
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
         self.ws_players.append(websocket)
-        await self.broadcast_lobby("B")
+        await self.broadcast_lobby(CAMBIO_ESTADO_LOBBY)
 
     async def disconnect(self, websocket: WebSocket):
         self.ws_players.remove(websocket)
         await websocket.send_json("cerrando conexion")
         await websocket.close(reason="cliente pide desconexion")
-        await self.broadcast_lobby("B")
+        await self.broadcast_lobby(CAMBIO_ESTADO_LOBBY)
 
 
 def delete_lobby(match_id):

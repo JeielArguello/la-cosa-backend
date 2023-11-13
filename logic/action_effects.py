@@ -25,13 +25,12 @@ def play_lanzallamas(atacante_in: int, objetivo_in: int, juego: Juego):
     validar_obstaculo(indice_posicion_intermedia, juego)
     for jugador in juego.jugadores_en_partida:
         if jugador.id == objetivo_in:
-            # objetivo = jugador
             jugador.set_muerto()
-    # juego.jugadores_en_partida.remove(objetivo)
     del juego.posiciones[indice_objetivo]
     if juego.posiciones[indice_objetivo] == "p":
         indiceaux = (indice_objetivo - 1) % len(juego.posiciones)
-        del juego.posiciones[indiceaux]
+        juego.posiciones[indiceaux] = "p"
+        del juego.posiciones[indice_objetivo]
     else: 
         del juego.posiciones[indice_objetivo]
     if indice_atacante == max(indice_atacante, indice_objetivo):
