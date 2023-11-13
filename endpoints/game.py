@@ -185,7 +185,7 @@ async def endpoint_descartar_carta(match_id: int = Form(),
         descartar_carta(card_id, player_id, juego)
         await juego.mensaje_personal(player_id, CAMBIO_ESTADO_JUGADOR)
         jugador_objetivo = juego.get_jugador_siguiente_turno()
-        print (jugador_objetivo.name)
+        print(jugador_objetivo.name)
         if (juego.is_obstaculo(jugador.id, jugador_objetivo.id)) or is_superinfeccion(jugador):
             await mostrar_cartas_cuarentena(jugador, card_id, juego, 2)
             juego.terminar_turno()
@@ -404,7 +404,7 @@ async def que_quede_entre_nostros(match_id: int = Form(),
         await juego.mensaje_personal(player_objective, {"carta_id": 106,
                                                         "mensaje": msg["mensaje"],
                                                         "cartaMostrar": msg["cartaMostrar"]})
-        return{"mensaje":msg}
+        return {"mensaje": msg}
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
         raise HTTPException(
@@ -412,35 +412,38 @@ async def que_quede_entre_nostros(match_id: int = Form(),
             detail=error_msg
         )
 
-    
+######
+# Panico, Cita a Ciegas.
+######
+
+
 @router.post("/play/cita_a_ciegas")
 async def cita_a_ciegas(match_id: int = Form(),  card_id: int = Form(), player: int = Form()):
     try:
-            juego   = get_global_juego(match_id)
-            jugador = get_jugador(player, juego)
-            check_turno(jugador)    
-            msg = play_cita_a_ciegas(jugador,card_id, juego)
-            await juego.mensaje_personal(player, CAMBIO_ESTADO_JUGADOR)
-            #tiene que ser global
-            await juego.broadcast_global(   { "carta_id": 104, # ese indice corresponde a una carta, cita a ciegas. 
-                                              "mensaje": msg["mensaje"]
-                                            }
-                                        )
-            jugador_proximo = juego.get_jugador_siguiente_turno()
-            if (not jugador_proximo.get_muerto() and juego.is_obstaculo(jugador.id, jugador_proximo.id)) or is_superinfeccion(jugador):
-                juego.terminar_turno()
-                juego.avanzar_turno()
+        juego = get_global_juego(match_id)
+        jugador = get_jugador(player, juego)
+        check_turno(jugador)
+        msg = play_cita_a_ciegas(jugador, card_id, juego)
+        await juego.mensaje_personal(player, CAMBIO_ESTADO_JUGADOR)
+        # tiene que ser global
+        await juego.broadcast_global({"carta_id": 104,  # ese indice corresponde a una carta, cita a ciegas.
+                                      "mensaje": msg["mensaje"]
+                                      }
+                                     )
+        jugador_proximo = juego.get_jugador_siguiente_turno()
+        if (not jugador_proximo.get_muerto() and juego.is_obstaculo(jugador.id, jugador_proximo.id)) or is_superinfeccion(jugador):
+            juego.terminar_turno()
+            juego.avanzar_turno()
 
-                await juego.mensaje_personal(jugador_proximo.id, HABILITADO_ROBAR_CARTA)
-                await juego.broadcast_global( CAMBIO_ESTADO_JUEGO)
+            await juego.mensaje_personal(jugador_proximo.id, HABILITADO_ROBAR_CARTA)
+            await juego.broadcast_global(CAMBIO_ESTADO_JUEGO)
 
+            await check_superinfeccion(juego)
 
-                await check_superinfeccion(juego)
-
-            else:
-                await juego.mensaje_personal(player, HABILITADO_INTERCAMBIO)
-            juego.agregar_log(msg["mensaje"])
-            #se deberia avisar por un boadcast global que cambio el estado de la partida para quue se vea inmediatamente el nuevo log.
+        else:
+            await juego.mensaje_personal(player, HABILITADO_INTERCAMBIO)
+        juego.agregar_log(msg["mensaje"])
+        # se deberia avisar por un boadcast global que cambio el estado de la partida para quue se vea inmediatamente el nuevo log.
     except HTTPException as e:
         error_msg = "No se pudo, jugar cita a ciegas."
 
@@ -452,8 +455,8 @@ async def cita_a_ciegas(match_id: int = Form(),  card_id: int = Form(), player: 
 
 @router.post("/play/vuelta_y_vuelta")
 async def endpoint_vuelta_y_vuelta(match_id: int = Form(),
-                                  card_id: int = Form(),
-                                  player_orig: int = Form()):
+                                   card_id: int = Form(),
+                                   player_orig: int = Form()):
     try:
         juego = get_global_juego(match_id)
         jugador = get_jugador(player_orig, juego)
@@ -463,20 +466,20 @@ async def endpoint_vuelta_y_vuelta(match_id: int = Form(),
         jugador_proximo = juego.get_jugador_siguiente(jugador)
         check_carta_habilitada(card_id, jugador, jugador_proximo)
         if not intercambio_vyv.is_complete_vuelta_y_vuelta():
-            intercambio_vyv.completar_vuelta_y_vuelta(jugador,card_id)
+            intercambio_vyv.completar_vuelta_y_vuelta(jugador, card_id)
             if jugador_proximo != intercambio_vyv.primer_jugador:
                 print("jugador proximo: ", intercambio_vyv.primer_jugador.name)
                 print("jugador proximo: ", jugador_proximo.name)
                 cartas = jugador_proximo.get_cartas()
-                await juego.mensaje_personal(jugador_proximo.id,{"carta_especial": {
-                                                        "tipo_carta": "Vuelta y vuelta",
-                                                        "cartas": cartas,
-                                                        "jugadores": []
-                                                        }   
-                                                    })
-            mensaje = "El jugador " + jugador.name + " selecciono una carta correctamente." 
+                await juego.mensaje_personal(jugador_proximo.id, {"carta_especial": {
+                    "tipo_carta": "Vuelta y vuelta",
+                    "cartas": cartas,
+                    "jugadores": []
+                }
+                })
+            mensaje = "El jugador " + jugador.name + " selecciono una carta correctamente."
         if intercambio_vyv.is_complete_vuelta_y_vuelta():
-            msg = play_vuelta_y_vuelta(player_orig,juego)
+            msg = play_vuelta_y_vuelta(player_orig, juego)
             await juego.broadcast_global(CAMBIO_ESTADO_JUGADOR)
             await juego.broadcast_global({"carta_id": 99,
                                           "mensaje": msg["mensaje"]})
@@ -486,7 +489,7 @@ async def endpoint_vuelta_y_vuelta(match_id: int = Form(),
             await juego.mensaje_personal(jugador_proximo_turno.id, HABILITADO_ROBAR_CARTA)
             await juego.broadcast_global(CAMBIO_ESTADO_JUEGO)
             mensaje = "Se completo el intercambio vuelta y vuelta correctamente"
-        
+
         return {"resultado": mensaje}
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
@@ -496,8 +499,13 @@ async def endpoint_vuelta_y_vuelta(match_id: int = Form(),
         )
 
 
+######
+# Panico, Olvidadizo.
+######
+
+
 @router.post("/play/olvidadizo")
-async def olvidadizo(match_id: int = Form(), card_id_elegida: int=Form(), player_id: int = Form()):
+async def olvidadizo(match_id: int = Form(), card_id_elegida: int = Form(), player_id: int = Form()):
     try:
         juego = get_global_juego(match_id)
         jugador = juego.get_jugador(player_id)
@@ -511,18 +519,43 @@ async def olvidadizo(match_id: int = Form(), card_id_elegida: int=Form(), player
 
             await juego.mensaje_personal(jugador_proximo.id, HABILITADO_ROBAR_CARTA)
             await check_superinfeccion(juego)
-            await juego.broadcast_global( CAMBIO_ESTADO_JUEGO)
-
+            await juego.broadcast_global(CAMBIO_ESTADO_JUEGO)
 
         else:
             await juego.mensaje_personal(player_id, HABILITADO_INTERCAMBIO)
-        return{"mensaje":"carta olvidadizo jugada"}
+        return {"mensaje": "carta olvidadizo jugada"}
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=error_msg
         )
+
+@router.post("/play/sal_de_aqui")
+async def sal_de_aqui(match_id: int = Form(), player_objetivo_id: int=Form(), player_origen_id: int = Form()):
+    try:
+        juego           = get_global_juego(match_id)
+        jugadorOrigen   = juego.get_jugador(player_origen_id)
+        check_turno(jugadorOrigen)
+        msg = play_sal_de_aqui(juego,player_origen_id,player_objetivo_id)
+        await juego.broadcast_global(   { "carta_id": 97,               # ese id corresponde a una carta, sal de aqui. 
+                                              "mensaje": msg["mensaje"],
+                                              "cartaMostrar":[]
+                                            }
+                                        )
+        await juego.broadcast_global(CAMBIO_ESTADO_JUEGO)
+        juego.agregar_log(msg["mensaje"])
+
+    except HTTPException as e:
+        error_msg = f"Error: {e.detail}"
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_msg
+        )
+
+######
+# Panico, Uno, Dos ...
+######
 
 
 @router.post("/play/swap_request_no_podemos_ser_amigos")
@@ -612,6 +645,26 @@ async def no_podemos_ser_amigos_swap_response_con_defensa(match_id: int = Form()
         return {"message": "se completo el intercambio"}
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
+
+@router.post("/play/uno_dos")
+async def uno_dos(match_id: int = Form(),
+                  player_objective: int = Form(),
+                  player_orig: int = Form()):
+    try:
+        juego = get_global_juego(match_id)
+        jugador_origen = get_jugador(player_orig, juego)
+        check_turno(jugador_origen)
+        validar_cuarentena(player_objective, juego)
+        msg = play_uno_dos(player_orig, player_objective, juego)
+        await juego.mensaje_personal(player_objective, {"carta_id": 91,
+                                                        "mensaje": msg["mensaje"],
+                                                        "cartaMostrar": []})
+        await juego.broadcast_global("C")
+        #await juego.mensaje_personal(player_orig, "G")
+        return msg["mensaje"]
+    except HTTPException as e:
+        error_msg = f"Error:{e.detail}"
+
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=error_msg

@@ -11,12 +11,11 @@ def validar_obstaculo(indice_posicion_intermedia: int, juego: Juego):
             detail="Hay un Obstaculo puerta entre los jugadores")
 
 
-
 def is_puerta(indice_posicion_intermedia: int, juego: Juego):
     puerta = False
     if juego.posiciones[indice_posicion_intermedia] == "p":
         puerta = True
-    return puerta 
+    return puerta
 
 
 def validar_puerta(indice_posicion_intermedia: int, juego: Juego):
@@ -43,6 +42,7 @@ def validar_cuarentena(objetivo_in: int, juego: Juego):
         raise HTTPException(
             status_code=400,
             detail="El jugador esta en cuarentena")
+
 
 def is_cuarentena(objetivo_in: int, juego: Juego):
     objetivo = juego.get_jugador(objetivo_in)

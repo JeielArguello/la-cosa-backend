@@ -101,41 +101,52 @@ def test_play_que_qude_entre_nosotros_ok(mocker, mock_juego, mock_j1, mock_j2):
 
 
 def test_citaACiegas_CheckSeProduceElIntercambio(mock_juego, mock_j1):
-    
-    mock_j1.turno_actual             = True
-    mock_j1.cartas                  = [ 22,  39,  64,  66]
+
+    mock_j1.turno_actual = True
+    mock_j1.cartas = [22,  39,  64,  66]
     mock_juego.jugadores_en_partida = [mock_j1]
-    mock_juego.mazo                 = [21,21,21]
-    mock_juego.mazo_descarte        = []    
-    
-    play_cita_a_ciegas(mock_j1,64,mock_juego)
+    mock_juego.mazo = [21, 21, 21]
+    mock_juego.mazo_descarte = []
+
+    play_cita_a_ciegas(mock_j1, 64, mock_juego)
 
     assert mock_juego.mazo_descarte == [64]
+
 
 def test_citaACiegas_CheckSeAgregaAlMazoDeDescarteLaCartaSelecionadaParaElIntercamvbio(mock_juego, mock_j1):
 
-    mock_j1.turno_actual             = True
-    mock_j1.cartas                  = [ 22,  39,  64,  66]
+    mock_j1.turno_actual = True
+    mock_j1.cartas = [22,  39,  64,  66]
     mock_juego.jugadores_en_partida = [mock_j1]
-    mock_juego.mazo                 = [21,21,21]
-    mock_juego.mazo_descarte        = []    
-    
-    play_cita_a_ciegas(mock_j1,64,mock_juego)
+    mock_juego.mazo = [21, 21, 21]
+    mock_juego.mazo_descarte = []
 
-    assert mock_j1.cartas == [22,39,66,21]
+    play_cita_a_ciegas(mock_j1, 64, mock_juego)
+
+    assert mock_j1.cartas == [22, 39, 66, 21]
     assert mock_juego.mazo_descarte == [64]
+
 
 def test_play_olvidadizo_ok(mock_juego, mock_j1):
     mock_juego.jugadores_en_partida = [mock_j1]
     mock_j1.cartas = [1, 2, 3, 4]
     msg = play_olvidadizo(mock_juego, mock_j1.id, 1)
-    assert(msg["mensaje"] == "pepe jugó carta Olvidadizo")
-    assert(1 in mock_j1.cartas)
-    assert(mock_j1.cartas!= [1,2,3,4])
+    assert (msg["mensaje"] == "pepe jugó carta Olvidadizo")
+    assert (1 in mock_j1.cartas)
+    assert (mock_j1.cartas != [1, 2, 3, 4])
+
 
 def test_play_olvidadizo_no_tiene_carta_a_descartar(mock_juego, mock_j1):
     mock_juego.jugadores_en_partida = [mock_j1]
     mock_j1.cartas = [1, 2, 3, 4]
     msg = play_olvidadizo(mock_juego, mock_j1.id, 10)
-    assert(msg == {"error": "no se pudo descartar o robar cartas."})
-    assert(mock_j1.cartas == [1,2,3,4])
+    assert (msg == {"error": "no se pudo descartar o robar cartas."})
+    assert (mock_j1.cartas == [1, 2, 3, 4])
+
+
+def test_play_uno_dos_ok(mock_juego, mock_j1, mock_j2):
+    mock_juego.jugadores_en_partida = [mock_j1, mock_j2]
+    mock_juego.posiciones = [1, 0, 2, 0, 3, 0, 4, 0]
+    msg = play_uno_dos(1, 2, mock_juego)
+    assert (msg["mensaje"] == "pepe jugó la carta Uno, Dos...")
+    assert mock_juego.posiciones == [2, 0, 1, 0, 3, 0, 4, 0]
