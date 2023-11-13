@@ -162,3 +162,37 @@ def play_olvidadizo(juego: Juego, player_orig: int, card_id: int):
     else:
         return {"error": "no se pudo descartar o robar cartas."}
 
+def play_sal_de_aqui(
+        juego: Juego,
+        player_orig: int,
+        player_objective: int):
+
+    posiciones = juego.posiciones
+    posPorg = posiciones.index(player_orig)
+    posPobj = posiciones.index(player_objective)
+    
+    validar_cuarentena(player_objective, juego)
+    
+    posiciones[posPorg] = player_objective
+    posiciones[posPobj] = player_orig
+
+    jugadoresEnPartida = juego.jugadores_en_partida
+    indexPOrg = next((i for i, jugador in enumerate( jugadoresEnPartida) if jugador.id == player_orig), None)
+    indexPobj = next((i for i, jugador in enumerate( jugadoresEnPartida) if jugador.id == player_objective), None)
+
+    pOrg = jugadoresEnPartida[indexPOrg]
+    pObj = jugadoresEnPartida[indexPobj]
+
+    pOrg.posicion = posPobj
+    pObj.posicion = posPorg
+
+    juego.turno = posPobj
+    jugador_orig = get_jugador(player_orig, juego)
+    jugador_objetivo = get_jugador(player_objective, juego)
+    msg = {
+        "mensaje": jugador_orig.name +
+        " jugó carta sal de contra " +
+        jugador_objetivo.name + 
+        ". Por lo que, intercambiaron lugares."}
+
+    return msg
