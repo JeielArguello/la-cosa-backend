@@ -531,6 +531,27 @@ async def olvidadizo(match_id: int = Form(), card_id_elegida: int = Form(), play
             detail=error_msg
         )
 
+@router.post("/play/sal_de_aqui")
+async def sal_de_aqui(match_id: int = Form(), player_objetivo_id: int=Form(), player_origen_id: int = Form()):
+    try:
+        juego           = get_global_juego(match_id)
+        jugadorOrigen   = juego.get_jugador(player_origen_id)
+        check_turno(jugadorOrigen)
+        msg = play_sal_de_aqui(juego,player_origen_id,player_objetivo_id)
+        await juego.broadcast_global(   { "carta_id": 97,               # ese id corresponde a una carta, sal de aqui. 
+                                              "mensaje": msg["mensaje"],
+                                              "cartaMostrar":[]
+                                            }
+                                        )
+        await juego.broadcast_global(CAMBIO_ESTADO_JUEGO)
+        juego.agregar_log(msg["mensaje"])
+
+    except HTTPException as e:
+        error_msg = f"Error: {e.detail}"
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_msg
+        )
 
 ######
 # Panico, Uno, Dos ...

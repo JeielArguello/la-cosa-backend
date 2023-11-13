@@ -813,6 +813,31 @@ async def jugar_panico(carta: int, juego: Juego):
                 }
             }
             await juego.mensaje_personal(jug_turno_id, msg)
+    elif carta == 97: #sal de aquí
+            jugador_en_turno_id = juego.posiciones[juego.turno]
+            jugador_en_turno    = juego.get_jugador(jugador_en_turno_id)
+            jugadores_en_partida  = juego.jugadores_en_partida
+
+            jugadores_no_cuarentena = [jugador for jugador in jugadores_en_partida if not jugador.get_cuartena()]
+            lista_jugadores=[]
+
+            for jugador in jugadores_no_cuarentena:
+                if jugador.id != jugador_en_turno_id:
+                    jugador_dict = {
+                        "nombre":jugador.name,
+                        "id":jugador.id,
+                        "id_avatar":jugador.id_avatar,
+                    } 
+                    lista_jugadores.append(jugador_dict)
+
+            msg = {"carta_especial":{
+                        "tipo_carta":"Sal de aqui",
+                        "cartas":[],
+                        "jugadores":lista_jugadores,
+                    }
+                }
+            await juego.mensaje_personal(jugador_en_turno_id, msg)
+
     # revelaciones
     elif carta in [108]:
         pass
