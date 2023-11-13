@@ -856,6 +856,32 @@ async def jugar_panico(carta: int, juego: Juego):
             await juego.mensaje_personal(jugador_en_turno_id, msg)
 
     # revelaciones
+
+    # No podemos ser amigos?
+    elif carta in [101, 102]:
+        jug_turno = juego.get_jugador_en_turno()
+        jug_turno_id = jug_turno.id
+        cartas = jug_turno.get_cartas()
+        jugadores_en_juego = juego.jugadores_en_partida
+        lista_jug = []
+        for j in jugadores_en_juego:
+            if not is_cuarentena(jug_turno_id,juego):
+                jug_nombre = j.name
+                jug_id = j.id
+                if jug_id != jug_turno_id:
+                    jugador = {"nombre": jug_nombre, "id": jug_id}
+                    lista_jug.append(jugador)
+        msg = {
+            "carta_especial": {
+		        "tipo_carta":"No podemos ser amigos",
+		        "cartas":cartas,
+		        "jugadores": lista_jug,
+                "request": True,
+            }   
+        }
+        await juego.mensaje_personal(jug_turno_id, msg)
+        
+
     elif carta in [108]:
         pass
     mazo_vacio(juego)
