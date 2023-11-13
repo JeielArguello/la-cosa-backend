@@ -716,8 +716,7 @@ async def jugar_panico(carta: int, juego: Juego):
                 {"carta_id": carta,
                     "mensaje": msg1["mensaje"]
                  })
-    elif carta in [99, 100]:
-        pass
+    
     elif carta in [103, 104]:  # cita a ciegas
         jugador_en_turno_id = juego.posiciones[juego.turno]
         jugador_en_turno = juego.get_jugador(jugador_en_turno_id)
