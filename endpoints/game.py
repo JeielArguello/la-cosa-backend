@@ -24,7 +24,6 @@ async def pick_a_card_from_deck(match_id: int = Form(), player_id: int = Form())
         check_cantidad_cartas(jugador)
         if check_carta_panico(juego):
             carta = juego.mazo.pop()
-            carta = 91
             print(carta)
             await jugar_panico(carta, juego)
             juego.mazo_descarte.append(carta)
