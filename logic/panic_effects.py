@@ -105,18 +105,19 @@ def play_que_quede_entre_nosotros(player_at: int, player_obj: int, juego: Juego)
         return {"error": "no se pudieron mostrar cartas"}
 
 
-def play_cita_a_ciegas(jugador:JugadorPartida, card_id:int, juego:Juego):
+def play_cita_a_ciegas(jugador: JugadorPartida, card_id: int, juego: Juego):
     jugador.descartar_carta(card_id)
     juego.mazo_descarte.append(card_id)
     juego.robar_carta_no_panico(jugador)
-    msg = { "mensaje": jugador.name + " jugó la carta Cita a ciegas."}
+    msg = {"mensaje": jugador.name + " jugó la carta Cita a ciegas."}
     return msg
 
-def play_vuelta_y_vuelta(player_orig : int , juego : Juego):
+
+def play_vuelta_y_vuelta(player_orig: int, juego: Juego):
     jugador = juego.get_jugador(player_orig)
 
     juego.finalizar_vuelta_y_vuelta(jugador)
-    
+
     jugador_turno = juego.get_jugador_en_turno()
     msg = {
         "mensaje": jugador_turno.name + " jugó la carta Vuelta y Vuelta",
@@ -125,15 +126,15 @@ def play_vuelta_y_vuelta(player_orig : int , juego : Juego):
         sentido_juego = "izquierda"
     else:
         sentido_juego = "derecha"
-
-    juego.agregar_log("Todos los jugadores le dieron una carta al jugador de su " + sentido_juego)
+    juego.agregar_log(
+        "Todos los jugadores le dieron una carta al jugador de su " + sentido_juego)
     return (msg)
-    
+
 
 def play_olvidadizo(juego: Juego, player_orig: int, card_id: int):
     jugador = get_jugador(player_orig, juego)
     cartas = jugador.get_cartas()
-    if jugador and {"id":card_id} in cartas:        
+    if jugador and {"id": card_id} in cartas:
         cartas_copia = cartas.copy()
         c1 = cartas_copia.pop()
         c2 = cartas_copia.pop()
@@ -149,7 +150,7 @@ def play_olvidadizo(juego: Juego, player_orig: int, card_id: int):
             juego.mazo_descarte.append(c2["id"])
         if c3["id"] != card_id:
             jugador.descartar_carta(c3["id"])
-            juego.mazo_descarte.append(c3["id"])    
+            juego.mazo_descarte.append(c3["id"])
         if c4["id"] != card_id:
             jugador.descartar_carta(c4["id"])
             juego.mazo_descarte.append(c4["id"])
@@ -157,8 +158,9 @@ def play_olvidadizo(juego: Juego, player_orig: int, card_id: int):
             juego.robar_carta_no_panico(jugador)
         msg = {"mensaje": jugador.name + " jugó carta Olvidadizo"}
         juego.agregar_log(msg["mensaje"])
-        juego.agregar_log(jugador.name + " elimino tres cartas de su mano y robó tres cartas Aléjate.")        
-        return(msg)
+        juego.agregar_log(
+            jugador.name + " elimino tres cartas de su mano y robó tres cartas Aléjate.")
+        return (msg)
     else:
         return {"error": "no se pudo descartar o robar cartas."}
 
@@ -196,3 +198,20 @@ def play_sal_de_aqui(
         ". Por lo que, intercambiaron lugares."}
 
     return msg
+
+
+def play_uno_dos(player_at: int, player_obj: int, juego: Juego):
+    jugador_atacante = get_jugador(player_at, juego)
+    jugador_objetivo = get_jugador(player_obj, juego)
+    index_atacante = juego.posiciones.index(jugador_atacante.id)
+    index_objetivo = juego.posiciones.index(jugador_objetivo.id)
+    juego.posiciones[index_atacante] = jugador_objetivo.id
+    juego.posiciones[index_objetivo] = jugador_atacante.id
+    juego.turno = index_objetivo
+    msg = {
+        "mensaje": jugador_atacante.name + " jugó la carta Uno, Dos..."
+    }
+    juego.agregar_log(msg["mensaje"])
+    juego.agregar_log(
+        jugador_atacante.name + " cambió de lugar con "+jugador_objetivo.name+".")
+    return (msg)

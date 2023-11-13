@@ -12,7 +12,6 @@ from logic.action_effects import *
 from models.constants import *
 
 
-
 global_juegos: list[Juego] = []
 
 
@@ -26,7 +25,7 @@ def get_status_game(juego: Juego):
         list_jugadores.append({'id': j['id'],
                                'nombre': j['nombre'],
                                'cuarentena': jugador.get_cuartena(),
-                               'id_avatar':j['id_avatar']})
+                               'id_avatar': j['id_avatar']})
     carta = read_carta(juego.mazo[-1])
     id_player_turno = juego.get_jugador_en_turno().id
     response = {'posiciones': posiciones,
@@ -81,7 +80,7 @@ def get_status_player(juego: Juego, player_id: int):
 def check_ganador(juego: Juego) -> bool:
     first = check_la_cosa_eliminada(juego)
     second = check_la_cosa_sola_viva(juego)
-    result = first or second 
+    result = first or second
     return result
 
 
@@ -264,8 +263,8 @@ async def jugar_la_carta(
         play_vigila_tus_espaldas(juego)
         name_player = get_name(player_orig)
         msg = {"carta_id": card_id,
-                                      "mensaje": name_player + " jugó carta vigila tus espaldas."}
-        await juego.broadcast_global()
+               "mensaje": name_player + " jugó carta vigila tus espaldas."}
+        #await juego.broadcast_global()
         await juego.broadcast_global(CAMBIO_ESTADO_JUEGO)
         jugador = juego.get_jugador(player_orig)
         juego.agregar_log(msg["mensaje"])
@@ -481,6 +480,7 @@ def is_obstaculo(atacante_id, objetivo_id, juego: Juego):
 
     return hay_obstaculo
 
+
 def is_superinfeccion(jugador: JugadorPartida):
     cartas = jugador.get_cartas()
 
@@ -492,14 +492,15 @@ def is_superinfeccion(jugador: JugadorPartida):
             superinfeccion = False
     return superinfeccion
 
+
 async def eliminar_jugador_superinfeccion(jugador: JugadorPartida, juego: Juego):
     cartas = jugador.get_cartas()
-    
+
     jugador.set_muerto()
     jugador.remove_efecto_seduccion()
     jugador.remove_efecto_fallaste()
     indice_jugador = juego.posiciones.index(jugador.id)
-    if  indice_jugador == juego.turno:
+    if indice_jugador == juego.turno:
         juego.terminar_turno()
         juego.avanzar_turno()
     del juego.posiciones[indice_jugador]
@@ -507,25 +508,25 @@ async def eliminar_jugador_superinfeccion(jugador: JugadorPartida, juego: Juego)
         indiceaux = (indice_jugador - 1) % len(juego.posiciones)
         juego.posiciones[indiceaux] = "p"
         del juego.posiciones[indice_jugador]
-    else: 
+    else:
         del juego.posiciones[indice_jugador]
-    juego.agregar_log("El jugador " + jugador.name + " murió por una superinfeccion.")
+    juego.agregar_log("El jugador " + jugador.name +
+                      " murió por una superinfeccion.")
     await juego.broadcast_global(CAMBIO_ESTADO_JUEGO)
-    await juego.mensaje_personal(jugador.id ,CAMBIO_ESTADO_JUGADOR)
+    await juego.mensaje_personal(jugador.id, CAMBIO_ESTADO_JUGADOR)
     await juego.broadcast_global({"carta_id": 2,
-                                          "jugador_obj": jugador.name,
-                                          "mensaje": "El jugador " + jugador.name + " murió por una superinfeccion.",
-                                          "cartaMostrar": cartas})
+                                  "jugador_obj": jugador.name,
+                                  "mensaje": "El jugador " + jugador.name + " murió por una superinfeccion.",
+                                  "cartaMostrar": cartas})
     ganador = check_ganador(juego)
     if ganador:
         await juego.broadcast_global(PARTIDA_FINALIZADA)
-                                  
+
 
 async def check_superinfeccion(juego: Juego):
     for j in juego.jugadores_en_partida:
         if j.id in juego.posiciones and is_superinfeccion(j):
             await eliminar_jugador_superinfeccion(j, juego)
-        
 
 
 def is_card_defense(card_id):
@@ -630,17 +631,21 @@ def is_infectado(card_id):
                             17, 18, 19, 20, 21]
     return infectado
 
+
 def is_vuelta_y_vuelta(card_id):
     vuelta_y_vuelta = card_id in [99, 100]
     return vuelta_y_vuelta
+
 
 def is_olvidadizo(card_id):
     olvidadizo = card_id in [98]
     return olvidadizo
 
+
 def is_cita_a_ciegas(card_id):
     cita_a_ciegas = card_id in [103, 104]
     return cita_a_ciegas
+
 
 def crear_mensaje_de_ataque(jugador: JugadorPartida, card_id: int):
     carta_name = get_name_carta(card_id)
@@ -659,8 +664,74 @@ async def jugar_panico(carta: int, juego: Juego):
     if carta in [89, 90, 93, 94, 95, 96, 105]:
         jugador_en_turno_id = juego.posiciones[juego.turno]
         await jugar_la_carta(juego, carta, jugador_en_turno_id, jugador_en_turno_id)
+    # seleccionar carta
+    elif carta in [91, 92]:
+        jugador_turno = juego.get_jugador_en_turno()
+        index = juego.posiciones.index(jugador_turno.id)
+        index_izquierda = (index-6) % len(juego.posiciones)
+        index_derecha = (index+6) % len(juego.posiciones)
+        jugador_izquieda = juego.get_jugador(
+            juego.posiciones[index_izquierda])
+        jugador_derecha = juego.get_jugador(
+            juego.posiciones[index_derecha])
+        if len(juego.posiciones) >= 8 and not jugador_izquieda.get_cuartena() and not jugador_derecha.get_cuartena():
+            msg = {
+                "carta_especial": {
+                    "tipo_carta": "Uno,dos",
+                    "cartas": [],
+                    "jugadores": [{"nombre": jugador_izquieda.name, "id": jugador_izquieda.id, "avatar": jugador_izquieda.id_avatar},
+                                  {"nombre": jugador_derecha.name, "id": jugador_derecha.id, "avatar": jugador_derecha.id_avatar}]
+                }
+            }
+            await juego.mensaje_personal(jugador_turno.id, msg)
+        elif len(juego.posiciones) >= 8 and not jugador_izquieda.get_cuartena() and jugador_derecha.get_cuartena():
+            msg = play_uno_dos(jugador_turno.id, jugador_izquieda.id, juego)
+            await juego.mensaje_personal(jugador_izquieda.id, {"carta_id": 91,
+                                                               "mensaje": msg["mensaje"],
+                                                               "cartaMostrar": []})
+            await juego.broadcast_global("C")
+            await juego.mensaje_personal(jugador_turno.id, "G")
+        elif len(juego.posiciones) >= 8 and jugador_izquieda.get_cuartena() and not jugador_derecha.get_cuartena():
+            msg = play_uno_dos(jugador_turno.id, jugador_derecha.id, juego)
+            await juego.mensaje_personal(jugador_derecha.id, {"carta_id": 91,
+                                                              "mensaje": msg["mensaje"],
+                                                              "cartaMostrar": []})
+            await juego.broadcast_global("C")
+            await juego.mensaje_personal(jugador_turno.id, "G")
+        elif len(juego.posiciones) >= 8 and jugador_izquieda.get_cuartena() and jugador_derecha.get_cuartena():
+            msg1 = {
+                "mensaje": jugador_turno.name + " jugó la carta Uno,Dos..., pero como los posibles objetivos entan en cuarentena no tiene efecto."}
+            msg2 = {"mensaje": "Se jugó una carta de panico, pero no tuvo efecto."}
+            juego.agregar_log(msg2["mensaje"])
+            await juego.broadcast_global(
+                {"carta_id": carta,
+                    "mensaje": msg1["mensaje"]
+                 })
+        elif len(juego.posiciones) < 8:
+            msg1 = {
+                "mensaje": jugador_turno.name + " jugó la carta Uno,Dos..., pero como hay menos de 4 jugadores no tiene efecto."}
+            msg2 = {"mensaje": "Se jugó una carta de panico, pero no tuvo efecto."}
+            juego.agregar_log(msg2["mensaje"])
+            await juego.broadcast_global(
+                {"carta_id": carta,
+                    "mensaje": msg1["mensaje"]
+                 })
+    elif carta in [99, 100]:
+        pass
+    elif carta in [103, 104]:  # cita a ciegas
+        jugador_en_turno_id = juego.posiciones[juego.turno]
+        jugador_en_turno = juego.get_jugador(jugador_en_turno_id)
+        mano = jugador_en_turno.get_cartas()
+        msg = {"carta_especial": {
+            "tipo_carta": "Cita a ciegas",
+            "cartas": mano,
+            "jugadores": []
+        }
+        }
+        await juego.mensaje_personal(jugador_en_turno_id, msg)
+
     # seleccionar jugador
-    elif carta in [106, 107]: # que quede entre nosotros.
+    elif carta in [106, 107]:  # que quede entre nosotros.
         jugador_turno = juego.get_jugador_en_turno()
         jugador_turno_id = jugador_turno.id
         jug_sig_turno = juego.get_jugador_siguiente_turno()
@@ -680,24 +751,22 @@ async def jugar_panico(carta: int, juego: Juego):
         }
         await juego.mensaje_personal(jugador_turno_id, msg)
 
-
-    elif carta in [103,104]: # cita a ciegas 
+    elif carta in [103, 104]:  # cita a ciegas
         jugador_en_turno_id = juego.posiciones[juego.turno]
-        jugador_en_turno    = juego.get_jugador(jugador_en_turno_id)
-        mano                = jugador_en_turno.get_cartas()
-        msg = {"carta_especial":{
-                    "tipo_carta":"Cita a ciegas",
-                    "cartas":mano,
-                    "jugadores":[]
-                }
-            }
+        jugador_en_turno = juego.get_jugador(jugador_en_turno_id)
+        mano = jugador_en_turno.get_cartas()
+        msg = {"carta_especial": {
+            "tipo_carta": "Cita a ciegas",
+            "cartas": mano,
+            "jugadores": []
+        }
+        }
         await juego.mensaje_personal(jugador_en_turno_id, msg)
 
     # seleccionar intercambio
     elif is_vuelta_y_vuelta(carta):
-
         jugador_turno = juego.get_jugador_en_turno()
-        juego.iniciar_vuelta_y_vuelta( jugador_turno )
+        juego.iniciar_vuelta_y_vuelta(jugador_turno)
         cartas = jugador_turno.get_cartas()
         msg = {
             "carta_especial": {
@@ -707,18 +776,19 @@ async def jugar_panico(carta: int, juego: Juego):
             }
         }
         await juego.mensaje_personal(jugador_turno.id, msg)
-        juego.agregar_log(jugador_turno.name + " jugó la carta Vuelta y Vuelta")
+        juego.agregar_log(jugador_turno.name +
+                          " jugó la carta Vuelta y Vuelta")
     elif carta in [101, 102]:
         pass
-    
-    # olvidadizo 
+
+    # olvidadizo
     elif carta in [98]:
         jug_turno = juego.get_jugador_en_turno()
         jug_turno_id = jug_turno.id
         if jug_turno.get_la_cosa():
-            msg = { "carta_id": 98,
-                "mensaje": jug_turno.name + " robó carta de Pánico Olvidadizo."
-            }
+            msg = {"carta_id": 98,
+                   "mensaje": jug_turno.name + " robó carta de Pánico Olvidadizo."
+                   }
             play_olvidadizo(juego, jug_turno_id, 1)
             await juego.mensaje_personal(jug_turno_id, msg)
             jugador_proximo = juego.get_jugador_siguiente_turno()
@@ -732,15 +802,15 @@ async def jugar_panico(carta: int, juego: Juego):
 
             else:
                 await juego.mensaje_personal(jug_turno.id, HABILITADO_INTERCAMBIO)
-        
+
         else:
             cartas = jug_turno.get_cartas()
             msg = {
                 "carta_especial": {
-		            "tipo_carta":"Olvidadizo",
-		            "cartas":cartas,
-		            "jugadores": []
-                }   
+                    "tipo_carta": "Olvidadizo",
+                    "cartas": cartas,
+                    "jugadores": []
+                }
             }
             await juego.mensaje_personal(jug_turno_id, msg)
     elif carta == 97: #sal de aquí
