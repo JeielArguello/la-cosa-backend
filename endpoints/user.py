@@ -12,7 +12,6 @@ async def create_user(user_name: str = Form(), id_avatar: int = Form()):
         jugador = db_create_user(user_name,id_avatar)
         return jugador
     except Exception as e:
-        print(e)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Error al crear usuario."

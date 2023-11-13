@@ -138,7 +138,6 @@ def check_la_cosa_eliminada(juego: Juego) -> bool:
     for j in juego.jugadores_en_partida:
         if j.get_la_cosa() and not j.get_muerto():
             la_cosa_eliminada = False
-    print(f'la_cosa_eliminada:{la_cosa_eliminada}')
     return la_cosa_eliminada
 
 
@@ -174,7 +173,6 @@ def check_no_humanos(juego: Juego) -> bool:
     for j in juego.jugadores_en_partida:
         if j.get_humano() and not j.get_muerto():
             no_humanos = False
-    print(f'no_humanos:{no_humanos}')
     return no_humanos
 
 
@@ -186,7 +184,6 @@ def check_no_humanos_no_eliminados(juego: Juego) -> bool:
             no_humanos = False
         if j.get_muerto():
             no_muertos = False
-    print(f'no_humanos_no_eliminados:{no_humanos and no_muertos}')
     return no_humanos and no_muertos
 
 
@@ -636,6 +633,18 @@ def is_vuelta_y_vuelta(card_id):
     vuelta_y_vuelta = card_id in [99, 100]
     return vuelta_y_vuelta
 
+def is_sal_de_aqui(card_id):
+    sal_de_aqui = card_id in [97]
+    return sal_de_aqui
+
+def is_uno_dos(card_id):
+    uno_dos = card_id in [91, 92]
+    return uno_dos
+
+def is_no_podemos_ser_amigos(card_id):
+    no_podemos_ser_amigos = card_id in [101, 102]
+    return no_podemos_ser_amigos
+
 
 def is_olvidadizo(card_id):
     olvidadizo = card_id in [98]
@@ -645,6 +654,14 @@ def is_olvidadizo(card_id):
 def is_cita_a_ciegas(card_id):
     cita_a_ciegas = card_id in [103, 104]
     return cita_a_ciegas
+
+def is_que_quede_entre_nosotros(card_id):
+    is_qqen = card_id in [106, 107]
+    return is_qqen
+
+def is_panico_no_cambio_estado(card_id):
+    panico_no_cambio_estado = is_vuelta_y_vuelta(card_id) or is_sal_de_aqui(card_id) or is_uno_dos(card_id) or is_no_podemos_ser_amigos(card_id) or is_olvidadizo(card_id) or is_cita_a_ciegas(card_id) or is_que_quede_entre_nosotros(card_id)
+    return panico_no_cambio_estado
 
 
 def crear_mensaje_de_ataque(jugador: JugadorPartida, card_id: int):
@@ -790,6 +807,7 @@ async def jugar_panico(carta: int, juego: Juego):
                    }
             play_olvidadizo(juego, jug_turno_id, 1)
             await juego.mensaje_personal(jug_turno_id, msg)
+            await juego.mensaje_personal(jug_turno_id, CAMBIO_ESTADO_JUGADOR)
             jugador_proximo = juego.get_jugador_siguiente_turno()
 
             if (not jugador_proximo.get_muerto() and juego.is_obstaculo(jug_turno.id, jugador_proximo.id)) or is_superinfeccion(jug_turno):

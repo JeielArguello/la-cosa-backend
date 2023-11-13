@@ -95,7 +95,6 @@ async def defensa_fallaste(juego: Juego, jugador_defensor: JugadorPartida,
 
 def defensa_nada_de_barbacoas(juego: Juego, jugador_defensor: JugadorPartida,
                         jugador_atacante: JugadorPartida, card_id: int):
-    print(jugador_defensor.name + " jugó nada de barbacoas" + "carta id: " + str(card_id))
     jugador_defensor.descartar_carta(card_id)
     juego.robar_carta_no_panico(jugador_defensor)
     msg = {

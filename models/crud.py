@@ -140,8 +140,6 @@ def delete_match(match_id: int):
 
 @db_session
 def db_create_user(nombre: str,id_avatar:int) -> Dict[str, int]:
-    print("database")
-    print(nombre,id_avatar)
     jugador = Jugador(
                     nombre=nombre,
                     id_avatar = id_avatar)
