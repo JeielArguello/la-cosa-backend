@@ -45,6 +45,7 @@ class IntercambiarCartaVyv:
         self.is_complete = False
         self.total_jugadores = cant_jugadores
         self.ultimo_jugador: JugadorPartida = None
+        self.lacosa_indice = None
 
     def is_complete_vuelta_y_vuelta(self):
         return self.is_complete
@@ -56,19 +57,19 @@ class IntercambiarCartaVyv:
                 detail="No tienes la carta que quieres intercambiar")
         self.list_jugadores.append(jugador)
         self.cartas_intercambio.append(card_id)
+        if jugador.get_la_cosa():
+            print("La cosa", jugador.name)
+            self.lacosa_indice = len(self.list_jugadores) - 1
         if len(self.cartas_intercambio) == self.total_jugadores:
             self.is_complete = True
             self.ultimo_jugador = jugador
 
+
     def realizar_intercambios(self):
-        la_cosa = None
-        for j in self.list_jugadores:
-            if j.get_la_cosa():
-                la_cosa = self.list_jugadores.index(j)
 
         for i in range(0, len(self.list_jugadores)):
             self.list_jugadores[i].descartar_carta(self.cartas_intercambio[i])
             self.list_jugadores[i].agregar_carta(self.cartas_intercambio[(i-1)%len(self.list_jugadores)])
-            if la_cosa is not None and self.list_jugadores[(i-1)%len(self.list_jugadores)] == la_cosa:
+            if self.lacosa_indice is not None and (i-1)%len(self.list_jugadores) == self.lacosa_indice and self.cartas_intercambio[(i-1)%len(self.list_jugadores)] in [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21]:
                 self.list_jugadores[i].set_infectado()
         
