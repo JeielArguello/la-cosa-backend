@@ -576,6 +576,94 @@ async def sal_de_aqui(match_id: int = Form(), player_objetivo_id: int=Form(), pl
 ######
 
 
+@router.post("/play/swap_request_no_podemos_ser_amigos")
+async def no_podemos_ser_amigos_swap_request(match_id: int = Form(), card_id: int = Form(),
+                       player_orig: int = Form(), player_obj: int = Form()):
+    try:
+        juego = get_global_juego(match_id)
+        jug_solicitante = juego.get_jugador(player_orig)
+        jug_solicitado  = juego.get_jugador(player_obj)
+        check_turno(jug_solicitante)
+        check_carta_habilitada(card_id, jug_solicitante, jug_solicitado)
+        juego.crear_intercambio(player_orig, card_id, player_obj)
+        #await juego.mensaje_personal(player_obj, "H") 
+        if jug_solicitado.check_puede_anular_el_intercambio():
+            mano_solicitado = jug_solicitado.get_cartas()
+            msg_al_solicitado = {
+                "carta_especial":{
+                "tipo_carta": "No podemos ser amigos",
+                "cartas": mano_solicitado,
+                "defensa": True,
+                "request":False,
+                "mensaje": "jugador "+ jug_solicitante.name +" robo carta No podemos ser amigos? y"
+                    +" quiere hace un intercambio de cartas."
+                } 
+            }
+            await juego.mensaje_personal(jug_solicitado.id,msg_al_solicitado)
+
+        else:
+            mano_solicitado = jug_solicitado.get_cartas()
+            msg_al_solicitado = {
+                "carta_especial":{
+                "tipo_carta": "No podemos ser amigos",
+                "cartas": mano_solicitado,
+                "defensa": False,
+                "request":False,
+                "mensaje": "jugador "+ jug_solicitante.name +" robo carta No podemos ser amigos? y"
+                    +" quiere hace un intercambio de cartas. Puedes defenderte o aceptar el intercambio"
+                } 
+            }
+
+            await juego.mensaje_personal(jug_solicitado.id,msg_al_solicitado)
+            #await juego.mensaje_personal(jug_solicitado.id, "N")
+
+        return {"mensaje": "se creo la solicitud de intercambio"}
+    except HTTPException as e:
+        error_msg = f"Error: {e.detail}"
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_msg
+        )
+    
+
+
+@router.post("/play/swap_response_no_podemos_ser_amigos")
+async def no_podemos_ser_amigos_swap_response_con_defensa(match_id: int = Form(), card_id: int = Form(), player_orig: int = Form(), se_defiende: bool = Form()):
+    try:
+        juego = get_global_juego(match_id)
+        jugador_solicitado = juego.get_jugador(player_orig)  
+        jugador_solicitante = juego.get_jugador_en_turno()  
+        check_carta_habilitada(card_id, jugador_solicitado, jugador_solicitante)
+        
+        if is_card_defense(card_id) and se_defiende:
+            await defenderse_de_intercambio(juego, card_id, jugador_solicitado, jugador_solicitante)
+        else:
+            if jugador_solicitado.get_cuartena() and jugador_solicitante.get_cuartena():
+                await mostrar_cartas_cuarentena_ambos(jugador_solicitado, card_id, jugador_solicitante, juego.solicitud_intercambio.carta_solicitante, juego)
+            else:
+                await mostrar_cartas_cuarentena(jugador_solicitado, card_id, juego, 3)
+                await mostrar_cartas_cuarentena(jugador_solicitante, juego.solicitud_intercambio.carta_solicitante, juego, 3)
+            juego.responder_intercambio(player_orig, card_id)
+        fallaste_card = is_fallaste(card_id) and se_defiende
+        
+        await juego.mensaje_personal(player_orig, "D")
+        await juego.mensaje_personal(jugador_solicitante.id, "D")
+        ganador = check_ganador(juego)
+        if ganador:
+            await juego.broadcast_global("K")
+
+        if not fallaste_card and not jugador_solicitado.get_efecto_fallaste():
+            print("No hago nada")
+            #await juego.mensaje_personal(jugador_solicitado.id, "E")
+        elif not fallaste_card and jugador_solicitado.get_efecto_fallaste():
+            jugador_solicitado.remove_efecto_fallaste()
+            jugador_turno = juego.get_jugador_en_turno()
+            await juego.mensaje_personal(jugador_turno.id, "E")
+        await juego.broadcast_global("C")
+        return {"message": "se completo el intercambio"}
+    except HTTPException as e:
+        error_msg = f"Error: {e.detail}"
+
 @router.post("/play/uno_dos")
 async def uno_dos(match_id: int = Form(),
                   player_objective: int = Form(),
@@ -602,6 +690,7 @@ async def uno_dos(match_id: int = Form(),
         return msg["mensaje"]
     except HTTPException as e:
         error_msg = f"Error:{e.detail}"
+
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=error_msg
