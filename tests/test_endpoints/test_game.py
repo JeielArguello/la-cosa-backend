@@ -772,3 +772,63 @@ def test_que_quede_entre_nosotros_endpoint_jugador_no_en_turno(mocker, mock_jueg
     response = client.post("game/play/que_quede_entre_nosotros", data ={"match_id": 1, "player_objective":2, "player_orig": 1})
     assert response.status_code == 400
     assert response.json() == {"detail": "Error: No es el turno del jugador"}
+
+
+##Test endpoints No podemos ser amigos-request y response.
+def test_no_podemos_ser_amigos_endpoint_request_200_ok(mocker, mock_juego, mock_j1, mock_j2):
+    juego: Juego = mock_juego
+    jugador_solicitante: JugadorPartida = mock_j1
+    jugador_solicitado: JugadorPartida = mock_j2
+    mocker.patch("endpoints.game.get_global_juego", return_value = juego, autospec = True)
+    mocker.patch("endpoints.game.check_turno", return_value = True, autospec = True)
+    mocker.patch("endpoints.game.check_carta_habilitada", return_value=None, autospec=True,)
+    mocker.patch("endpoints.game.Juego.mensaje_personal", return_value = None, autospec = True)
+    mocker.patch("endpoints.game.Juego.crear_intercambio", return_value=None,
+                 autospec=True,)
+    mocker.patch("models.player.JugadorPartida.check_puede_anular_el_intercambio", return_value=True,autospec=True,)
+
+    response = client.post("game/play/swap_request_no_podemos_ser_amigos", data={"match_id": 1, "card_id": 10,
+                            "player_orig": jugador_solicitante.id, "player_obj": jugador_solicitado.id})
+    assert response.status_code == 200
+    assert response.json() == {"mensaje": "se creo la solicitud de intercambio"}
+
+
+
+def test_no_podemos_ser_amigos_endpoint_request_400_jugador_no_en_turno(mocker, mock_juego, mock_j1, mock_j2):
+    jugador_solicitante: JugadorPartida = mock_j1
+    jugador_solicitado: JugadorPartida = mock_j2
+    mocker.patch("endpoints.game.get_global_juego", return_value=mock_juego,
+                 autospec=True,)
+    mocker.patch("endpoints.game.get_jugador", return_value=mock_j1,
+                 autospec=True,)
+    mocker.patch("endpoints.game.check_turno", side_effect=HTTPException(
+        status_code=400, detail="No es el turno del jugador"), autospec=True,)
+    response = client.post("game/play/swap_request_no_podemos_ser_amigos", data={"match_id": 1, "card_id": 10,
+                            "player_orig": jugador_solicitante.id, "player_obj": jugador_solicitado.id})
+    assert response.status_code == 400
+    assert response.json() == {"detail": "Error: No es el turno del jugador"}
+
+
+
+def test_no_podemos_ser_amigos_endpoint_response_200_ok(mocker, mock_juego, mock_j1, mock_j2):
+    jugador_solicitante: JugadorPartida = mock_j1
+    jugador_solicitado: JugadorPartida = mock_j2
+    mocker.patch("endpoints.game.get_global_juego", return_value = mock_juego, autospec = True)
+    mocker.patch("endpoints.game.check_turno", return_value = True, autospec = True)
+    mocker.patch("endpoints.game.check_carta_habilitada", return_value=None, autospec=True,)
+    mocker.patch("endpoints.game.Juego.mensaje_personal", return_value=None, autospec=True)
+    mocker.patch("endpoints.game.Juego.responder_intercambio", return_value=None,
+                 autospec=True,)
+    juego.mensaje_personal(jugador_solicitado, "D")
+    juego.mensaje_personal(jugador_solicitante.id, "D")
+    mocker.patch("endpoints.game.check_ganador", return_value = None, autospec = True)
+    mocker.patch("endpoints.game.mostrar_cartas_cuarentena", return_value=None,
+                 autospec=True,)
+    mocker.patch("endpoints.game.Juego.get_jugador_en_turno",
+                 return_value=jugador_solicitante, autospec=True,)
+    response = client.post("game/play/swap_response_no_podemos_ser_amigos", data={"match_id": 1,
+                                                        "card_id": 2,
+                                                        "player_orig": 2,
+                                                        "se_defiende": False})
+    assert response.status_code == 200
+    assert response.json() == {"message": "se completo el intercambio"}
