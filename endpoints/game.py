@@ -29,7 +29,7 @@ async def pick_a_card_from_deck(match_id: int = Form(), player_id: int = Form())
             juego.mazo_descarte.append(carta)
             await juego.broadcast_global(CAMBIO_ESTADO_JUEGO)
 
-            if not is_vuelta_y_vuelta(carta) and not is_olvidadizo(carta) and not is_cita_a_ciegas(carta):
+            if not is_panico_no_cambio_estado(carta):
                 jugador_proximo = juego.get_jugador_siguiente_turno()
                 if (not jugador_proximo.get_muerto() and juego.is_obstaculo(jugador.id, jugador_proximo.id)) or is_superinfeccion(jugador):
                     juego.terminar_turno()
@@ -185,7 +185,6 @@ async def endpoint_descartar_carta(match_id: int = Form(),
         descartar_carta(card_id, player_id, juego)
         await juego.mensaje_personal(player_id, CAMBIO_ESTADO_JUGADOR)
         jugador_objetivo = juego.get_jugador_siguiente_turno()
-        print(jugador_objetivo.name)
         if (juego.is_obstaculo(jugador.id, jugador_objetivo.id)) or is_superinfeccion(jugador):
             await mostrar_cartas_cuarentena(jugador, card_id, juego, 2)
             juego.terminar_turno()
@@ -402,8 +401,19 @@ async def que_quede_entre_nostros(match_id: int = Form(),
         msg = play_que_quede_entre_nosotros(
             player_orig, player_objective, juego)
         await juego.mensaje_personal(player_objective, {"carta_id": 106,
+                                                        "player_obj": player_orig,
                                                         "mensaje": msg["mensaje"],
                                                         "cartaMostrar": msg["cartaMostrar"]})
+        jugador_proximo = juego.get_jugador_siguiente_turno()
+        if (not jugador_proximo.get_muerto() and juego.is_obstaculo(jugador.id, jugador_proximo.id)) or is_superinfeccion(jugador):
+            juego.terminar_turno()
+            juego.avanzar_turno()
+
+            await juego.mensaje_personal(jugador_proximo.id, HABILITADO_ROBAR_CARTA)
+            await check_superinfeccion(juego)
+
+        else:
+            await juego.mensaje_personal(player_orig, HABILITADO_INTERCAMBIO)
         return {"mensaje": msg}
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
@@ -468,8 +478,6 @@ async def endpoint_vuelta_y_vuelta(match_id: int = Form(),
         if not intercambio_vyv.is_complete_vuelta_y_vuelta():
             intercambio_vyv.completar_vuelta_y_vuelta(jugador, card_id)
             if jugador_proximo != intercambio_vyv.primer_jugador:
-                print("jugador proximo: ", intercambio_vyv.primer_jugador.name)
-                print("jugador proximo: ", jugador_proximo.name)
                 cartas = jugador_proximo.get_cartas()
                 await juego.mensaje_personal(jugador_proximo.id, {"carta_especial": {
                     "tipo_carta": "Vuelta y vuelta",
@@ -519,10 +527,11 @@ async def olvidadizo(match_id: int = Form(), card_id_elegida: int = Form(), play
 
             await juego.mensaje_personal(jugador_proximo.id, HABILITADO_ROBAR_CARTA)
             await check_superinfeccion(juego)
-            await juego.broadcast_global(CAMBIO_ESTADO_JUEGO)
 
         else:
             await juego.mensaje_personal(player_id, HABILITADO_INTERCAMBIO)
+
+        await juego.broadcast_global(CAMBIO_ESTADO_JUEGO)
         return {"mensaje": "carta olvidadizo jugada"}
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
@@ -539,12 +548,21 @@ async def sal_de_aqui(match_id: int = Form(), player_objetivo_id: int=Form(), pl
         check_turno(jugadorOrigen)
         msg = play_sal_de_aqui(juego,player_origen_id,player_objetivo_id)
         await juego.broadcast_global(   { "carta_id": 97,               # ese id corresponde a una carta, sal de aqui. 
-                                              "mensaje": msg["mensaje"],
-                                              "cartaMostrar":[]
+                                              "mensaje": msg["mensaje"]
                                             }
                                         )
         await juego.broadcast_global(CAMBIO_ESTADO_JUEGO)
         juego.agregar_log(msg["mensaje"])
+        jugador_proximo = juego.get_jugador_siguiente_turno()
+        if (not jugador_proximo.get_muerto() and juego.is_obstaculo(jugadorOrigen.id, jugador_proximo.id)) or is_superinfeccion(jugadorOrigen):
+            juego.terminar_turno()
+            juego.avanzar_turno()
+
+            await juego.mensaje_personal(jugador_proximo.id, HABILITADO_ROBAR_CARTA)
+            await check_superinfeccion(juego)
+
+        else:
+            await juego.mensaje_personal(player_origen_id, HABILITADO_INTERCAMBIO)
 
     except HTTPException as e:
         error_msg = f"Error: {e.detail}"
@@ -657,10 +675,18 @@ async def uno_dos(match_id: int = Form(),
         validar_cuarentena(player_objective, juego)
         msg = play_uno_dos(player_orig, player_objective, juego)
         await juego.mensaje_personal(player_objective, {"carta_id": 91,
-                                                        "mensaje": msg["mensaje"],
-                                                        "cartaMostrar": []})
-        await juego.broadcast_global("C")
-        #await juego.mensaje_personal(player_orig, "G")
+                                                        "mensaje": msg["mensaje"]})
+        await juego.broadcast_global(CAMBIO_ESTADO_JUEGO)
+        jugador_proximo = juego.get_jugador_siguiente_turno()
+        if (not jugador_proximo.get_muerto() and juego.is_obstaculo(jugador_origen.id, jugador_proximo.id)) or is_superinfeccion(jugador_origen):
+            juego.terminar_turno()
+            juego.avanzar_turno()
+
+            await juego.mensaje_personal(jugador_proximo.id, HABILITADO_ROBAR_CARTA)
+            await check_superinfeccion(juego)
+
+        else:
+            await juego.mensaje_personal(player_orig, HABILITADO_INTERCAMBIO)
         return msg["mensaje"]
     except HTTPException as e:
         error_msg = f"Error:{e.detail}"

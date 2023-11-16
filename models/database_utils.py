@@ -164,21 +164,6 @@ def get_jugadores_en_juego(partida: Partida):
         return {"error al obtener jugadores en la partida"}
 
 
-# @db_session
-# def finalizar_partida(partida: Partida):
-#     assert partida is not None
-#     jugadores_vivos = get_jugadores_en_juego(partida)
-
-#     if len(jugadores_vivos) == 1:
-#         ganador = jugadores_vivos.pop()
-#         id_ganador = ganador.id
-#         return {"mensaje": "La partida ha finalizado", "ganador": id_ganador}
-#     if len(jugadores_vivos) == 0:
-#         return {"mensaje": "partida sin jugadores"}
-#     elif len(jugadores_vivos) > 1:
-#         return {"mensaje": "La partida aún no ha finalizado"}
-
-
 @db_session
 def get_matches():
     matches = select(p for p in Partida)

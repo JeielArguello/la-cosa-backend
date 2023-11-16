@@ -218,17 +218,18 @@ class Juego:
             player_orig, len(self.posiciones)/2)
     
     def finalizar_vuelta_y_vuelta(self,jugador : JugadorPartida):
-        if self.solicitud_intercambio_vyv is  None:
+        intercambio = self.solicitud_intercambio_vyv
+        if intercambio is  None:
             raise HTTPException(
                 status_code=400,
                 detail="No hay una solicitud de intercambio")
-        if self.solicitud_intercambio_vyv.ultimo_jugador != jugador:
+        if intercambio.ultimo_jugador != jugador:
             raise HTTPException(
                 status_code=400,
                 detail="No eres el jugador que termina el intercambio")
-        self.solicitud_intercambio_vyv.realizar_intercambios()
+        intercambio.realizar_intercambios()
         self.solicitud_intercambio_vyv = None
-        del self.solicitud_intercambio_vyv
+        del intercambio
 
     # Funciones para defensa
     def crear_ataque(

@@ -40,7 +40,7 @@ def play_lanzallamas(atacante_in: int, objetivo_in: int, juego: Juego):
         " jugó carta lanzallamas contra " +
         jugador_objetivo.name}
     juego.agregar_log(msg["mensaje"])
-    juego.agregar_log(jugador_objetivo.name + " murió calsinado por " + jugador_atacante.name)
+    juego.agregar_log(jugador_objetivo.name + " murió calcinado por " + jugador_atacante.name)
     return msg
 
 
@@ -211,7 +211,7 @@ def play_seduccion(juego: Juego, player_orig : int, player_objective: int):
         msg = {"mensaje": "error "
                 + jugador_objetivo.name + " en cuarentena."}
     juego.agregar_log(msg["mensaje"])
-    juego.agregar_log(jugador_atacante.name + " sedujo a " + jugador_objetivo.name +" para relizar un intercambio de cartas")
+    juego.agregar_log(jugador_atacante.name + " sedujo a " + jugador_objetivo.name +" para realizar un intercambio de cartas")
     return msg
 
 def play_determinacion(juego: Juego, player_orig: int):

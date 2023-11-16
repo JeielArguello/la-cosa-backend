@@ -87,7 +87,6 @@ def test_play_cuarentena_succes(mocker, mock_juego,mock_atacante, mock_objetivo)
     juego:Juego = mock_juego
     jugador_objetivo: JugadorPartida = mock_objetivo
     jugador_atacanate: JugadorPartida = mock_atacante
-    print(jugador_objetivo.name)
     mocker.patch("logic.obstacle_effects.Juego.get_jugador", side_effect=[jugador_atacanate, jugador_objetivo])
     expected_msg = {
         "mensaje": "pepe jugó carta Cuarentena contra pedro"
